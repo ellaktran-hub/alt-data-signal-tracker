@@ -607,18 +607,19 @@ div[data-baseweb="notification"] {
 }
 .signal-legend strong { color: var(--text); font-weight: 600; }
 
-.data-coverage-note {
+.basket-mode-banner {
   font-family: 'Inter', sans-serif;
   font-size: 0.77rem;
   color: var(--muted);
   line-height: 1.75;
-  margin-top: 0.9rem;
-  padding: 0.75rem 1rem;
+  margin-top: 0.5rem;
+  margin-bottom: 0.2rem;
+  padding: 0.6rem 1rem;
   border-left: 3px solid var(--accent);
   background: rgba(139,111,71,0.07);
   border-radius: 0 2px 2px 0;
 }
-.data-coverage-note strong { color: var(--text); font-weight: 600; }
+.basket-mode-banner strong { color: var(--text); font-weight: 600; }
 
 /* ── Metric definitions expander ──────────────────────────────────────────── */
 [data-testid="stExpander"] {
@@ -849,6 +850,21 @@ section[data-testid="stSidebar"] .stButton > button:hover {
   background: rgba(139,111,71,0.3) !important;
   border-color: var(--accent) !important;
   color: #FAF6EF !important;
+}
+/* SEE MY BASKET / VIEW ALL — prominent CTA button */
+section[data-testid="stSidebar"] [data-testid="stButton-see_basket_btn"] > button,
+section[data-testid="stSidebar"] [data-testid="stButton-view_all_btn"] > button {
+  background: var(--accent) !important;
+  border-color: var(--accent) !important;
+  color: #FAF6EF !important;
+  font-weight: 600 !important;
+  letter-spacing: 0.05em !important;
+  margin-top: 0.5rem !important;
+}
+section[data-testid="stSidebar"] [data-testid="stButton-see_basket_btn"] > button:hover,
+section[data-testid="stSidebar"] [data-testid="stButton-view_all_btn"] > button:hover {
+  background: #7A5F3A !important;
+  border-color: #7A5F3A !important;
 }
 /* Basket remove (×) button — inline, no border, vertically centered */
 section[data-testid="stSidebar"] [data-testid="stHorizontalBlock"] > [data-testid="stColumn"]:last-child {

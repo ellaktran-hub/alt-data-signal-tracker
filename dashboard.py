@@ -60,11 +60,11 @@ _css = Path(__file__).parent / "styles" / "style.css"
 with open(_css) as _f:
     st.markdown(f"<style>{_f.read()}</style>", unsafe_allow_html=True)
 
-# ── Session state — basket ─────────────────────────────────────────────────────
+# ── Session state ──────────────────────────────────────────────────────────────
 if "basket" not in st.session_state:
-    st.session_state["basket"] = list(config.TICKERS)
-if "basket_user_modified" not in st.session_state:
-    st.session_state["basket_user_modified"] = False
+    st.session_state["basket"] = list(config.PINNED_TICKERS)
+if "basket_view" not in st.session_state:
+    st.session_state["basket_view"] = False
 
 
 # ── ET timezone helper ─────────────────────────────────────────────────────────
@@ -206,7 +206,7 @@ _NORM_SUBTITLE = (
 )
 
 
-# ── yfinance live quotes (for non-dataset basket tickers) ──────────────────────
+# ── yfinance helpers ───────────────────────────────────────────────────────────
 @st.cache_data(ttl=3600)
 def validate_ticker_yf(symbol):
     if not _YF_OK:
@@ -306,42 +306,20 @@ def build_summary():
     return rows
 
 
-# ── NASDAQ ticker list ────────────────────────────────────────────────────────
-@st.cache_data(ttl=86400)
-def load_nasdaq_tickers():
-    try:
-        url = "https://raw.githubusercontent.com/datasets/nasdaq-listings/master/data/nasdaq-listed.csv"
-        df = pd.read_csv(url)
-        return sorted(df["Symbol"].dropna().str.strip().tolist())
-    except Exception:
-        return []
-
-
 # ── Sidebar ────────────────────────────────────────────────────────────────────
 def show_sidebar(rows_by_ticker):
     with st.sidebar:
         st.markdown('<div class="sb-title">My Basket</div>', unsafe_allow_html=True)
 
-        basket = st.session_state.get("basket", [])
+        basket = st.session_state.get("basket", list(config.PINNED_TICKERS))
 
         for ticker in list(basket):
-            if ticker in rows_by_ticker:
-                r         = rows_by_ticker[ticker]
-                price_str = r["price"]
-                chg_str   = r["chg"]
-                chg_color = r["chg_color"]
-                sig_str   = r["signal"]
-                sig_color = r["sig_color"]
-            else:
-                price, chg = fetch_live_quote(ticker)
-                price_str  = f"${price:,.2f}" if price is not None else "—"
-                if chg is not None:
-                    chg_str   = f"▲ {chg:.2f}%" if chg > 0 else f"▼ {abs(chg):.2f}%"
-                    chg_color = GREEN if chg > 0 else RED
-                else:
-                    chg_str, chg_color = "—", MUTED
-                sig_str   = "—"
-                sig_color = MUTED
+            r         = rows_by_ticker.get(ticker, {})
+            price_str = r.get("price", "—")
+            chg_str   = r.get("chg", "—")
+            chg_color = r.get("chg_color", MUTED)
+            sig_str   = r.get("signal", "—")
+            sig_color = r.get("sig_color", MUTED)
 
             col_item, col_rm = st.columns([5, 1])
             with col_item:
@@ -361,32 +339,35 @@ def show_sidebar(rows_by_ticker):
             with col_rm:
                 if st.button("×", key=f"rm_{ticker}", help=f"Remove {ticker}"):
                     st.session_state["basket"].remove(ticker)
-                    st.session_state["basket_user_modified"] = True
                     st.rerun()
 
         st.markdown("")
         st.markdown('<div class="sb-add-label">Add ticker</div>', unsafe_allow_html=True)
-        nasdaq = load_nasdaq_tickers()
+        available = [t for t in config.TICKERS if t not in basket]
         selected_sym = st.selectbox(
-            "Search NASDAQ",
-            options=nasdaq if nasdaq else [],
+            "Add ticker",
+            options=available,
             index=None,
             placeholder="Search ticker…",
             label_visibility="collapsed",
             key="basket_add_select",
         )
         if st.button("ADD TO BASKET", key="basket_add_btn"):
-            sym = (selected_sym or "").strip().upper()
+            sym = selected_sym or ""
             if sym and sym not in st.session_state["basket"]:
-                valid, _ = validate_ticker_yf(sym)
-                if valid:
-                    st.session_state["basket"].append(sym)
-                    st.session_state["basket_user_modified"] = True
-                    st.rerun()
-                else:
-                    st.error(f"'{sym}' not found — check the ticker symbol.")
-            elif sym in st.session_state["basket"]:
-                st.warning(f"{sym} is already in your basket.")
+                st.session_state["basket"].append(sym)
+                st.rerun()
+
+        st.markdown("")
+        basket_view = st.session_state.get("basket_view", False)
+        if basket_view:
+            if st.button("VIEW ALL TICKERS", key="view_all_btn", use_container_width=True):
+                st.session_state["basket_view"] = False
+                st.rerun()
+        else:
+            if st.button("SEE MY BASKET", key="see_basket_btn", use_container_width=True):
+                st.session_state["basket_view"] = True
+                st.rerun()
 
 
 # ── Ticker strip ───────────────────────────────────────────────────────────────
@@ -1023,58 +1004,29 @@ def show_header():
 def show_summary():
     rows            = build_summary()
     rows_by_ticker  = {r["ticker"]: r for r in rows}
-    basket          = st.session_state.get("basket", list(config.TICKERS))
+    basket          = st.session_state.get("basket", list(config.PINNED_TICKERS))
+    basket_view     = st.session_state.get("basket_view", False)
     show_sidebar(rows_by_ticker)
     show_header()
 
-    # Display rows = all 10 research tickers (always) + any extra basket tickers on demand
-    extra_tickers = [t for t in basket if t not in rows_by_ticker]
-    extra_rows    = []
-    for t in extra_tickers:
-        price, chg = fetch_live_quote(t)
-        price_str  = f"${price:,.2f}" if price is not None else "—"
-        if chg is not None:
-            chg_str   = f"▲ {chg:.2f}%" if chg > 0 else f"▼ {abs(chg):.2f}%"
-            chg_color = GREEN if chg > 0 else RED
-        else:
-            chg_str, chg_color = "—", MUTED
-        extra_rows.append({
-            "ticker":        t,
-            "company":       t,
-            "price":         price_str,
-            "chg":           chg_str,
-            "chg_color":     chg_color,
-            "chg_raw":       chg,
-            "bullish_pct":   "—",
-            "trends":        "—",
-            "news_sent":     "—",
-            "news_sent_raw": None,
-            "signal":        "—",
-            "sig_color":     MUTED,
-        })
-    display_rows = rows + extra_rows
+    # Basket view: show only basket tickers. Default view: show all 50.
+    if basket_view:
+        display_rows  = [rows_by_ticker[t] for t in basket if t in rows_by_ticker]
+        sparkline_rows = display_rows
+    else:
+        display_rows  = rows
+        sparkline_rows = [rows_by_ticker[t] for t in config.PINNED_TICKERS if t in rows_by_ticker]
 
-    # Ticker strip
+    # Ticker strip (always full universe)
     st.markdown(build_ticker_strip_html(rows), unsafe_allow_html=True)
 
-    # Global ticker search
-    nasdaq = load_nasdaq_tickers()
-    st.markdown('<div class="search-wrap">', unsafe_allow_html=True)
-    col1, col2, col3 = st.columns([1, 2, 1])
-    with col2:
-        search_ticker = st.selectbox(
-            "search_bar",
-            options=[""] + nasdaq,
-            index=0,
-            placeholder="Search any NASDAQ stock...",
-            label_visibility="collapsed",
-            key="global_search",
+    # Basket mode banner
+    if basket_view:
+        st.markdown(
+            '<div class="basket-mode-banner">Showing your basket — click <strong>VIEW ALL TICKERS</strong>'
+            ' in the sidebar to return to the full overview.</div>',
+            unsafe_allow_html=True,
         )
-        if search_ticker:
-            st.session_state["ticker"] = search_ticker
-            st.query_params["ticker"] = search_ticker
-            st.rerun()
-    st.markdown('</div>', unsafe_allow_html=True)
 
     # Market chips
     st.markdown(build_market_chips_html(display_rows), unsafe_allow_html=True)
@@ -1086,9 +1038,10 @@ def show_summary():
         config={"displayModeBar": False, "responsive": True},
     )
 
-    # Sparkline grid
-    st.markdown('<div class="sec-label">Individual Ticker Signals</div>', unsafe_allow_html=True)
-    show_sparkline_grid(display_rows)
+    # Sparkline grid — pinned 4 in default view, full basket in basket view
+    spark_label = "My Basket" if basket_view else "Featured Tickers"
+    st.markdown(f'<div class="sec-label">{spark_label}</div>', unsafe_allow_html=True)
+    show_sparkline_grid(sparkline_rows)
 
     # Metric definitions (collapsed by default)
     show_glossary()
@@ -1096,19 +1049,6 @@ def show_summary():
     # Signal table
     st.markdown('<div class="sec-label">Market Intelligence Overview</div>', unsafe_allow_html=True)
     st.markdown(build_table_html(display_rows), unsafe_allow_html=True)
-
-    # Data coverage note — only shown when user has added non-tracked tickers
-    if extra_rows:
-        extra_list = ", ".join(r["ticker"] for r in extra_rows)
-        st.markdown(f"""
-<div class="data-coverage-note">
-  <strong>Data coverage note —</strong>
-  {extra_list} {"is" if len(extra_rows) == 1 else "are"} not part of this study's tracked universe.
-  Only live price data is available for added tickers — StockTwits sentiment, Google Trends, and news
-  sentiment are collected daily only for the 10 core research tickers
-  ({", ".join(config.TICKERS)}). Composite signals require alt data and will show — for added tickers.
-</div>
-""", unsafe_allow_html=True)
 
     st.markdown(f"""
     <div class="signal-legend">
@@ -1133,53 +1073,22 @@ def show_detail(ticker):
     show_sidebar(rows_by_ticker)
     show_header()
 
-    is_dataset = ticker in config.TICKERS
-
     def _go_back():
         st.query_params.clear()
         st.session_state.pop("ticker", None)
-        st.session_state.pop("global_search", None)
 
-    if is_dataset:
-        back_col, _, drop_col = st.columns([1.5, 6, 2])
-        with back_col:
-            st.button("← Back to overview", on_click=_go_back, key="back_btn")
-        with drop_col:
-            new_ticker = st.selectbox("Switch ticker", config.TICKERS, index=config.TICKERS.index(ticker))
-            if new_ticker != ticker:
-                st.query_params["ticker"] = new_ticker
-                st.rerun()
-    else:
+    back_col, _, drop_col = st.columns([1.5, 6, 2])
+    with back_col:
         st.button("← Back to overview", on_click=_go_back, key="back_btn")
+    with drop_col:
+        ticker_idx = config.TICKERS.index(ticker) if ticker in config.TICKERS else 0
+        new_ticker = st.selectbox("Switch ticker", config.TICKERS, index=ticker_idx,
+                                  label_visibility="collapsed", key="detail_ticker_select")
+        if new_ticker != ticker:
+            st.query_params["ticker"] = new_ticker
+            st.rerun()
 
     st.markdown("---")
-
-    if not is_dataset:
-        _, company_name = validate_ticker_yf(ticker)
-        company_name = company_name or ticker
-        st.markdown(f'<div class="sec-label">{ticker} · {company_name}</div>', unsafe_allow_html=True)
-        st.markdown('<div class="sec-label">Price History</div>', unsafe_allow_html=True)
-        df_live = fetch_yf_history(ticker)
-        if not df_live.empty:
-            fig_live = go.Figure()
-            fig_live.add_trace(go.Scatter(
-                x=df_live.index, y=df_live["close_price"], mode="lines",
-                line=dict(color=C1, width=2.5),
-                fill="tozeroy", fillcolor="rgba(107,66,38,0.07)",
-                name="Close", hovertemplate="$%{y:,.2f}<extra></extra>",
-            ))
-            fig_live.update_layout(**chart_layout(f"{ticker}  ·  Daily Close Price (USD)"))
-            fig_live.update_yaxes(tickprefix="$")
-            st.plotly_chart(fig_live, use_container_width=True, config={"displayModeBar": False, "responsive": True})
-        else:
-            st.info("No price data available.")
-        st.markdown(
-            '<div class="no-data-note">No alt data available for this ticker yet. '
-            'Only tracked tickers have StockTwits, Trends, and News data.</div>',
-            unsafe_allow_html=True,
-        )
-        st.markdown(build_animations_js(), unsafe_allow_html=True)
-        return
 
     price_df  = load_prices(ticker)
     st_df     = load_stocktwits(ticker)
