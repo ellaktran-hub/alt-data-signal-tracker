@@ -1027,36 +1027,34 @@ def show_summary():
     show_sidebar(rows_by_ticker)
     show_header()
 
-    # Build basket-filtered rows (all sections use these)
-    basket_rows = []
-    for t in basket:
-        if t in rows_by_ticker:
-            basket_rows.append(rows_by_ticker[t])
+    # Display rows = all 10 research tickers (always) + any extra basket tickers on demand
+    extra_tickers = [t for t in basket if t not in rows_by_ticker]
+    extra_rows    = []
+    for t in extra_tickers:
+        price, chg = fetch_live_quote(t)
+        price_str  = f"${price:,.2f}" if price is not None else "—"
+        if chg is not None:
+            chg_str   = f"▲ {chg:.2f}%" if chg > 0 else f"▼ {abs(chg):.2f}%"
+            chg_color = GREEN if chg > 0 else RED
         else:
-            # Non-dataset ticker added by user: fetch price only, no alt data
-            price, chg = fetch_live_quote(t)
-            price_str  = f"${price:,.2f}" if price is not None else "—"
-            if chg is not None:
-                chg_str   = f"▲ {chg:.2f}%" if chg > 0 else f"▼ {abs(chg):.2f}%"
-                chg_color = GREEN if chg > 0 else RED
-            else:
-                chg_str, chg_color = "—", MUTED
-            basket_rows.append({
-                "ticker":        t,
-                "company":       t,
-                "price":         price_str,
-                "chg":           chg_str,
-                "chg_color":     chg_color,
-                "chg_raw":       chg,
-                "bullish_pct":   "—",
-                "trends":        "—",
-                "news_sent":     "—",
-                "news_sent_raw": None,
-                "signal":        "—",
-                "sig_color":     MUTED,
-            })
+            chg_str, chg_color = "—", MUTED
+        extra_rows.append({
+            "ticker":        t,
+            "company":       t,
+            "price":         price_str,
+            "chg":           chg_str,
+            "chg_color":     chg_color,
+            "chg_raw":       chg,
+            "bullish_pct":   "—",
+            "trends":        "—",
+            "news_sent":     "—",
+            "news_sent_raw": None,
+            "signal":        "—",
+            "sig_color":     MUTED,
+        })
+    display_rows = rows + extra_rows
 
-    # Ticker strip (always full dataset regardless of basket)
+    # Ticker strip
     st.markdown(build_ticker_strip_html(rows), unsafe_allow_html=True)
 
     # Global ticker search
@@ -1078,26 +1076,39 @@ def show_summary():
             st.rerun()
     st.markdown('</div>', unsafe_allow_html=True)
 
-    # Market chips (basket-filtered)
-    st.markdown(build_market_chips_html(basket_rows), unsafe_allow_html=True)
+    # Market chips
+    st.markdown(build_market_chips_html(display_rows), unsafe_allow_html=True)
 
-    # Signal distribution (basket-filtered)
+    # Signal distribution
     st.plotly_chart(
-        build_signal_dist_chart(basket_rows),
+        build_signal_dist_chart(display_rows),
         use_container_width=True,
         config={"displayModeBar": False, "responsive": True},
     )
 
-    # Sparkline grid (basket-filtered)
+    # Sparkline grid
     st.markdown('<div class="sec-label">Individual Ticker Signals</div>', unsafe_allow_html=True)
-    show_sparkline_grid(basket_rows)
+    show_sparkline_grid(display_rows)
 
     # Metric definitions (collapsed by default)
     show_glossary()
 
-    # Signal table (basket-filtered)
+    # Signal table
     st.markdown('<div class="sec-label">Market Intelligence Overview</div>', unsafe_allow_html=True)
-    st.markdown(build_table_html(basket_rows), unsafe_allow_html=True)
+    st.markdown(build_table_html(display_rows), unsafe_allow_html=True)
+
+    # Data coverage note — only shown when user has added non-tracked tickers
+    if extra_rows:
+        extra_list = ", ".join(r["ticker"] for r in extra_rows)
+        st.markdown(f"""
+<div class="data-coverage-note">
+  <strong>Data coverage note —</strong>
+  {extra_list} {"is" if len(extra_rows) == 1 else "are"} not part of this study's tracked universe.
+  Only live price data is available for added tickers — StockTwits sentiment, Google Trends, and news
+  sentiment are collected daily only for the 10 core research tickers
+  ({", ".join(config.TICKERS)}). Composite signals require alt data and will show — for added tickers.
+</div>
+""", unsafe_allow_html=True)
 
     st.markdown(f"""
     <div class="signal-legend">

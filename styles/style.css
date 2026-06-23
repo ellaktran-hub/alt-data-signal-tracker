@@ -607,6 +607,19 @@ div[data-baseweb="notification"] {
 }
 .signal-legend strong { color: var(--text); font-weight: 600; }
 
+.data-coverage-note {
+  font-family: 'Inter', sans-serif;
+  font-size: 0.77rem;
+  color: var(--muted);
+  line-height: 1.75;
+  margin-top: 0.9rem;
+  padding: 0.75rem 1rem;
+  border-left: 3px solid var(--accent);
+  background: rgba(139,111,71,0.07);
+  border-radius: 0 2px 2px 0;
+}
+.data-coverage-note strong { color: var(--text); font-weight: 600; }
+
 /* ── Metric definitions expander ──────────────────────────────────────────── */
 [data-testid="stExpander"] {
   border: 1px solid var(--border) !important;
