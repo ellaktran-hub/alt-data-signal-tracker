@@ -7,10 +7,17 @@ Run with: python3 -m streamlit run dashboard.py
 import sys
 from pathlib import Path
 from datetime import date, datetime
+from zoneinfo import ZoneInfo
 import numpy as np
 import pandas as pd
 import plotly.graph_objects as go
 import streamlit as st
+
+try:
+    import yfinance as yf
+    _YF_OK = True
+except ImportError:
+    _YF_OK = False
 
 sys.path.insert(0, str(Path(__file__).parent))
 import config
@@ -22,7 +29,7 @@ st.set_page_config(
     page_title="Alt Data Signal Tracker",
     page_icon="▲",
     layout="wide",
-    initial_sidebar_state="collapsed",
+    initial_sidebar_state="expanded",
 )
 
 # ── Design tokens ──────────────────────────────────────────────────────────────
@@ -51,6 +58,23 @@ st.markdown(
 _css = Path(__file__).parent / "styles" / "style.css"
 with open(_css) as _f:
     st.markdown(f"<style>{_f.read()}</style>", unsafe_allow_html=True)
+
+# ── Session state — basket ─────────────────────────────────────────────────────
+if "basket" not in st.session_state:
+    st.session_state["basket"] = list(config.TICKERS)
+if "basket_user_modified" not in st.session_state:
+    st.session_state["basket_user_modified"] = False
+
+
+# ── ET timezone helper ─────────────────────────────────────────────────────────
+def now_et():
+    return datetime.now(ZoneInfo("America/New_York"))
+
+def format_et(dt):
+    hour = dt.hour % 12 or 12
+    minute = dt.strftime("%M")
+    ampm   = "AM" if dt.hour < 12 else "PM"
+    return f"{dt.strftime('%b')} {dt.day}, {dt.year} · {hour}:{minute} {ampm} ET"
 
 
 # ── Plotly layout factory ──────────────────────────────────────────────────────
@@ -158,7 +182,6 @@ def norm_0_100(series):
     return pd.Series(50.0, index=s.index) if mx == mn else (s - mn) / (mx - mn) * 100
 
 def _price_norm(ticker):
-    """Return normalized 0-100 price series for a ticker, or None."""
     df = load_prices(ticker)
     if df.empty:
         return None
@@ -180,6 +203,36 @@ _NORM_SUBTITLE = (
     "<br><sup style='font-style:italic;font-size:9px;color:#7A6A52'>"
     "Price shown as dotted line, normalized to same 0–100 scale for comparison</sup>"
 )
+
+
+# ── yfinance live quotes (for non-dataset basket tickers) ──────────────────────
+@st.cache_data(ttl=3600)
+def validate_ticker_yf(symbol):
+    if not _YF_OK:
+        return True, symbol
+    try:
+        info = yf.Ticker(symbol).info
+        name = info.get("shortName") or info.get("longName")
+        return bool(name), (name or symbol)
+    except Exception:
+        return False, None
+
+@st.cache_data(ttl=300)
+def fetch_live_quote(symbol):
+    if not _YF_OK:
+        return None, None
+    try:
+        hist = yf.Ticker(symbol).history(period="2d")
+        if hist.empty:
+            return None, None
+        price = float(hist["Close"].iloc[-1])
+        chg   = None
+        if len(hist) >= 2:
+            prev = float(hist["Close"].iloc[-2])
+            chg  = (price - prev) / prev * 100 if prev else None
+        return price, chg
+    except Exception:
+        return None, None
 
 
 # ── Summary data ───────────────────────────────────────────────────────────────
@@ -223,50 +276,130 @@ def build_summary():
         sig_color = GREEN if signal == "BULLISH" else (RED if signal == "BEARISH" else MUTED)
 
         rows.append({
-            "ticker":       ticker,
-            "company":      config.COMPANIES.get(ticker, ticker),
-            "price":        f"${price:,.2f}" if price is not None else "—",
-            "chg":          chg_str,
-            "chg_color":    chg_color,
-            "chg_raw":      price_chg,
-            "bullish_pct":  f"{bullish_pct:.0f}%" if bullish_pct is not None else "—",
-            "trends":       f"{trends_score:.0f}/100" if trends_score is not None else "—",
-            "news_sent":    f"{news_sent:+.3f}" if news_sent is not None else "—",
+            "ticker":        ticker,
+            "company":       config.COMPANIES.get(ticker, ticker),
+            "price":         f"${price:,.2f}" if price is not None else "—",
+            "chg":           chg_str,
+            "chg_color":     chg_color,
+            "chg_raw":       price_chg,
+            "bullish_pct":   f"{bullish_pct:.0f}%" if bullish_pct is not None else "—",
+            "trends":        f"{trends_score:.0f}/100" if trends_score is not None else "—",
+            "news_sent":     f"{news_sent:+.3f}" if news_sent is not None else "—",
             "news_sent_raw": news_sent,
-            "signal":       signal,
-            "sig_color":    sig_color,
+            "signal":        signal,
+            "sig_color":     sig_color,
         })
     return rows
 
 
+# ── Sidebar ────────────────────────────────────────────────────────────────────
+def show_sidebar(rows_by_ticker):
+    with st.sidebar:
+        st.markdown('<div class="sb-title">My Basket</div>', unsafe_allow_html=True)
+
+        basket = st.session_state.get("basket", [])
+
+        for ticker in list(basket):
+            if ticker in rows_by_ticker:
+                r         = rows_by_ticker[ticker]
+                price_str = r["price"]
+                chg_str   = r["chg"]
+                chg_color = r["chg_color"]
+                sig_str   = r["signal"]
+                sig_color = r["sig_color"]
+            else:
+                price, chg = fetch_live_quote(ticker)
+                price_str  = f"${price:,.2f}" if price is not None else "—"
+                if chg is not None:
+                    chg_str   = f"▲ {chg:.2f}%" if chg > 0 else f"▼ {abs(chg):.2f}%"
+                    chg_color = GREEN if chg > 0 else RED
+                else:
+                    chg_str, chg_color = "—", MUTED
+                sig_str   = "—"
+                sig_color = MUTED
+
+            col_item, col_rm = st.columns([5, 1])
+            with col_item:
+                st.markdown(
+                    f'<div class="sb-item">'
+                    f'<div class="sb-item-top">'
+                    f'<span class="sb-ticker">{ticker}</span>'
+                    f'<span class="sb-sig" style="color:{sig_color}">{sig_str}</span>'
+                    f'</div>'
+                    f'<div class="sb-item-price">'
+                    f'<span class="sb-price">{price_str}</span>'
+                    f'<span class="sb-chg" style="color:{chg_color}">{chg_str}</span>'
+                    f'</div>'
+                    f'</div>',
+                    unsafe_allow_html=True,
+                )
+            with col_rm:
+                if st.button("×", key=f"rm_{ticker}", help=f"Remove {ticker}"):
+                    st.session_state["basket"].remove(ticker)
+                    st.session_state["basket_user_modified"] = True
+                    st.rerun()
+
+        st.markdown("")
+        st.markdown('<div class="sb-add-label">Add ticker</div>', unsafe_allow_html=True)
+        new_sym = st.text_input(
+            "", placeholder="e.g. GOOG",
+            label_visibility="collapsed", key="basket_add_input",
+        )
+        if st.button("Add to basket", key="basket_add_btn"):
+            sym = new_sym.strip().upper()
+            if sym and sym not in st.session_state["basket"]:
+                valid, _ = validate_ticker_yf(sym)
+                if valid:
+                    st.session_state["basket"].append(sym)
+                    st.session_state["basket_user_modified"] = True
+                    st.rerun()
+                else:
+                    st.error(f"'{sym}' not found — check the ticker symbol.")
+            elif sym in st.session_state["basket"]:
+                st.warning(f"{sym} is already in your basket.")
+
+        st.markdown("---")
+
+        _SIDEBAR_DEFS = [
+            ("price chg %",  "day-over-day price change"),
+            ("bullish %",    "share of alt data signals bullish"),
+            ("trends",       "google search interest, 0–100"),
+            ("news sent",    "news sentiment, −1 to +1"),
+            ("signal",       "composite alt data direction"),
+        ]
+        st.markdown('<div class="sb-defs-header">Definitions</div>', unsafe_allow_html=True)
+        for metric, defn in _SIDEBAR_DEFS:
+            st.markdown(
+                f'<div class="sb-def-row">'
+                f'<span class="sb-def-metric">{metric}</span>'
+                f'<span class="sb-def-text">{defn}</span>'
+                f'</div>',
+                unsafe_allow_html=True,
+            )
+
+
 # ── Ticker strip ───────────────────────────────────────────────────────────────
 def build_ticker_strip_html(rows):
-    sorted_rows = sorted(
+    top5 = sorted(
         rows,
         key=lambda r: abs(r["chg_raw"]) if r["chg_raw"] is not None else 0,
         reverse=True,
-    )
-    top5 = sorted_rows[:5]
+    )[:5]
 
     def item_html(r):
-        sig_color = r["sig_color"]
-        chg_color = r["chg_color"]
         return (
             f'<span class="strip-item">'
             f'<span class="strip-ticker">{r["ticker"]}</span>'
-            f'<span class="strip-sig" style="color:{sig_color}">{r["signal"]}</span>'
-            f'<span class="strip-chg" style="color:{chg_color}">{r["chg"]}</span>'
+            f'<span class="strip-sig" style="color:{r["sig_color"]}">{r["signal"]}</span>'
+            f'<span class="strip-chg" style="color:{r["chg_color"]}">{r["chg"]}</span>'
             f'</span>'
             f'<span class="strip-sep" aria-hidden="true">|</span>'
         )
 
     items = "".join(item_html(r) for r in top5)
-    # Triple content for seamless marquee loop
-    track = items * 3
-
     return (
         f'<div class="ticker-strip-outer" aria-label="Top movers ticker strip">'
-        f'<div class="strip-track">{track}</div>'
+        f'<div class="strip-track">{items * 3}</div>'
         f'</div>'
     )
 
@@ -283,7 +416,7 @@ def build_market_chips_html(rows):
     avg_sign  = "+" if avg_news >= 0 else ""
     avg_abs   = abs(avg_news)
 
-    last_upd = datetime.now().strftime("%H:%M")
+    ts = format_et(now_et())
 
     return f"""
 <div class="market-chips">
@@ -314,8 +447,8 @@ def build_market_chips_html(rows):
   <div class="chip">
     <div class="chip-label">Last Updated</div>
     <div class="chip-value">
-      <span class="live-pulse" title="Live data" aria-label="Live data indicator"></span>
-      <span class="chip-time">{last_upd}</span>
+      <span class="live-pulse" aria-label="Live data"></span>
+      <span class="chip-time">{ts}</span>
     </div>
   </div>
 </div>
@@ -356,155 +489,164 @@ def build_signal_dist_chart(rows):
     return fig
 
 
-# ── Sparkline SVG ──────────────────────────────────────────────────────────────
-def build_sparkline_svg(ticker, sig_color):
-    df = load_prices(ticker)
-    if df.empty:
-        return '<div class="spark-nodata">—</div>'
-    prices = df["close_price"].dropna().tail(14).values
-    if len(prices) < 2:
-        return '<div class="spark-nodata">—</div>'
-
-    W, H, PAD = 200, 48, 4
-    mn, mx    = prices.min(), prices.max()
-
-    if mx == mn:
-        mid = H / 2
-        d   = f"M {PAD},{mid:.1f} L {W - PAD},{mid:.1f}"
-    else:
-        n    = len(prices)
-        step = (W - 2 * PAD) / (n - 1)
-        pts  = [
-            (PAD + i * step, PAD + (1 - (p - mn) / (mx - mn)) * (H - 2 * PAD))
-            for i, p in enumerate(prices)
-        ]
-        d = "M " + " L ".join(f"{x:.1f},{y:.1f}" for x, y in pts)
-
-    return (
-        f'<div class="spark-svg-wrap">'
-        f'<svg viewBox="0 0 {W} {H}" width="100%" height="48" '
-        f'aria-hidden="true" style="display:block;overflow:visible;">'
-        f'<path d="{d}" fill="none" stroke="{sig_color}" stroke-width="2.5" '
-        f'stroke-linejoin="round" stroke-linecap="round"/>'
-        f'</svg></div>'
+# ── Basket overlay charts ──────────────────────────────────────────────────────
+def show_basket_overlay_charts(basket):
+    st.markdown(
+        '<div class="sec-label">ALT DATA SIGNALS vs. PRICE</div>',
+        unsafe_allow_html=True,
+    )
+    st.markdown(
+        '<div class="overlay-sub">normalized to 0–100 · dotted line = price</div>',
+        unsafe_allow_html=True,
     )
 
-
-# ── Sparkline card grid ────────────────────────────────────────────────────────
-def build_sparkline_grid_html(rows):
-    html = '<div class="spark-grid">'
-    for i, r in enumerate(rows):
-        ticker      = r["ticker"]
-        sig         = r["signal"]
-        sig_color   = r["sig_color"]
-        border_top  = sig_color
-        delay_ms    = i * 80
-        svg         = build_sparkline_svg(ticker, sig_color)
-        html += (
-            f'<div class="spark-card" '
-            f'style="border-top-color:{border_top};animation-delay:{delay_ms}ms">'
-
-            f'<div class="spark-card-top">'
-            f'<span class="spark-ticker">{ticker}</span>'
-            f'<span class="spark-sig" style="color:{sig_color}">{sig}</span>'
-            f'</div>'
-
-            f'{svg}'
-
-            f'<div class="spark-stats">'
-            f'<span class="spark-stat-label">Bullish</span>'
-            f'<span class="spark-stat-val">{r["bullish_pct"]}</span>'
-            f'<span class="spark-stat-label">News Sent.</span>'
-            f'<span class="spark-stat-val">{r["news_sent"]}</span>'
-            f'</div>'
-
-            f'<div class="spark-btn-wrap">'
-            f'<a href="?ticker={ticker}" class="view-btn">View Details</a>'
-            f'</div>'
-
-            f'</div>'
+    if not basket:
+        st.markdown(
+            '<div class="overlay-empty">Add tickers to your basket to see overlay charts.</div>',
+            unsafe_allow_html=True,
         )
-    html += '</div>'
-    return html
+        return
+
+    for i in range(0, len(basket), 2):
+        pair = basket[i:i + 2]
+        cols = st.columns(len(pair), gap="medium")
+        for col, ticker in zip(cols, pair):
+            with col:
+                st.markdown(
+                    f'<div class="overlay-ticker-hdr">{ticker} — {config.COMPANIES.get(ticker, ticker)}</div>',
+                    unsafe_allow_html=True,
+                )
+                fig = chart_overlay(ticker)
+                fig.update_layout(height=220, margin=dict(l=40, r=8, t=16, b=30))
+                st.plotly_chart(fig, use_container_width=True, config={"displayModeBar": False})
+
+
+# ── Glossary / metric definitions ──────────────────────────────────────────────
+_GLOSSARY = [
+    ("price chg %",
+     "the percentage change in closing price over the past trading day. "
+     "positive means the stock gained, negative means it declined."),
+    ("bullish %",
+     "the share of alt data signals currently pointing bullish for this ticker. "
+     "a high reading means most data sources agree the outlook is positive — "
+     "but check trends and news sentiment to confirm."),
+    ("trends",
+     "google search interest for this ticker, scored 0–100. 100 is the peak interest "
+     "over the measured period. rising scores can signal growing retail attention "
+     "before it shows up in price."),
+    ("news sent",
+     "aggregate news sentiment scored from −1 (fully bearish coverage) to +1 (fully bullish). "
+     "scores near zero mean mixed or neutral reporting. "
+     "works best as a confirming signal alongside bullish %."),
+    ("signal",
+     "the composite signal combining all alt data sources. bullish means the majority of sources "
+     "align positive; bearish means majority negative; neutral means mixed or insufficient data "
+     "to call a direction. use it as a weight of evidence, not a guarantee."),
+]
+
+def show_glossary():
+    with st.expander("METRIC DEFINITIONS", expanded=True):
+        entries_html = "".join(
+            f'<div class="glossary-entry">'
+            f'<div class="glossary-term">{term}</div>'
+            f'<div class="glossary-def">{defn}</div>'
+            f'</div>'
+            for term, defn in _GLOSSARY
+        )
+        st.markdown(
+            f'<div class="glossary-grid">{entries_html}</div>',
+            unsafe_allow_html=True,
+        )
 
 
 # ── Signal table HTML ──────────────────────────────────────────────────────────
 _TOOLTIPS = {
-    "CHG %":     "1-day percentage change in closing price.",
-    "BULLISH %": "Share of alt data signals currently skewing bullish for this ticker.",
-    "TRENDS":    "Relative search interest score (0–100) from Google Trends; 100 = peak interest in the period.",
-    "NEWS SENT": "Aggregate news sentiment score (−1 to +1); positive = predominantly bullish coverage.",
-    "SIGNAL":    "Composite signal. BULLISH = majority of sources align positive; BEARISH = majority negative; NEUTRAL = mixed or insufficient data.",
+    "CHG %": (
+        "the percentage change in closing price over the past trading day. "
+        "positive means the stock gained, negative means it declined."
+    ),
+    "BULLISH %": (
+        "the share of alt data signals currently pointing bullish for this ticker. "
+        "a high reading means most data sources agree the outlook is positive — "
+        "but check trends and news sentiment to confirm."
+    ),
+    "TRENDS": (
+        "google search interest for this ticker, scored 0–100. 100 is the peak interest "
+        "over the measured period. rising scores can signal growing retail attention "
+        "before it shows up in price."
+    ),
+    "NEWS SENT": (
+        "aggregate news sentiment scored from −1 (fully bearish coverage) to +1 (fully bullish). "
+        "scores near zero mean mixed or neutral reporting. "
+        "works best as a confirming signal alongside bullish %."
+    ),
+    "SIGNAL": (
+        "the composite signal combining all alt data sources. bullish means the majority of sources "
+        "align positive; bearish means majority negative; neutral means mixed or insufficient data "
+        "to call a direction. use it as a weight of evidence, not a guarantee."
+    ),
 }
 
-def _th(label):
+def _th(label, width, center=False):
+    cls = "data-tbl-th ctr" if center else "data-tbl-th"
     if label in _TOOLTIPS:
         return (
-            f'<div class="data-tbl-th">{label}'
+            f'<th class="{cls}">{label}'
             f'<span class="th-tip" tabindex="0">'
             f'<span class="th-tip-icon" aria-label="Definition for {label}">ⓘ</span>'
             f'<span class="th-tip-box" role="tooltip">{_TOOLTIPS[label]}</span>'
-            f'</span></div>'
+            f'</span></th>'
         )
-    return f'<div class="data-tbl-th">{label}</div>'
+    return f'<th class="{cls}">{label}</th>'
 
-def build_table_html(rows):
-    headers = ["TICKER", "COMPANY", "PRICE", "CHG %", "BULLISH %", "TRENDS", "NEWS SENT", "SIGNAL", ""]
-    head    = '<div class="data-tbl-head">' + "".join(_th(h) for h in headers) + '</div>'
-
-    body = ""
-    base_delay = 800
-    for i, r in enumerate(rows):
-        row_cls    = "data-tbl-row even" if i % 2 == 0 else "data-tbl-row odd"
-        delay_ms   = base_delay + i * 80
-        ticker     = r["ticker"]
-        body += (
-            f'<div class="{row_cls}" style="animation-delay:{delay_ms}ms">'
-            f'<div class="data-tbl-td tkr">{ticker}</div>'
-            f'<div class="data-tbl-td">{r["company"]}</div>'
-            f'<div class="data-tbl-td num">{r["price"]}</div>'
-            f'<div class="data-tbl-td num" style="color:{r["chg_color"]}">{r["chg"]}</div>'
-            f'<div class="data-tbl-td num">{r["bullish_pct"]}</div>'
-            f'<div class="data-tbl-td num">{r["trends"]}</div>'
-            f'<div class="data-tbl-td num">{r["news_sent"]}</div>'
-            f'<div class="data-tbl-td num" style="color:{r["sig_color"]};font-weight:600">{r["signal"]}</div>'
-            f'<div class="data-tbl-td act">'
-            f'<a href="?ticker={ticker}" class="view-btn">View Details</a>'
-            f'</div>'
-            f'</div>'
-        )
-
-    return f'<div class="data-tbl">{head}{body}</div>'
-
-
-# ── Glossary ───────────────────────────────────────────────────────────────────
-_GLOSSARY = [
-    ("PRICE CHG %",
-     "1-day percentage change in closing price relative to the prior trading day's close, sourced from Yahoo Finance."),
-    ("BULLISH %",
-     "Share of labeled StockTwits posts tagged Bullish for this ticker on the most recent collection date. Values above 55% are treated as a bullish signal; below 40% as bearish."),
-    ("TRENDS",
-     "Google Trends relative search interest, normalized to 0–100 within the 90-day period. 100 = peak search interest. A score 10%+ above the 7-day average is treated as an elevated-attention signal."),
-    ("NEWS SENT",
-     "Average VADER sentiment score across Yahoo Finance headlines on the most recent collection date. Range: −1.0 (strongly negative) to +1.0 (strongly positive). Values above +0.10 or below −0.10 trigger a signal vote."),
-    ("SIGNAL",
-     "Composite majority-vote signal across up to 4 sources. Each source contributes +1 (bullish) or −1 (bearish). Score ≥ +2 = BULLISH; ≤ −2 = BEARISH; otherwise NEUTRAL. Treat BULLISH as a weight of evidence, not a guarantee — most useful when corroborated by TRENDS and NEWS SENT moving in the same direction."),
+# col: (label, width%, centered)
+_COLS = [
+    ("TICKER",    "10%", False),
+    ("COMPANY",   "8%",  False),
+    ("PRICE",     "7%",  True),
+    ("CHG %",     "13%", True),
+    ("BULLISH %", "13%", True),
+    ("TRENDS",    "11%", True),
+    ("NEWS SENT", "13%", True),
+    ("SIGNAL",    "13%", True),
+    ("",          "12%", True),
 ]
 
-def show_glossary():
-    with st.expander("Metric Definitions"):
-        rows_html = ""
-        for i, (term, defn) in enumerate(_GLOSSARY):
-            if i > 0:
-                rows_html += '<div class="glossary-sep"></div>'
-            rows_html += (
-                f'<div class="glossary-term">{term}</div>'
-                f'<div class="glossary-def">{defn}</div>'
-            )
-        st.markdown(
-            f'<div class="glossary-grid">{rows_html}</div>',
-            unsafe_allow_html=True,
+def build_table_html(rows):
+    colgroup = "<colgroup>" + "".join(
+        f'<col style="width:{w}">' for _, w, _ in _COLS
+    ) + "</colgroup>"
+
+    head_cells = "".join(_th(label, w, ctr) for label, w, ctr in _COLS)
+    head = f"<thead><tr>{head_cells}</tr></thead>"
+
+    body = "<tbody>"
+    for i, r in enumerate(rows):
+        row_cls  = "even" if i % 2 == 0 else "odd"
+        delay_ms = 800 + i * 80
+        ticker   = r["ticker"]
+        body += (
+            f'<tr class="{row_cls}" style="animation-delay:{delay_ms}ms">'
+            f'<td class="data-tbl-td tkr">{ticker}</td>'
+            f'<td class="data-tbl-td left">{r["company"]}</td>'
+            f'<td class="data-tbl-td num">{r["price"]}</td>'
+            f'<td class="data-tbl-td num" style="color:{r["chg_color"]}">{r["chg"]}</td>'
+            f'<td class="data-tbl-td num">{r["bullish_pct"]}</td>'
+            f'<td class="data-tbl-td num">{r["trends"]}</td>'
+            f'<td class="data-tbl-td num">{r["news_sent"]}</td>'
+            f'<td class="data-tbl-td num" style="color:{r["sig_color"]};font-weight:600">{r["signal"]}</td>'
+            f'<td class="data-tbl-td act">'
+            f'<a href="?ticker={ticker}" class="view-btn">View Details</a>'
+            f'</td>'
+            f'</tr>'
         )
+    body += "</tbody>"
+
+    return (
+        f'<div class="data-tbl-wrap">'
+        f'<table class="data-tbl">{colgroup}{head}{body}</table>'
+        f'</div>'
+    )
 
 
 # ── Count-up JS ────────────────────────────────────────────────────────────────
@@ -532,8 +674,7 @@ def build_animations_js():
     prefix = prefix || '';
     (function step(ts) {
       var p = Math.min((ts - start) / dur, 1);
-      var v = easeOut(p) * target;
-      el.textContent = prefix + v.toFixed(dec);
+      el.textContent = prefix + (easeOut(p) * target).toFixed(dec);
       if (p < 1) requestAnimationFrame(step);
       else el.textContent = prefix + target.toFixed(dec);
     })(start);
@@ -544,10 +685,10 @@ def build_animations_js():
       animateInt(el, parseInt(el.dataset.countupInt, 10));
     });
     document.querySelectorAll('[data-countup-float]').forEach(function (el) {
-      var target = parseFloat(el.dataset.countupFloat);
-      var dec    = parseInt(el.dataset.countupDec || '2', 10);
-      var prefix = el.dataset.countupPrefix || '';
-      animateFloat(el, target, dec, prefix);
+      animateFloat(el,
+        parseFloat(el.dataset.countupFloat),
+        parseInt(el.dataset.countupDec || '2', 10),
+        el.dataset.countupPrefix || '');
     });
   }, 400);
 })();
@@ -599,14 +740,12 @@ def chart_stocktwits(ticker):
         fill="tozeroy", fillcolor="rgba(155,58,40,0.08)",
         name="Bearish (norm)", hovertemplate="%{y:.1f}<extra>Bearish</extra>",
     ))
-
     pn = _price_norm(ticker)
     if pn is not None:
         fig.add_trace(go.Scatter(
             x=pn.index, y=pn, mode="lines",
             line=dict(color=C3, width=1.5, dash="dot"),
-            name="Price (normalized)",
-            hovertemplate="%{y:.1f}<extra>Price (norm)</extra>",
+            name="Price (norm)", hovertemplate="%{y:.1f}<extra>Price (norm)</extra>",
         ))
 
     title = f"{ticker}  ·  StockTwits Sentiment (normalized 0–100){_NORM_SUBTITLE}"
@@ -635,10 +774,10 @@ def chart_trends(ticker):
 
     if len(df) >= 7:
         mn, mx = df["interest"].min(), df["interest"].max()
-        if mx != mn:
-            rolling_n = (df["interest"].rolling(7, min_periods=1).mean() - mn) / (mx - mn) * 100
-        else:
-            rolling_n = pd.Series(50.0, index=df.index)
+        rolling_n = (
+            (df["interest"].rolling(7, min_periods=1).mean() - mn) / (mx - mn) * 100
+            if mx != mn else pd.Series(50.0, index=df.index)
+        )
         fig.add_trace(go.Scatter(
             x=rolling_n.index, y=rolling_n, mode="lines",
             line=dict(color=BORDER, width=1.2, dash="dot"),
@@ -650,8 +789,7 @@ def chart_trends(ticker):
         fig.add_trace(go.Scatter(
             x=pn.index, y=pn, mode="lines",
             line=dict(color=C3, width=1.5, dash="dot"),
-            name="Price (normalized)",
-            hovertemplate="%{y:.1f}<extra>Price (norm)</extra>",
+            name="Price (norm)", hovertemplate="%{y:.1f}<extra>Price (norm)</extra>",
         ))
 
     title = f"{ticker}  ·  Google Trends Search Interest (normalized 0–100){_NORM_SUBTITLE}"
@@ -669,17 +807,14 @@ def chart_news(ticker):
     if df.empty or "avg_sentiment" not in df.columns:
         return None, True
 
-    sent  = df["avg_sentiment"].dropna()
+    sent = df["avg_sentiment"].dropna()
     if len(sent) < 1:
         return None, True
     sparse = len(sent) < 3
 
     sent_n = norm_0_100(sent)
-
-    # Position of sentiment=0 on the normalized 0-100 axis
     mn, mx = sent.min(), sent.max()
-    neutral_pos = ((0 - mn) / (mx - mn) * 100) if mx != mn else 50.0
-    neutral_pos = max(0.0, min(100.0, neutral_pos))
+    neutral_pos = max(0.0, min(100.0, ((0 - mn) / (mx - mn) * 100) if mx != mn else 50.0))
 
     colors = [GREEN if v >= neutral_pos else RED for v in sent_n]
     fig = go.Figure()
@@ -698,8 +833,7 @@ def chart_news(ticker):
         fig.add_trace(go.Scatter(
             x=pn.index, y=pn, mode="lines",
             line=dict(color=C3, width=1.5, dash="dot"),
-            name="Price (normalized)",
-            hovertemplate="%{y:.1f}<extra>Price (norm)</extra>",
+            name="Price (norm)", hovertemplate="%{y:.1f}<extra>Price (norm)</extra>",
         ))
 
     title = f"{ticker}  ·  News Headline Sentiment (normalized 0–100){_NORM_SUBTITLE}"
@@ -722,29 +856,30 @@ def chart_overlay(ticker):
     if not price_df.empty:
         p = price_df["close_price"].dropna()
         if len(p) >= 2:
+            pn = norm_0_100(p)
             fig.add_trace(go.Scatter(
-                x=norm_0_100(p).index, y=norm_0_100(p), mode="lines",
-                name="Price (norm)", line=dict(color=C3, width=2.5),
+                x=pn.index, y=pn, mode="lines",
+                name="Price (norm)", line=dict(color=C3, width=1.5, dash="dot"),
                 hovertemplate="%{y:.1f}<extra>Price</extra>",
             ))
     if not trends_df.empty:
         n = norm_0_100(trends_df["interest"])
         fig.add_trace(go.Scatter(
-            x=n.index, y=n, mode="lines", name="Trends (norm)",
+            x=n.index, y=n, mode="lines", name="Trends",
             line=dict(color=C2, width=2.5),
             hovertemplate="%{y:.1f}<extra>Trends</extra>",
         ))
     if not st_df.empty and "net_sentiment" in st_df.columns:
         n = norm_0_100(st_df["net_sentiment"])
         fig.add_trace(go.Scatter(
-            x=n.index, y=n, mode="lines+markers", name="StockTwits (norm)",
+            x=n.index, y=n, mode="lines+markers", name="StockTwits",
             line=dict(color=GREEN, width=2.5), marker=dict(size=6),
             hovertemplate="%{y:.1f}<extra>StockTwits</extra>",
         ))
     if not news_df.empty and "avg_sentiment" in news_df.columns:
         n = norm_0_100(news_df["avg_sentiment"])
         fig.add_trace(go.Scatter(
-            x=n.index, y=n, mode="lines+markers", name="News (norm)",
+            x=n.index, y=n, mode="lines+markers", name="News",
             line=dict(color=C4, width=2.5), marker=dict(size=6),
             hovertemplate="%{y:.1f}<extra>News Sent.</extra>",
         ))
@@ -756,6 +891,70 @@ def chart_overlay(ticker):
     )
     fig.update_layout(**layout)
     return fig
+
+
+# ── Sparkline SVG ──────────────────────────────────────────────────────────────
+def build_sparkline_svg(ticker, sig_color):
+    df = load_prices(ticker)
+    if df.empty:
+        return '<div class="spark-nodata">—</div>'
+    prices = df["close_price"].dropna().tail(14).values
+    if len(prices) < 2:
+        return '<div class="spark-nodata">—</div>'
+
+    W, H, PAD = 200, 48, 4
+    mn, mx    = prices.min(), prices.max()
+
+    if mx == mn:
+        mid = H / 2
+        d   = f"M {PAD},{mid:.1f} L {W - PAD},{mid:.1f}"
+    else:
+        n    = len(prices)
+        step = (W - 2 * PAD) / (n - 1)
+        pts  = [
+            (PAD + i * step, PAD + (1 - (p - mn) / (mx - mn)) * (H - 2 * PAD))
+            for i, p in enumerate(prices)
+        ]
+        d = "M " + " L ".join(f"{x:.1f},{y:.1f}" for x, y in pts)
+
+    return (
+        f'<div class="spark-svg-wrap">'
+        f'<svg viewBox="0 0 {W} {H}" width="100%" height="48" '
+        f'aria-hidden="true" style="display:block;overflow:visible;">'
+        f'<path d="{d}" fill="none" stroke="{sig_color}" stroke-width="2.5" '
+        f'stroke-linejoin="round" stroke-linecap="round"/>'
+        f'</svg></div>'
+    )
+
+
+# ── Sparkline card grid ────────────────────────────────────────────────────────
+def build_sparkline_grid_html(rows):
+    html = '<div class="spark-grid">'
+    for i, r in enumerate(rows):
+        ticker    = r["ticker"]
+        sig_color = r["sig_color"]
+        svg       = build_sparkline_svg(ticker, sig_color)
+        html += (
+            f'<div class="spark-card" '
+            f'style="border-top-color:{sig_color};animation-delay:{i * 80}ms">'
+            f'<div class="spark-card-top">'
+            f'<span class="spark-ticker">{ticker}</span>'
+            f'<span class="spark-sig" style="color:{sig_color}">{r["signal"]}</span>'
+            f'</div>'
+            f'{svg}'
+            f'<div class="spark-stats">'
+            f'<span class="spark-stat-label">Bullish</span>'
+            f'<span class="spark-stat-val">{r["bullish_pct"]}</span>'
+            f'<span class="spark-stat-label">News Sent.</span>'
+            f'<span class="spark-stat-val">{r["news_sent"]}</span>'
+            f'</div>'
+            f'<div class="spark-btn-wrap">'
+            f'<a href="?ticker={ticker}" class="view-btn">View Details</a>'
+            f'</div>'
+            f'</div>'
+        )
+    html += '</div>'
+    return html
 
 
 # ── Header ─────────────────────────────────────────────────────────────────────
@@ -783,28 +982,35 @@ def show_header():
 
 # ── Summary / overview page ────────────────────────────────────────────────────
 def show_summary():
+    rows            = build_summary()
+    rows_by_ticker  = {r["ticker"]: r for r in rows}
+    show_sidebar(rows_by_ticker)
     show_header()
 
-    rows = build_summary()
-
-    # B. Ticker strip
+    # Ticker strip
     st.markdown(build_ticker_strip_html(rows), unsafe_allow_html=True)
 
-    # C. Market chips
+    # Basket overlay charts
+    show_basket_overlay_charts(st.session_state.get("basket", []))
+
+    # Metric definitions (open by default)
+    show_glossary()
+
+    # Market chips
     st.markdown(build_market_chips_html(rows), unsafe_allow_html=True)
 
-    # D. Signal distribution
+    # Signal distribution
     st.plotly_chart(
         build_signal_dist_chart(rows),
         use_container_width=True,
         config={"displayModeBar": False},
     )
 
-    # E. Sparkline grid
+    # Sparkline grid
     st.markdown('<div class="sec-label">Individual Ticker Signals</div>', unsafe_allow_html=True)
     st.markdown(build_sparkline_grid_html(rows), unsafe_allow_html=True)
 
-    # F. Full signal table
+    # Signal table
     st.markdown('<div class="sec-label">Market Intelligence Overview</div>', unsafe_allow_html=True)
     st.markdown(build_table_html(rows), unsafe_allow_html=True)
 
@@ -821,15 +1027,14 @@ def show_summary():
     </div>
     """, unsafe_allow_html=True)
 
-    # G. Glossary
-    show_glossary()
-
-    # Animations JS
     st.markdown(build_animations_js(), unsafe_allow_html=True)
 
 
 # ── Detail view ────────────────────────────────────────────────────────────────
 def show_detail(ticker):
+    rows           = build_summary()
+    rows_by_ticker = {r["ticker"]: r for r in rows}
+    show_sidebar(rows_by_ticker)
     show_header()
 
     back_col, _, drop_col = st.columns([1.5, 6, 2])
@@ -891,7 +1096,6 @@ def show_detail(ticker):
 
     st.markdown("---")
 
-    # Chart 1 — Price
     st.markdown('<div class="sec-label">Price History</div>', unsafe_allow_html=True)
     fig1 = chart_price(ticker)
     if fig1:
@@ -904,7 +1108,6 @@ def show_detail(ticker):
         f"price moves to test predictive information."
     )
 
-    # Chart 2 — StockTwits
     st.markdown('<div class="sec-label">StockTwits Community Sentiment</div>', unsafe_allow_html=True)
     result2 = chart_stocktwits(ticker)
     if result2[0] is not None:
@@ -916,13 +1119,12 @@ def show_detail(ticker):
     if sparse2:
         sparse_note()
     note(
-        f"StockTwits users voluntarily tag posts as 'Bullish' or 'Bearish' — providing direct labels "
-        f"rather than inferred tone. Both series and the price line are normalized to 0–100 for visual "
-        f"comparison of direction and magnitude. Academic research has linked StockTwits sentiment to "
-        f"next-day abnormal returns for high-attention stocks."
+        "StockTwits users voluntarily tag posts as 'Bullish' or 'Bearish' — providing direct labels "
+        "rather than inferred tone. Both series and the price line are normalized to 0–100 for visual "
+        "comparison of direction and magnitude. Academic research has linked StockTwits sentiment to "
+        "next-day abnormal returns for high-attention stocks."
     )
 
-    # Chart 3 — Google Trends
     st.markdown('<div class="sec-label">Google Trends Search Interest</div>', unsafe_allow_html=True)
     fig3 = chart_trends(ticker)
     if fig3:
@@ -930,12 +1132,11 @@ def show_detail(ticker):
     else:
         st.info("No Google Trends data available.")
     note(
-        f"Search interest normalized to 0–100 within the 90-day period, alongside normalized price "
-        f"(dotted). The dotted curve also shows the 7-day rolling average. Da, Engelberg &amp; Gao (2011) "
-        f"linked retail search attention to short-term price pressure in <em>In Search of Attention</em>."
+        "Search interest normalized to 0–100 within the 90-day period, alongside normalized price "
+        "(dotted). The dotted curve also shows the 7-day rolling average. Da, Engelberg &amp; Gao (2011) "
+        "linked retail search attention to short-term price pressure in <em>In Search of Attention</em>."
     )
 
-    # Chart 4 — News sentiment
     st.markdown('<div class="sec-label">News Headline Sentiment</div>', unsafe_allow_html=True)
     result4 = chart_news(ticker)
     if result4[0] is not None:
@@ -947,19 +1148,18 @@ def show_detail(ticker):
     if sparse4:
         sparse_note()
     note(
-        f"VADER sentiment scores normalized to 0–100 alongside normalized price (dotted). The neutral "
-        f"reference line shows the position of raw sentiment = 0 on the normalized axis. Bars above "
-        f"the line are net-positive days; below are net-negative days."
+        "VADER sentiment scores normalized to 0–100 alongside normalized price (dotted). The neutral "
+        "reference line shows the position of raw sentiment = 0 on the normalized axis. Bars above "
+        "the line are net-positive days; below are net-negative days."
     )
 
-    # Chart 5 — Overlay
     st.markdown('<div class="sec-label">All Signals Overlaid (Normalized 0–100)</div>', unsafe_allow_html=True)
     fig5 = chart_overlay(ticker)
     st.plotly_chart(fig5, use_container_width=True, config={"displayModeBar": False})
     note(
-        f"All four signals normalized to 0–100 and plotted together to reveal lead/lag relationships. "
-        f"As data accumulates, this chart will show whether sentiment peaks tend to precede or follow "
-        f"price movements — the core empirical question of this project."
+        "All four signals normalized to 0–100 and plotted together to reveal lead/lag relationships. "
+        "As data accumulates, this chart will show whether sentiment peaks tend to precede or follow "
+        "price movements — the core empirical question of this project."
     )
 
 
