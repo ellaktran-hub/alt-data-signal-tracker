@@ -285,7 +285,8 @@ def sparse_note():
 
 
 # ── Summary data ──────────────────────────────────────────────────────────────
-@st.cache_data(ttl=300)
+# No @st.cache_data here — Streamlit crashes when a cached function calls
+# other cached functions (UnhashableTypeError on the inner return values).
 def build_summary():
     rows = []
     for ticker in config.TICKERS:
@@ -714,7 +715,35 @@ if "view" not in st.session_state:
 if "ticker" not in st.session_state:
     st.session_state.ticker = config.TICKERS[0]
 
-if st.session_state.view == "summary":
-    show_summary()
-else:
-    show_detail(st.session_state.ticker)
+def has_any_data():
+    return DATA_DIR.exists() and any(DATA_DIR.glob("prices_*.csv"))
+
+try:
+    if not has_any_data():
+        show_header()
+        st.markdown(f"""
+        <div style="background:{CARD}; border:1px solid {BORDER}; border-left:3px solid {ORANGE};
+                    border-radius:5px; padding:20px 24px; margin-top:1rem; font-family:monospace;">
+          <div style="color:{ORANGE}; font-size:0.72rem; text-transform:uppercase;
+                      letter-spacing:0.1em; margin-bottom:10px;">Pipeline Status</div>
+          <div style="color:{TEXT}; font-size:1rem; font-weight:600; margin-bottom:8px;">
+            Data pipeline not yet run — check back after the first scheduled update.
+          </div>
+          <div style="color:{MUTED}; font-size:0.8rem; line-height:1.7;">
+            The automated pipeline runs daily at 06:30 and pushes fresh data to GitHub.
+            Once data appears, this dashboard will display 90 days of price history,
+            Google Trends, StockTwits sentiment, and news headline scores for all 10 tickers.
+          </div>
+        </div>
+        """, unsafe_allow_html=True)
+    elif st.session_state.view == "summary":
+        show_summary()
+    else:
+        show_detail(st.session_state.ticker)
+except Exception as e:
+    st.error(
+        f"Dashboard encountered an error: `{e}`\n\n"
+        "If this is a fresh deployment, data files may still be loading. "
+        "Try refreshing the page in 30 seconds."
+    )
+    raise
