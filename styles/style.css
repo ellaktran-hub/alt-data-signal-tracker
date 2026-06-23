@@ -837,6 +837,32 @@ section[data-testid="stSidebar"] .stButton > button:hover {
   border-color: var(--accent) !important;
   color: #FAF6EF !important;
 }
+/* Basket remove (×) button — inline, no border, vertically centered */
+section[data-testid="stSidebar"] [data-testid="stHorizontalBlock"] > [data-testid="stColumn"]:last-child {
+  display: flex !important;
+  align-items: center !important;
+}
+section[data-testid="stSidebar"] [data-testid="stHorizontalBlock"] > [data-testid="stColumn"]:last-child .stButton {
+  margin: 0 !important;
+  width: 100%;
+}
+section[data-testid="stSidebar"] [data-testid="stHorizontalBlock"] > [data-testid="stColumn"]:last-child .stButton > button {
+  background: none !important;
+  border: none !important;
+  box-shadow: none !important;
+  color: rgba(200,184,154,0.45) !important;
+  padding: 0 !important;
+  min-height: unset !important;
+  height: auto !important;
+  line-height: 1 !important;
+  font-size: 1rem !important;
+}
+section[data-testid="stSidebar"] [data-testid="stHorizontalBlock"] > [data-testid="stColumn"]:last-child .stButton > button:hover {
+  background: none !important;
+  border: none !important;
+  box-shadow: none !important;
+  color: #9B3A28 !important;
+}
 section[data-testid="stSidebar"] [data-testid="stSelectbox"] > label {
   display: none !important;
 }

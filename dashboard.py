@@ -422,10 +422,10 @@ def build_market_chips_html(rows):
     bearish = sum(1 for r in rows if r["signal"] == "BEARISH")
     neutral = total - bullish - bearish
 
-    news_vals = [r["news_sent_raw"] for r in rows if r["news_sent_raw"] is not None]
-    avg_news  = sum(news_vals) / len(news_vals) if news_vals else 0.0
-    avg_sign  = "+" if avg_news >= 0 else ""
-    avg_abs   = abs(avg_news)
+    news_vals    = [r["news_sent_raw"] for r in rows if r["news_sent_raw"] is not None]
+    avg_news_raw = sum(news_vals) / len(news_vals) if news_vals else 0.0
+    avg_news_int = int(round(avg_news_raw * 100))
+    avg_sign     = "+" if avg_news_int >= 0 else ""
 
     ts = format_et(now_et())
 
@@ -448,11 +448,8 @@ def build_market_chips_html(rows):
   </div>
   <div class="chip">
     <div class="chip-label">Avg News Sentiment</div>
-    <div class="chip-value"
-         data-countup-float="{avg_abs:.4f}"
-         data-countup-prefix="{avg_sign}"
-         data-countup-dec="3">
-      {avg_sign}{avg_news:.3f}
+    <div class="chip-value" data-countup-int="{abs(avg_news_int)}" data-countup-prefix="{avg_sign}">
+      {avg_sign}{abs(avg_news_int)}
     </div>
   </div>
   <div class="chip">
@@ -1026,10 +1023,40 @@ def show_header():
 def show_summary():
     rows            = build_summary()
     rows_by_ticker  = {r["ticker"]: r for r in rows}
+    basket          = st.session_state.get("basket", list(config.TICKERS))
     show_sidebar(rows_by_ticker)
     show_header()
 
-    # Ticker strip
+    # Build basket-filtered rows (all sections use these)
+    basket_rows = []
+    for t in basket:
+        if t in rows_by_ticker:
+            basket_rows.append(rows_by_ticker[t])
+        else:
+            # Non-dataset ticker added by user: fetch price only, no alt data
+            price, chg = fetch_live_quote(t)
+            price_str  = f"${price:,.2f}" if price is not None else "—"
+            if chg is not None:
+                chg_str   = f"▲ {chg:.2f}%" if chg > 0 else f"▼ {abs(chg):.2f}%"
+                chg_color = GREEN if chg > 0 else RED
+            else:
+                chg_str, chg_color = "—", MUTED
+            basket_rows.append({
+                "ticker":        t,
+                "company":       t,
+                "price":         price_str,
+                "chg":           chg_str,
+                "chg_color":     chg_color,
+                "chg_raw":       chg,
+                "bullish_pct":   "—",
+                "trends":        "—",
+                "news_sent":     "—",
+                "news_sent_raw": None,
+                "signal":        "—",
+                "sig_color":     MUTED,
+            })
+
+    # Ticker strip (always full dataset regardless of basket)
     st.markdown(build_ticker_strip_html(rows), unsafe_allow_html=True)
 
     # Global ticker search
@@ -1051,26 +1078,26 @@ def show_summary():
             st.rerun()
     st.markdown('</div>', unsafe_allow_html=True)
 
-    # Market chips
-    st.markdown(build_market_chips_html(rows), unsafe_allow_html=True)
+    # Market chips (basket-filtered)
+    st.markdown(build_market_chips_html(basket_rows), unsafe_allow_html=True)
 
-    # Signal distribution
+    # Signal distribution (basket-filtered)
     st.plotly_chart(
-        build_signal_dist_chart(rows),
+        build_signal_dist_chart(basket_rows),
         use_container_width=True,
         config={"displayModeBar": False, "responsive": True},
     )
 
-    # Sparkline grid
+    # Sparkline grid (basket-filtered)
     st.markdown('<div class="sec-label">Individual Ticker Signals</div>', unsafe_allow_html=True)
-    show_sparkline_grid(rows)
+    show_sparkline_grid(basket_rows)
 
     # Metric definitions (collapsed by default)
     show_glossary()
 
-    # Signal table
+    # Signal table (basket-filtered)
     st.markdown('<div class="sec-label">Market Intelligence Overview</div>', unsafe_allow_html=True)
-    st.markdown(build_table_html(rows), unsafe_allow_html=True)
+    st.markdown(build_table_html(basket_rows), unsafe_allow_html=True)
 
     st.markdown(f"""
     <div class="signal-legend">
