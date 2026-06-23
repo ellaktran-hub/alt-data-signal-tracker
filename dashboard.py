@@ -234,6 +234,19 @@ def fetch_live_quote(symbol):
     except Exception:
         return None, None
 
+@st.cache_data(ttl=3600)
+def fetch_yf_history(symbol):
+    if not _YF_OK:
+        return pd.DataFrame()
+    try:
+        hist = yf.Ticker(symbol).history(period="90d")
+        if hist.empty:
+            return pd.DataFrame()
+        hist.index = hist.index.tz_localize(None)
+        return hist[["Close"]].rename(columns={"Close": "close_price"})
+    except Exception:
+        return pd.DataFrame()
+
 
 # ── Summary data ───────────────────────────────────────────────────────────────
 def build_summary():
@@ -624,28 +637,6 @@ def build_table_html(rows):
 def build_animations_js():
     return """
 <script>
-function toggleSidebar() {
-  var sidebar = document.querySelector('section[data-testid="stSidebar"]');
-  var overlay = document.getElementById('sidebar-overlay');
-  var btn = document.getElementById('hamburger-btn');
-  var isOpen = sidebar.classList.contains('sidebar-open');
-  sidebar.classList.toggle('sidebar-open', !isOpen);
-  overlay.classList.toggle('active', !isOpen);
-  btn.classList.toggle('is-open', !isOpen);
-  document.body.style.overflow = isOpen ? '' : 'hidden';
-}
-window.addEventListener('resize', function () {
-  if (window.innerWidth > 768) {
-    var sidebar = document.querySelector('section[data-testid="stSidebar"]');
-    var overlay = document.getElementById('sidebar-overlay');
-    var btn = document.getElementById('hamburger-btn');
-    if (sidebar) sidebar.classList.remove('sidebar-open');
-    if (overlay) overlay.classList.remove('active');
-    if (btn) btn.classList.remove('is-open');
-    document.body.style.overflow = '';
-  }
-});
-
 (function () {
   var reduced = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
   if (reduced) return;
@@ -962,10 +953,53 @@ def show_sparkline_grid(rows):
 # ── Header ─────────────────────────────────────────────────────────────────────
 def show_header():
     st.markdown("""
-    <button class="hamburger-btn" onclick="toggleSidebar()" aria-label="Open menu" id="hamburger-btn">
+    <button class="hamburger-btn" id="hamburger-btn" aria-label="Open menu">
       <span></span><span></span><span></span>
     </button>
-    <div class="sidebar-overlay" id="sidebar-overlay" onclick="toggleSidebar()"></div>
+    <div class="sidebar-overlay" id="sidebar-overlay"></div>
+    <script>
+    !function(){
+      function _toggle(){
+        var sb=document.querySelector('[data-testid="stSidebar"]');
+        if(!sb)return;
+        var open=sb.classList.toggle('sidebar-open');
+        var ov=document.getElementById('sidebar-overlay');
+        var bt=document.getElementById('hamburger-btn');
+        if(ov)ov.classList.toggle('active',open);
+        if(bt)bt.classList.toggle('is-open',open);
+        document.body.style.overflow=open?'hidden':'';
+      }
+      window.toggleSidebar=_toggle;
+      function _bind(){
+        var bt=document.getElementById('hamburger-btn');
+        var ov=document.getElementById('sidebar-overlay');
+        if(bt&&!bt._hb){
+          bt._hb=true;
+          bt.addEventListener('click',_toggle);
+          bt.addEventListener('touchstart',function(e){e.preventDefault();_toggle();},{passive:false});
+        }
+        if(ov&&!ov._hb){
+          ov._hb=true;
+          ov.addEventListener('click',_toggle);
+          ov.addEventListener('touchstart',function(e){e.preventDefault();_toggle();},{passive:false});
+        }
+      }
+      window.addEventListener('resize',function(){
+        if(window.innerWidth>768){
+          var sb=document.querySelector('[data-testid="stSidebar"]');
+          var ov=document.getElementById('sidebar-overlay');
+          var bt=document.getElementById('hamburger-btn');
+          if(sb)sb.classList.remove('sidebar-open');
+          if(ov)ov.classList.remove('active');
+          if(bt)bt.classList.remove('is-open');
+          document.body.style.overflow='';
+        }
+      });
+      document.readyState==='loading'
+        ?document.addEventListener('DOMContentLoaded',_bind)
+        :setTimeout(_bind,0);
+    }();
+    </script>
     """, unsafe_allow_html=True)
     st.markdown(f"""
     <div class="rh">
@@ -997,6 +1031,25 @@ def show_summary():
 
     # Ticker strip
     st.markdown(build_ticker_strip_html(rows), unsafe_allow_html=True)
+
+    # Global ticker search
+    nasdaq = load_nasdaq_tickers()
+    st.markdown('<div class="search-wrap">', unsafe_allow_html=True)
+    col1, col2, col3 = st.columns([1, 2, 1])
+    with col2:
+        search_ticker = st.selectbox(
+            "search_bar",
+            options=[""] + nasdaq,
+            index=0,
+            placeholder="Search any NASDAQ stock...",
+            label_visibility="collapsed",
+            key="global_search",
+        )
+        if search_ticker:
+            st.session_state["ticker"] = search_ticker
+            st.query_params["ticker"] = search_ticker
+            st.rerun()
+    st.markdown('</div>', unsafe_allow_html=True)
 
     # Market chips
     st.markdown(build_market_chips_html(rows), unsafe_allow_html=True)
@@ -1042,19 +1095,53 @@ def show_detail(ticker):
     show_sidebar(rows_by_ticker)
     show_header()
 
+    is_dataset = ticker in config.TICKERS
+
     def _go_back():
         st.query_params.clear()
+        st.session_state.pop("ticker", None)
+        st.session_state.pop("global_search", None)
 
-    back_col, _, drop_col = st.columns([1.5, 6, 2])
-    with back_col:
+    if is_dataset:
+        back_col, _, drop_col = st.columns([1.5, 6, 2])
+        with back_col:
+            st.button("← Back to overview", on_click=_go_back, key="back_btn")
+        with drop_col:
+            new_ticker = st.selectbox("Switch ticker", config.TICKERS, index=config.TICKERS.index(ticker))
+            if new_ticker != ticker:
+                st.query_params["ticker"] = new_ticker
+                st.rerun()
+    else:
         st.button("← Back to overview", on_click=_go_back, key="back_btn")
-    with drop_col:
-        new_ticker = st.selectbox("Switch ticker", config.TICKERS, index=config.TICKERS.index(ticker))
-        if new_ticker != ticker:
-            st.query_params["ticker"] = new_ticker
-            st.rerun()
 
     st.markdown("---")
+
+    if not is_dataset:
+        _, company_name = validate_ticker_yf(ticker)
+        company_name = company_name or ticker
+        st.markdown(f'<div class="sec-label">{ticker} · {company_name}</div>', unsafe_allow_html=True)
+        st.markdown('<div class="sec-label">Price History</div>', unsafe_allow_html=True)
+        df_live = fetch_yf_history(ticker)
+        if not df_live.empty:
+            fig_live = go.Figure()
+            fig_live.add_trace(go.Scatter(
+                x=df_live.index, y=df_live["close_price"], mode="lines",
+                line=dict(color=C1, width=2.5),
+                fill="tozeroy", fillcolor="rgba(107,66,38,0.07)",
+                name="Close", hovertemplate="$%{y:,.2f}<extra></extra>",
+            ))
+            fig_live.update_layout(**chart_layout(f"{ticker}  ·  Daily Close Price (USD)"))
+            fig_live.update_yaxes(tickprefix="$")
+            st.plotly_chart(fig_live, use_container_width=True, config={"displayModeBar": False, "responsive": True})
+        else:
+            st.info("No price data available.")
+        st.markdown(
+            '<div class="no-data-note">No alt data available for this ticker yet. '
+            'Only tracked tickers have StockTwits, Trends, and News data.</div>',
+            unsafe_allow_html=True,
+        )
+        st.markdown(build_animations_js(), unsafe_allow_html=True)
+        return
 
     price_df  = load_prices(ticker)
     st_df     = load_stocktwits(ticker)
@@ -1103,6 +1190,16 @@ def show_detail(ticker):
         """, unsafe_allow_html=True)
 
     st.markdown("---")
+
+    # All signals overlaid — first
+    st.markdown('<div class="sec-label">All Signals Overlaid (Normalized 0–100)</div>', unsafe_allow_html=True)
+    fig5 = chart_overlay(ticker)
+    st.plotly_chart(fig5, use_container_width=True, config={"displayModeBar": False, "responsive": True})
+    note(
+        "All four signals normalized to 0–100 and plotted together to reveal lead/lag relationships. "
+        "As data accumulates, this chart will show whether sentiment peaks tend to precede or follow "
+        "price movements — the core empirical question of this project."
+    )
 
     st.markdown('<div class="sec-label">Price History</div>', unsafe_allow_html=True)
     fig1 = chart_price(ticker)
@@ -1161,22 +1258,13 @@ def show_detail(ticker):
         "the line are net-positive days; below are net-negative days."
     )
 
-    st.markdown('<div class="sec-label">All Signals Overlaid (Normalized 0–100)</div>', unsafe_allow_html=True)
-    fig5 = chart_overlay(ticker)
-    st.plotly_chart(fig5, use_container_width=True, config={"displayModeBar": False, "responsive": True})
-    note(
-        "All four signals normalized to 0–100 and plotted together to reveal lead/lag relationships. "
-        "As data accumulates, this chart will show whether sentiment peaks tend to precede or follow "
-        "price movements — the core empirical question of this project."
-    )
-
 
 # ── Routing ────────────────────────────────────────────────────────────────────
 def has_any_data():
     return DATA_DIR.exists() and any(DATA_DIR.glob("prices_*.csv"))
 
 _ticker_param = st.query_params.get("ticker", None)
-_view = "detail" if (_ticker_param and _ticker_param in config.TICKERS) else "summary"
+_view = "detail" if _ticker_param else "summary"
 
 try:
     if not has_any_data():

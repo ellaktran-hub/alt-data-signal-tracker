@@ -862,6 +862,68 @@ section[data-testid="stSidebar"] hr {
 /* ── Hamburger button (hidden on desktop) ─────────────────────────────────── */
 .hamburger-btn {
   display: none;
+  touch-action: manipulation;
+}
+
+/* ── Global ticker search bar ─────────────────────────────────────────────── */
+.search-wrap {
+  margin: 0 0 2rem;
+  padding: 1.8rem 0;
+  border-bottom: 1px solid var(--border);
+}
+.search-wrap [data-testid="stSelectbox"] > div,
+.search-wrap [data-baseweb="select"] > div:first-child {
+  background: var(--surface) !important;
+  border: 1px solid var(--border) !important;
+  border-radius: 2px !important;
+  padding: 10px 16px !important;
+  font-family: 'Inter', sans-serif !important;
+  font-size: 1rem !important;
+  color: var(--text) !important;
+  box-shadow: none !important;
+  transition: border-color 150ms ease !important;
+}
+.search-wrap [data-baseweb="select"] > div:first-child:hover,
+.search-wrap [data-baseweb="select"] > div:first-child:focus-within {
+  border-color: var(--accent) !important;
+}
+.search-wrap [data-baseweb="select"] [data-testid="stSelectboxPlaceholder"],
+.search-wrap input::placeholder {
+  font-family: 'Inter', sans-serif !important;
+  font-size: 0.95rem !important;
+  color: var(--muted) !important;
+  font-style: italic !important;
+}
+[data-baseweb="popover"] [data-baseweb="menu"] {
+  background: var(--surface) !important;
+  border: 1px solid var(--border) !important;
+  border-radius: 2px !important;
+  box-shadow: 0 4px 16px rgba(44,36,22,0.1) !important;
+}
+[data-baseweb="popover"] [role="option"] {
+  font-family: 'JetBrains Mono', monospace !important;
+  font-size: 0.82rem !important;
+  color: var(--text) !important;
+  padding: 7px 16px !important;
+  background: transparent !important;
+}
+[data-baseweb="popover"] [role="option"]:hover,
+[data-baseweb="popover"] [aria-selected="true"] {
+  background: var(--surface2) !important;
+  color: var(--text) !important;
+}
+
+/* ── No-data placeholder (non-dataset tickers) ────────────────────────────── */
+.no-data-note {
+  font-family: 'Inter', sans-serif;
+  font-size: 0.82rem;
+  color: var(--muted);
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-left: 3px solid var(--accent);
+  border-radius: 0 2px 2px 0;
+  padding: 14px 18px;
+  margin: 1rem 0;
 }
 
 /* ── Mobile — 768px breakpoint ────────────────────────────────────────────── */
