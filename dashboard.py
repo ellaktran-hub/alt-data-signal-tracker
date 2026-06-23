@@ -25,14 +25,23 @@ st.set_page_config(
 )
 
 # ── Design tokens ──────────────────────────────────────────────────────────────
-BG      = "#F5F0E8"
-SURFACE = "#EDE7D9"
-BORDER  = "#C8B89A"
-TEXT    = "#2C2416"
-MUTED   = "#7A6A52"
-ACCENT  = "#8B6F47"
-GREEN   = "#4A6741"
-RED     = "#8B3A2A"
+BG          = "#F5F0E8"
+SURFACE     = "#EDE7D9"
+BORDER      = "#C8B89A"
+TEXT        = "#2C2416"
+MUTED       = "#7A6A52"
+ACCENT      = "#8B6F47"
+DARK_HEADER = "#1C160E"
+
+# Chart series palette
+C1 = "#6B4226"   # primary — deep espresso
+C2 = "#C47D3E"   # secondary — warm amber
+C3 = "#2C2416"   # tertiary — near-black
+C4 = "#A0896B"   # quaternary — medium tan
+
+# Signal colors (more saturated than palette)
+GREEN = "#3A6B35"
+RED   = "#9B3A28"
 
 # ── Load styles ────────────────────────────────────────────────────────────────
 st.markdown(
@@ -58,13 +67,13 @@ def chart_layout(title="", height=270):
             x=0, xanchor="left", y=0.97,
         ),
         xaxis=dict(
-            gridcolor="rgba(200,184,154,0.35)",
+            gridcolor="rgba(200,184,154,0.25)",
             linecolor=BORDER,
             tickfont=dict(size=9, color=MUTED, family="JetBrains Mono"),
             showgrid=True, zeroline=False,
         ),
         yaxis=dict(
-            gridcolor="rgba(200,184,154,0.35)",
+            gridcolor="rgba(200,184,154,0.25)",
             linecolor=BORDER,
             tickfont=dict(size=9, color=MUTED, family="JetBrains Mono"),
             showgrid=True, zeroline=False,
@@ -166,7 +175,7 @@ def sparse_note():
     )
 
 
-# ── Summary table ──────────────────────────────────────────────────────────────
+# ── Summary table data ─────────────────────────────────────────────────────────
 # No @st.cache_data — crashes when a cached function calls other cached functions.
 def build_summary():
     rows = []
@@ -198,25 +207,33 @@ def build_summary():
 
         if price_chg is not None:
             if price_chg > 0.001:
-                chg_str = f"▲ {price_chg:.2f}%"
+                chg_str   = f"▲ {price_chg:.2f}%"
+                chg_color = GREEN
             elif price_chg < -0.001:
-                chg_str = f"▼ {abs(price_chg):.2f}%"
+                chg_str   = f"▼ {abs(price_chg):.2f}%"
+                chg_color = RED
             else:
-                chg_str = f"{price_chg:.2f}%"
+                chg_str   = f"{price_chg:.2f}%"
+                chg_color = MUTED
         else:
-            chg_str = "—"
+            chg_str   = "—"
+            chg_color = MUTED
+
+        sig_color = GREEN if signal == "BULLISH" else (RED if signal == "BEARISH" else MUTED)
 
         rows.append({
-            "TICKER":    ticker,
-            "COMPANY":   config.COMPANIES.get(ticker, ticker),
-            "PRICE":     f"${price:,.2f}"          if price is not None        else "—",
-            "CHG %":     chg_str,
-            "BULLISH %": f"{bullish_pct:.0f}%"     if bullish_pct is not None  else "—",
-            "TRENDS":    f"{trends_score:.0f}/100"  if trends_score is not None else "—",
-            "NEWS SENT": f"{news_sent:+.3f}"        if news_sent is not None    else "—",
-            "SIGNAL":    signal,
+            "ticker":       ticker,
+            "company":      config.COMPANIES.get(ticker, ticker),
+            "price":        f"${price:,.2f}"          if price is not None        else "—",
+            "chg":          chg_str,
+            "chg_color":    chg_color,
+            "bullish_pct":  f"{bullish_pct:.0f}%"     if bullish_pct is not None  else "—",
+            "trends":       f"{trends_score:.0f}/100"  if trends_score is not None else "—",
+            "news_sent":    f"{news_sent:+.3f}"        if news_sent is not None    else "—",
+            "signal":       signal,
+            "sig_color":    sig_color,
         })
-    return pd.DataFrame(rows)
+    return rows
 
 
 # ── Chart builders ─────────────────────────────────────────────────────────────
@@ -228,8 +245,8 @@ def chart_price(ticker):
     fig.add_trace(go.Scatter(
         x=df.index, y=df["close_price"],
         mode="lines",
-        line=dict(color=ACCENT, width=1.8),
-        fill="tozeroy", fillcolor="rgba(139,111,71,0.07)",
+        line=dict(color=C1, width=2.5),
+        fill="tozeroy", fillcolor="rgba(107,66,38,0.07)",
         name="Close",
         hovertemplate="$%{y:,.2f}<extra></extra>",
     ))
@@ -248,17 +265,20 @@ def chart_stocktwits(ticker):
     df["bear_pct"] = (df["bearish_count"] / total * 100).fillna(0)
     sparse = len(df) < 3
     mode   = "lines+markers" if sparse else "lines"
+    msize  = 6
     fig = go.Figure()
     fig.add_trace(go.Scatter(
         x=df.index, y=df["bull_pct"],
-        mode=mode, line=dict(color=GREEN, width=1.8),
-        fill="tozeroy", fillcolor="rgba(74,103,65,0.10)",
+        mode=mode, line=dict(color=GREEN, width=2.5),
+        marker=dict(size=msize),
+        fill="tozeroy", fillcolor="rgba(58,107,53,0.10)",
         name="Bullish %", hovertemplate="%{y:.1f}%<extra>Bullish</extra>",
     ))
     fig.add_trace(go.Scatter(
         x=df.index, y=df["bear_pct"],
-        mode=mode, line=dict(color=RED, width=1.8),
-        fill="tozeroy", fillcolor="rgba(139,58,42,0.08)",
+        mode=mode, line=dict(color=RED, width=2.5),
+        marker=dict(size=msize),
+        fill="tozeroy", fillcolor="rgba(155,58,40,0.08)",
         name="Bearish %", hovertemplate="%{y:.1f}%<extra>Bearish</extra>",
     ))
     fig.update_layout(**chart_layout(f"{ticker}  ·  StockTwits Bullish% vs Bearish%"))
@@ -274,8 +294,8 @@ def chart_trends(ticker):
     fig.add_trace(go.Scatter(
         x=df.index, y=df["interest"],
         mode="lines",
-        line=dict(color=ACCENT, width=1.8),
-        fill="tozeroy", fillcolor="rgba(139,111,71,0.07)",
+        line=dict(color=C1, width=2.5),
+        fill="tozeroy", fillcolor="rgba(107,66,38,0.07)",
         name="Search Interest",
         hovertemplate="%{y:.0f}/100<extra></extra>",
     ))
@@ -283,7 +303,7 @@ def chart_trends(ticker):
         avg = df["interest"].rolling(7, min_periods=1).mean()
         fig.add_trace(go.Scatter(
             x=df.index, y=avg,
-            mode="lines", line=dict(color=BORDER, width=1, dash="dot"),
+            mode="lines", line=dict(color=BORDER, width=1.2, dash="dot"),
             name="7d avg", hovertemplate="%{y:.1f}<extra>7d avg</extra>",
         ))
     fig.update_layout(**chart_layout(f"{ticker}  ·  Google Trends Search Interest (0–100)"))
@@ -332,7 +352,7 @@ def chart_overlay(ticker):
             n   = norm_0_100(ret)
             fig.add_trace(go.Scatter(
                 x=n.index, y=n, mode="lines", name="Price (norm)",
-                line=dict(color=TEXT, width=2),
+                line=dict(color=C3, width=2.5),
                 hovertemplate="%{y:.1f}<extra>Price</extra>",
             ))
 
@@ -340,7 +360,7 @@ def chart_overlay(ticker):
         n = norm_0_100(trends_df["interest"])
         fig.add_trace(go.Scatter(
             x=n.index, y=n, mode="lines", name="Trends (norm)",
-            line=dict(color=ACCENT, width=1.6),
+            line=dict(color=C2, width=2.5),
             hovertemplate="%{y:.1f}<extra>Trends</extra>",
         ))
 
@@ -348,7 +368,7 @@ def chart_overlay(ticker):
         n = norm_0_100(st_df["net_sentiment"])
         fig.add_trace(go.Scatter(
             x=n.index, y=n, mode="lines+markers", name="StockTwits (norm)",
-            line=dict(color=GREEN, width=1.6), marker=dict(size=5),
+            line=dict(color=GREEN, width=2.5), marker=dict(size=6),
             hovertemplate="%{y:.1f}<extra>StockTwits</extra>",
         ))
 
@@ -356,7 +376,7 @@ def chart_overlay(ticker):
         n = norm_0_100(news_df["avg_sentiment"])
         fig.add_trace(go.Scatter(
             x=n.index, y=n, mode="lines+markers", name="News (norm)",
-            line=dict(color=MUTED, width=1.6), marker=dict(size=5),
+            line=dict(color=C4, width=2.5), marker=dict(size=6),
             hovertemplate="%{y:.1f}<extra>News Sent.</extra>",
         ))
 
@@ -380,8 +400,7 @@ def show_header():
       <div class="rh-body">
         Tracking community sentiment, search interest, and news tone across {len(config.TICKERS)} consumer
         equities — collected daily and compared against closing price data to test whether alternative
-        data sources lead or lag short-term stock price movements. Research question: do retail investor
-        sentiment and public search behavior predict price changes, and by how many days?
+        data sources lead or lag short-term stock price movements.
       </div>
       <div class="rh-status">
         <span class="status-active"></span>
@@ -403,55 +422,52 @@ def show_header():
 def show_summary():
     show_header()
     st.markdown(
-        '<div class="sec-label">Market Intelligence Overview — select a row to open stock detail</div>',
+        '<div class="sec-label">Market Intelligence Overview</div>',
         unsafe_allow_html=True,
     )
 
-    summary = build_summary()
+    rows = build_summary()
 
-    def style_table(df):
-        styles = pd.DataFrame("", index=df.index, columns=df.columns)
-        for i, sig in enumerate(df["SIGNAL"]):
-            if sig == "BULLISH":
-                styles.iloc[i, df.columns.get_loc("SIGNAL")] = f"color: {GREEN}; font-weight: 600"
-            elif sig == "BEARISH":
-                styles.iloc[i, df.columns.get_loc("SIGNAL")] = f"color: {RED}; font-weight: 600"
-            else:
-                styles.iloc[i, df.columns.get_loc("SIGNAL")] = f"color: {MUTED}; font-weight: 600"
-        for i, chg in enumerate(df["CHG %"]):
-            if isinstance(chg, str) and chg.startswith("▲"):
-                styles.iloc[i, df.columns.get_loc("CHG %")] = f"color: {GREEN}"
-            elif isinstance(chg, str) and chg.startswith("▼"):
-                styles.iloc[i, df.columns.get_loc("CHG %")] = f"color: {RED}"
-        return styles
+    # Build custom HTML table with full CSS control
+    html = '<div class="data-tbl">'
 
-    styled = summary.style.apply(style_table, axis=None)
+    # Header row
+    html += '<div class="data-tbl-head">'
+    for h in ["TICKER", "COMPANY", "PRICE", "CHG %", "BULLISH %", "TRENDS", "NEWS SENT", "SIGNAL", ""]:
+        html += f'<div class="data-tbl-th">{h}</div>'
+    html += '</div>'
 
-    event = st.dataframe(
-        styled,
-        use_container_width=True,
-        hide_index=True,
-        on_select="rerun",
-        selection_mode="single-row",
-        height=400,
-    )
+    # Data rows
+    for i, row in enumerate(rows):
+        row_cls = "data-tbl-row even" if i % 2 == 0 else "data-tbl-row odd"
+        ticker  = row["ticker"]
+        html += f'<div class="{row_cls}">'
+        html += f'<div class="data-tbl-td tkr">{ticker}</div>'
+        html += f'<div class="data-tbl-td">{row["company"]}</div>'
+        html += f'<div class="data-tbl-td num">{row["price"]}</div>'
+        html += f'<div class="data-tbl-td num" style="color:{row["chg_color"]}">{row["chg"]}</div>'
+        html += f'<div class="data-tbl-td num">{row["bullish_pct"]}</div>'
+        html += f'<div class="data-tbl-td num">{row["trends"]}</div>'
+        html += f'<div class="data-tbl-td num">{row["news_sent"]}</div>'
+        html += (f'<div class="data-tbl-td num" style="color:{row["sig_color"]};font-weight:600;">'
+                 f'{row["signal"]}</div>')
+        html += (f'<div class="data-tbl-td act">'
+                 f'<a href="?ticker={ticker}" class="view-btn">View →</a></div>')
+        html += '</div>'
 
-    if event.selection.rows:
-        idx = event.selection.rows[0]
-        st.session_state.ticker = config.TICKERS[idx]
-        st.session_state.view   = "detail"
-        st.rerun()
+    html += '</div>'
+    st.markdown(html, unsafe_allow_html=True)
 
     st.markdown(f"""
     <div class="signal-legend">
       <strong>Signal methodology —</strong>
-      StockTwits bullish% &gt; 55% = +1 vote · &lt; 40% = −1 vote ·
-      News sentiment &gt; +0.10 = +1 vote · &lt; −0.10 = −1 vote ·
-      Google Trends &gt; 10% above 7-day avg = +1 vote · &gt; 10% below = −1 vote ·
-      Prior-day price change &gt; +0.5% = +1 vote · &lt; −0.5% = −1 vote ·
-      Score ≥ +2 = <span style="color:{GREEN}; font-weight:600;">BULLISH</span> ·
-      ≤ −2 = <span style="color:{RED}; font-weight:600;">BEARISH</span> ·
-      otherwise <span style="color:{MUTED}; font-weight:600;">NEUTRAL</span>
+      StockTwits bullish% &gt; 55% = +1 · &lt; 40% = −1 ·
+      News sentiment &gt; +0.10 = +1 · &lt; −0.10 = −1 ·
+      Google Trends &gt; 10% above 7-day avg = +1 · &gt; 10% below = −1 ·
+      Prior-day price change &gt; +0.5% = +1 · &lt; −0.5% = −1 ·
+      Score ≥ +2 = <span style="color:{GREEN};font-weight:600;">BULLISH</span> ·
+      ≤ −2 = <span style="color:{RED};font-weight:600;">BEARISH</span> ·
+      otherwise <span style="color:{MUTED};font-weight:600;">NEUTRAL</span>
     </div>
     """, unsafe_allow_html=True)
 
@@ -460,20 +476,17 @@ def show_summary():
 def show_detail(ticker):
     show_header()
 
-    col_back, col_drop, col_spacer = st.columns([1, 2, 8])
-    with col_back:
-        if st.button("← Summary"):
-            st.session_state.view = "summary"
-            st.rerun()
-    with col_drop:
+    back_col, _, drop_col = st.columns([1.5, 6, 2])
+    with back_col:
+        st.markdown('<a href="?" class="back-link">← Back to overview</a>', unsafe_allow_html=True)
+    with drop_col:
         new_ticker = st.selectbox(
             "Switch ticker",
             config.TICKERS,
             index=config.TICKERS.index(ticker),
-            label_visibility="visible",
         )
         if new_ticker != ticker:
-            st.session_state.ticker = new_ticker
+            st.query_params["ticker"] = new_ticker
             st.rerun()
 
     st.markdown("---")
@@ -555,7 +568,7 @@ def show_detail(ticker):
         f"moves by 1–5 trading days would be considered economically meaningful."
     )
 
-    # ── Chart 2: StockTwits ─────────────────────────────────────────────────────
+    # ── Chart 2: StockTwits ────────────────────────────────────────────────────
     st.markdown('<div class="sec-label">StockTwits Community Sentiment</div>', unsafe_allow_html=True)
     result2 = chart_stocktwits(ticker)
     if result2[0] is not None:
@@ -570,12 +583,11 @@ def show_detail(ticker):
         f"StockTwits is a social media platform used exclusively by retail equity traders, with over 6 million "
         f"registered users. Unlike general social media, users voluntarily tag posts as 'Bullish' or 'Bearish' "
         f"when discussing a ticker — providing a direct sentiment label rather than inferred tone. "
-        f"This chart shows the daily percentage of labeled posts that were bullish (green) vs bearish (red). "
         f"Academic research has found StockTwits sentiment to be a statistically significant predictor of "
         f"next-day abnormal returns for high-attention stocks."
     )
 
-    # ── Chart 3: Google Trends ──────────────────────────────────────────────────
+    # ── Chart 3: Google Trends ─────────────────────────────────────────────────
     st.markdown('<div class="sec-label">Google Trends Search Interest</div>', unsafe_allow_html=True)
     fig3 = chart_trends(ticker)
     if fig3:
@@ -585,13 +597,13 @@ def show_detail(ticker):
     note(
         f"Google Trends measures how frequently a term is searched relative to its own historical peak — "
         f"a score of 100 represents maximum search interest for the period; 50 represents half of that peak. "
-        f"The dotted line is the 7-day rolling average, providing a baseline for identifying above- or "
-        f"below-normal attention. Search interest often spikes around earnings announcements, product launches, "
-        f"or macro events — making it a proxy for retail investor attention, which Da, Engelberg &amp; Gao "
-        f"(2011) linked to short-term price pressure in <em>In Search of Attention</em>."
+        f"The dotted line is the 7-day rolling average baseline. Search interest often spikes around earnings "
+        f"announcements, product launches, or macro events — making it a proxy for retail investor attention, "
+        f"which Da, Engelberg &amp; Gao (2011) linked to short-term price pressure in "
+        f"<em>In Search of Attention</em>."
     )
 
-    # ── Chart 4: News sentiment ─────────────────────────────────────────────────
+    # ── Chart 4: News sentiment ────────────────────────────────────────────────
     st.markdown('<div class="sec-label">News Headline Sentiment</div>', unsafe_allow_html=True)
     result4 = chart_news(ticker)
     if result4[0] is not None:
@@ -604,11 +616,10 @@ def show_detail(ticker):
         sparse_note()
     note(
         f"Each bar represents the average VADER sentiment score across all Yahoo Finance news headlines "
-        f"published for {ticker} on that day. VADER (Valence Aware Dictionary and sEntiment Reasoner) is an "
-        f"NLP lexicon designed for short financial and social media text — scoring each headline from "
-        f"–1.0 (strongly negative) to +1.0 (strongly positive). Green bars indicate net-positive news days; "
-        f"red bars indicate net-negative days. News sentiment is widely used in quantitative finance as a "
-        f"signal orthogonal to price momentum, particularly in event-driven strategies."
+        f"published for {ticker} on that day. VADER scores each headline from –1.0 (strongly negative) "
+        f"to +1.0 (strongly positive). Green bars indicate net-positive news days; red bars indicate "
+        f"net-negative days. News sentiment is widely used in quantitative finance as a signal orthogonal "
+        f"to price momentum, particularly in event-driven strategies."
     )
 
     # ── Chart 5: All signals overlaid ──────────────────────────────────────────
@@ -618,20 +629,18 @@ def show_detail(ticker):
     note(
         f"All four signals normalized to a common 0–100 scale and plotted together to reveal visual "
         f"lead/lag relationships. Price is shown as normalized cumulative return from day 1 of the 90-day "
-        f"window. As sentiment and news data accumulate over the coming weeks, this chart will make it "
-        f"visually clear whether community sentiment peaks and troughs tend to precede — or follow — price "
-        f"movements. That temporal relationship is the core empirical question of this project."
+        f"window. As data accumulates over the coming weeks, this chart will make it visually clear whether "
+        f"community sentiment peaks and troughs tend to precede — or follow — price movements. That temporal "
+        f"relationship is the core empirical question of this project."
     )
 
 
-# ── Session state & routing ────────────────────────────────────────────────────
-if "view" not in st.session_state:
-    st.session_state.view = "summary"
-if "ticker" not in st.session_state:
-    st.session_state.ticker = config.TICKERS[0]
-
+# ── Routing (URL-param based) ──────────────────────────────────────────────────
 def has_any_data():
     return DATA_DIR.exists() and any(DATA_DIR.glob("prices_*.csv"))
+
+_ticker_param = st.query_params.get("ticker", None)
+_view = "detail" if (_ticker_param and _ticker_param in config.TICKERS) else "summary"
 
 try:
     if not has_any_data():
@@ -648,10 +657,10 @@ try:
           </div>
         </div>
         """, unsafe_allow_html=True)
-    elif st.session_state.view == "summary":
-        show_summary()
+    elif _view == "detail":
+        show_detail(_ticker_param)
     else:
-        show_detail(st.session_state.ticker)
+        show_summary()
 except Exception as e:
     st.error(
         f"Dashboard error: `{e}`\n\n"
