@@ -413,6 +413,11 @@ def show_sidebar(rows_by_ticker):
                 st.session_state["basket_view"] = True
                 st.rerun()
 
+        st.markdown(
+            '<div class="sb-about-btn"><a href="?page=about">About this project</a></div>',
+            unsafe_allow_html=True,
+        )
+
 
 # ── Ticker strip ───────────────────────────────────────────────────────────────
 def build_ticker_strip_html(rows):
@@ -1341,15 +1346,437 @@ def show_detail(ticker):
         st.markdown(f'<div class="hl-feed">{items_html}</div>', unsafe_allow_html=True)
 
 
+# ── About page ─────────────────────────────────────────────────────────────────
+def show_about():
+    show_sidebar({})
+    show_header()
+
+    def _go_home():
+        st.query_params.clear()
+    st.button("← Back to overview", on_click=_go_home, key="about_back_btn")
+
+    st.markdown("""
+    <div class="about-hero">
+      <div class="about-hero-eyebrow">Research Dashboard · Public</div>
+      <div class="about-hero-title">Alt Data Signal Tracker</div>
+      <div class="about-hero-sub">
+        A live financial research project tracking five alternative data signals against
+        daily stock prices across 50 consumer equities — to test whether public attention
+        and retail sentiment lead or lag the market.
+      </div>
+    </div>
+    """, unsafe_allow_html=True)
+
+    # ── Research Question ──────────────────────────────────────────────────────
+    st.markdown('<div class="about-section">', unsafe_allow_html=True)
+    st.markdown('<div class="about-section-title">The Research Question</div>', unsafe_allow_html=True)
+    st.markdown("""
+    <div class="about-body">
+      <p>
+        Traditional finance assumes markets are efficient — prices already reflect all
+        publicly available information. But retail investors increasingly shape short-term
+        price dynamics, especially for high-attention consumer stocks. This project asks:
+      </p>
+      <p style="font-family:'DM Serif Display',serif;font-size:1.1rem;color:#1C160E;
+                border-left:3px solid #8B6F47;padding-left:1rem;margin:1rem 0;">
+        Do alternative data signals — retail sentiment, search volume, and public
+        attention — systematically lead or lag stock price movements, and by how many days?
+      </p>
+      <p>
+        If sentiment consistently leads prices by 1–2 days, it could carry real
+        informational value. If it lags, it reflects traders reacting to moves
+        that already happened. The cross-correlation analysis (lags −3 to +3 days)
+        is designed to answer this empirically across all 50 tickers once sufficient
+        data accumulates — target analysis start: <strong>July 22, 2026</strong> (30+ days of history).
+      </p>
+    </div>
+    """, unsafe_allow_html=True)
+    st.markdown('</div>', unsafe_allow_html=True)
+
+    # ── Data Sources ───────────────────────────────────────────────────────────
+    st.markdown('<div class="about-section">', unsafe_allow_html=True)
+    st.markdown('<div class="about-section-title">Data Sources</div>', unsafe_allow_html=True)
+    st.markdown("""
+    <div class="about-cards">
+
+      <div class="about-card">
+        <div class="about-card-icon">📈</div>
+        <div class="about-card-name">Prices</div>
+        <div class="about-card-title">Stock Closing Prices</div>
+        <div class="about-card-body">
+          Daily closing prices from Yahoo Finance via yfinance.
+          90 days of history, refreshed every morning.
+          Used as the baseline — all signals are compared against
+          subsequent price moves to test predictive value.
+        </div>
+        <div class="about-card-badge">90-day rolling · daily refresh</div>
+      </div>
+
+      <div class="about-card">
+        <div class="about-card-icon">💬</div>
+        <div class="about-card-name">StockTwits</div>
+        <div class="about-card-title">Community Sentiment</div>
+        <div class="about-card-body">
+          Retail investors on StockTwits voluntarily tag each post as
+          Bullish or Bearish. The public API returns today's counts.
+          Unlike news sentiment (inferred), these are self-labeled
+          signals — making them unusually clean for research.
+        </div>
+        <div class="about-card-badge">accumulates from June 2026</div>
+      </div>
+
+      <div class="about-card">
+        <div class="about-card-icon">🔍</div>
+        <div class="about-card-name">Google Trends</div>
+        <div class="about-card-title">Search Interest</div>
+        <div class="about-card-body">
+          Google's relative search volume index, normalized 0–100
+          within the 90-day window. Captures how much retail attention
+          a stock is getting before trading decisions are made.
+          Higher interest often precedes volatility.
+        </div>
+        <div class="about-card-badge">90-day rolling · daily refresh</div>
+      </div>
+
+      <div class="about-card">
+        <div class="about-card-icon">📰</div>
+        <div class="about-card-name">News</div>
+        <div class="about-card-title">Headline Sentiment</div>
+        <div class="about-card-body">
+          Yahoo Finance headlines analyzed with VADER — a sentiment
+          tool built for financial and social media text. Each day's
+          average sentiment score is stored (−1 to +1 raw, shown as
+          −100 to +100 on the dashboard).
+        </div>
+        <div class="about-card-badge">accumulates from June 2026</div>
+      </div>
+
+      <div class="about-card">
+        <div class="about-card-icon">📖</div>
+        <div class="about-card-name">Wikipedia</div>
+        <div class="about-card-title">Page View Attention</div>
+        <div class="about-card-body">
+          Daily Wikipedia article views from the free Wikimedia REST
+          API (no credentials needed). Views are log-transformed to
+          dampen viral spikes, then normalized 0–100. Spikes reflect
+          news events, earnings surprises, or sudden public interest.
+        </div>
+        <div class="about-card-badge">91-day history · daily refresh</div>
+      </div>
+
+    </div>
+    """, unsafe_allow_html=True)
+    st.markdown('</div>', unsafe_allow_html=True)
+
+    # ── How Signals Are Calculated ─────────────────────────────────────────────
+    st.markdown('<div class="about-section">', unsafe_allow_html=True)
+    st.markdown('<div class="about-section-title">How Signals Are Calculated</div>', unsafe_allow_html=True)
+    st.markdown("""
+    <div class="about-body">
+      <p>
+        <strong>Normalization (0–100).</strong> Every signal is rescaled to a 0–100 range
+        within its own history window using min-max normalization. This lets completely
+        different data types — search volume, sentiment scores, page views — be plotted
+        on the same chart and compared visually. A value of 100 means the highest point
+        in the window; 0 means the lowest.
+      </p>
+      <p>
+        <strong>Wikipedia log-transform.</strong> Raw Wikipedia views are first
+        log-transformed (log(views + 1)) before normalization. This prevents a single
+        viral day from flattening all other variation — a stock might get 1,000 views
+        normally and 500,000 views during an earnings report. Without the log transform,
+        you'd see one spike and nothing else.
+      </p>
+      <p>
+        <strong>News sentiment scale.</strong> VADER returns scores from −1.0 (most negative)
+        to +1.0 (most positive). The dashboard multiplies by 100 and rounds to whole numbers,
+        so you see integers like +32 or −17. Zero means neutral.
+      </p>
+    </div>
+    """, unsafe_allow_html=True)
+    st.markdown('</div>', unsafe_allow_html=True)
+
+    # ── Composite Signal ───────────────────────────────────────────────────────
+    st.markdown('<div class="about-section">', unsafe_allow_html=True)
+    st.markdown('<div class="about-section-title">The Composite Signal (BULLISH / NEUTRAL / BEARISH)</div>', unsafe_allow_html=True)
+    st.markdown("""
+    <div class="about-body">
+      <p>
+        Each ticker gets a composite signal based on a simple majority vote across up to four
+        independent indicators. Each indicator casts +1 (bullish), −1 (bearish), or 0 (neutral).
+        A total score ≥ +2 → <strong style="color:#3A6B35">BULLISH</strong>,
+        ≤ −2 → <strong style="color:#9B3A28">BEARISH</strong>, else <strong>NEUTRAL</strong>.
+      </p>
+    </div>
+    <table class="about-signal-table">
+      <thead>
+        <tr>
+          <th>Signal</th>
+          <th>Bullish condition (+1)</th>
+          <th>Bearish condition (−1)</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td><strong>StockTwits Bullish%</strong></td>
+          <td class="bull">&gt; 55% bullish posts</td>
+          <td class="bear">&lt; 40% bullish posts</td>
+        </tr>
+        <tr>
+          <td><strong>News Sentiment</strong></td>
+          <td class="bull">Raw VADER &gt; +0.10</td>
+          <td class="bear">Raw VADER &lt; −0.10</td>
+        </tr>
+        <tr>
+          <td><strong>Google Trends</strong></td>
+          <td class="bull">&gt; 10% above its own 7-day average</td>
+          <td class="bear">&gt; 10% below its own 7-day average</td>
+        </tr>
+        <tr>
+          <td><strong>Price Change</strong></td>
+          <td class="bull">Daily return &gt; +0.5%</td>
+          <td class="bear">Daily return &lt; −0.5%</td>
+        </tr>
+      </tbody>
+    </table>
+    <div class="about-body" style="margin-top:0.75rem">
+      <p>
+        Wikipedia views are tracked and charted but not yet included in the composite vote —
+        the research is still validating whether page-view spikes are directionally
+        informative or purely a measure of attention regardless of sentiment.
+      </p>
+    </div>
+    """, unsafe_allow_html=True)
+    st.markdown('</div>', unsafe_allow_html=True)
+
+    # ── Lead/Lag Correlation ───────────────────────────────────────────────────
+    st.markdown('<div class="about-section">', unsafe_allow_html=True)
+    st.markdown('<div class="about-section-title">Lead / Lag Correlation Analysis</div>', unsafe_allow_html=True)
+    st.markdown("""
+    <div class="about-body">
+      <p>
+        The core analytical output of this project is a cross-correlation matrix computed
+        daily. For each signal and each ticker, we measure the Pearson correlation between
+        the signal on day <em>t</em> and the stock return on day <em>t + lag</em>, for lags
+        from −3 to +3 days.
+      </p>
+      <p>
+        <strong>Positive lag</strong> (e.g., lag = +2): the signal today is correlated with
+        the price move two days from now. If this is consistently strong across tickers,
+        the signal has predictive power.
+      </p>
+      <p>
+        <strong>Negative lag</strong> (e.g., lag = −2): the price two days ago is correlated
+        with today's signal. This means the signal is <em>reacting</em> to past price moves —
+        people search more after a stock already moved.
+      </p>
+      <p>
+        <strong>Lag = 0</strong>: contemporaneous correlation — signal and return move together
+        on the same day, but neither drives the other.
+      </p>
+      <p>
+        Results are stored in <em>data/correlations_all.csv</em> and updated every pipeline run.
+        Meaningful interpretation requires at least 30 days of history. The correlation module
+        currently requires ≥ 10 overlapping observations to compute a value; otherwise it reports
+        no data for that pair.
+      </p>
+    </div>
+    """, unsafe_allow_html=True)
+    st.markdown('</div>', unsafe_allow_html=True)
+
+    # ── How to Use the Dashboard ───────────────────────────────────────────────
+    st.markdown('<div class="about-section">', unsafe_allow_html=True)
+    st.markdown('<div class="about-section-title">How to Use the Dashboard</div>', unsafe_allow_html=True)
+    st.markdown("""
+    <div class="about-steps">
+
+      <div class="about-step">
+        <div class="about-step-num">1</div>
+        <div class="about-step-body">
+          <strong>Overview page</strong> — The default view shows all 50 tracked tickers
+          in a signal table with live price, daily change, StockTwits bullish%, Google
+          Trends score, news sentiment, and composite signal. Above the table, sparkline
+          cards show 14-day price mini-charts for pinned or basket tickers.
+        </div>
+      </div>
+
+      <div class="about-step">
+        <div class="about-step-num">2</div>
+        <div class="about-step-body">
+          <strong>My Basket (sidebar)</strong> — Add any of the 50 tickers to your personal
+          basket using the search box on the left. Remove them with the × button.
+          Click <em>SEE MY BASKET</em> to filter the entire dashboard — sparklines,
+          chips, and table — to only your selected tickers.
+        </div>
+      </div>
+
+      <div class="about-step">
+        <div class="about-step-num">3</div>
+        <div class="about-step-body">
+          <strong>Detail view</strong> — Click <em>VIEW →</em> next to any ticker in the
+          table to open its full detail page. You'll see six sections: all signals overlaid,
+          price history, StockTwits sentiment, Google Trends, Wikipedia page views, and news
+          sentiment — each with an explanation. Recent news headlines appear below the
+          news chart.
+        </div>
+      </div>
+
+      <div class="about-step">
+        <div class="about-step-num">4</div>
+        <div class="about-step-body">
+          <strong>Switch tickers</strong> — On any detail page, use the dropdown in the top
+          right to jump to a different ticker without going back to the overview.
+        </div>
+      </div>
+
+      <div class="about-step">
+        <div class="about-step-num">5</div>
+        <div class="about-step-body">
+          <strong>Data freshness</strong> — The pipeline runs automatically at 6:30 AM ET
+          every day, pushes fresh CSVs to GitHub, and the Streamlit Cloud app refreshes
+          within ~60 seconds. StockTwits and news data accumulate one row per day —
+          signal analysis will be most meaningful after July 22, 2026.
+        </div>
+      </div>
+
+    </div>
+    """, unsafe_allow_html=True)
+    st.markdown('</div>', unsafe_allow_html=True)
+
+    # ── Tickers Tracked ────────────────────────────────────────────────────────
+    st.markdown('<div class="about-section">', unsafe_allow_html=True)
+    st.markdown('<div class="about-section-title">Tickers Tracked (50)</div>', unsafe_allow_html=True)
+    ticker_rows = []
+    for i in range(0, len(config.TICKERS), 5):
+        batch = config.TICKERS[i:i+5]
+        ticker_rows.append(
+            "".join(
+                f'<span style="display:inline-block;font-family:JetBrains Mono,monospace;'
+                f'font-size:0.75rem;background:var(--surface);border:1px solid var(--border);'
+                f'border-radius:4px;padding:0.15rem 0.45rem;margin:0.2rem 0.2rem 0.2rem 0;'
+                f'color:var(--accent)">{t}</span>'
+                for t in batch
+            )
+        )
+    st.markdown(
+        '<div style="margin-top:0.5rem">' + "".join(ticker_rows) + '</div>',
+        unsafe_allow_html=True,
+    )
+    st.markdown("""
+    <div class="about-body" style="margin-top:0.75rem">
+      <p>
+        Sectors covered: mega-cap tech, social media, fintech, EV &amp; auto,
+        retail &amp; consumer, defense &amp; space, biotech &amp; pharma,
+        quantum computing, and energy. SPCX (Space Exploration ETF) has no
+        Wikipedia article; all other tickers have full five-source coverage.
+      </p>
+    </div>
+    """, unsafe_allow_html=True)
+    st.markdown('</div>', unsafe_allow_html=True)
+
+    # ── Academic References ────────────────────────────────────────────────────
+    st.markdown('<div class="about-section">', unsafe_allow_html=True)
+    st.markdown('<div class="about-section-title">Academic References</div>', unsafe_allow_html=True)
+    st.markdown("""
+    <div class="about-ref">
+      <div class="ref-title">Twitter Mood Predicts the Stock Market</div>
+      <div class="ref-authors">Bollen, J., Mao, H., &amp; Zeng, X. (2011)</div>
+      <div class="ref-venue">Journal of Computational Science, 2(1), 1–8</div>
+      Found that public mood on Twitter (calm, alert, sure, vital, kind, happy) correlates
+      with DJIA movements with 87.6% accuracy when using a specific emotional dimension.
+    </div>
+    <div class="about-ref">
+      <div class="ref-title">StockTwits Sentiment and Abnormal Returns</div>
+      <div class="ref-authors">Sprenger, T. O., Tumasjan, A., Sandner, P. G., &amp; Welpe, I. M. (2014)</div>
+      <div class="ref-venue">Journal of Business Finance &amp; Accounting, 41(7–8), 791–830</div>
+      Directly links StockTwits bullish/bearish sentiment to next-day abnormal returns and
+      trading volume — the closest academic precedent for this project's StockTwits signal.
+    </div>
+    <div class="about-ref">
+      <div class="ref-title">In Search of Attention</div>
+      <div class="ref-authors">Da, Z., Engelberg, J., &amp; Gao, P. (2011)</div>
+      <div class="ref-venue">Journal of Finance, 66(5), 1461–1499</div>
+      Showed that Google SVI (Search Volume Index) for stock tickers predicts short-term
+      price increases and subsequent reversals — validating the Google Trends signal used here.
+    </div>
+    <div class="about-ref">
+      <div class="ref-title">Quantifying Trading Behavior in Financial Markets Using Google Trends</div>
+      <div class="ref-authors">Preis, T., Moat, H. S., &amp; Stanley, H. E. (2013)</div>
+      <div class="ref-venue">Scientific Reports, 3, 1684</div>
+      Showed that increases in search volume for financially relevant terms preceded
+      market downturns, suggesting search data carries directional predictive power.
+    </div>
+    <div class="about-ref">
+      <div class="ref-title">Quantifying the Advantage of Looking Forward</div>
+      <div class="ref-authors">Moat, H. S., Curme, C., Avakian, A., Kenett, D. Y., Stanley, H. E., &amp; Preis, T. (2013)</div>
+      <div class="ref-venue">Scientific Reports, 3, 2013</div>
+      Found that changes in Wikipedia article views for financial topics preceded DJIA movements
+      up to 6 days in advance — the primary academic foundation for the Wikipedia page-view signal.
+    </div>
+    <div class="about-ref">
+      <div class="ref-title">Giving Content to Investor Sentiment: The Role of Media in the Stock Market</div>
+      <div class="ref-authors">Tetlock, P. C. (2007)</div>
+      <div class="ref-venue">Journal of Finance, 62(3), 1139–1168</div>
+      Demonstrated that pessimistic language in the Wall Street Journal's "Abreast of the Market"
+      column predicts downward pressure on the Dow Jones — foundational work for the
+      news sentiment signal.
+    </div>
+    """, unsafe_allow_html=True)
+    st.markdown('</div>', unsafe_allow_html=True)
+
+    # ── Tech Stack ─────────────────────────────────────────────────────────────
+    st.markdown('<div class="about-section">', unsafe_allow_html=True)
+    st.markdown('<div class="about-section-title">Technical Stack</div>', unsafe_allow_html=True)
+    st.markdown("""
+    <div class="about-body">
+      <p>
+        <strong>Language:</strong> Python 3.9 on macOS.
+        <strong>Dashboard:</strong> Streamlit + Plotly, deployed on Streamlit Cloud (free tier).
+        <strong>Data storage:</strong> CSV files in <em>data/</em> — one file per ticker per source
+        (currently ~250 files), committed to a public GitHub repository and loaded at runtime.
+      </p>
+      <p>
+        <strong>Pipeline:</strong> <em>run_pipeline.py</em> runs six steps in sequence —
+        prices, StockTwits, Google Trends, news, Wikipedia, and lead/lag correlations —
+        then pushes the updated CSVs to GitHub automatically. The pipeline is scheduled via
+        macOS launchd to run at 6:30 AM ET daily.
+      </p>
+      <p>
+        <strong>Data sources:</strong>
+        Yahoo Finance (yfinance), StockTwits public API, Google Trends (pytrends),
+        VADER sentiment (run locally at pipeline time — not installed on Streamlit Cloud),
+        Wikimedia REST API (free, no credentials).
+      </p>
+      <p>
+        <strong>GitHub:</strong>
+        <a href="https://github.com/ellaktran-hub/alt-data-signal-tracker"
+           target="_blank" rel="noopener" style="color:var(--accent)">
+          ellaktran-hub/alt-data-signal-tracker
+        </a>
+      </p>
+    </div>
+    """, unsafe_allow_html=True)
+    st.markdown('</div>', unsafe_allow_html=True)
+
+
 # ── Routing ────────────────────────────────────────────────────────────────────
 def has_any_data():
     return DATA_DIR.exists() and any(DATA_DIR.glob("prices_*.csv"))
 
 _ticker_param = st.query_params.get("ticker", None)
-_view = "detail" if _ticker_param else "summary"
+_page_param   = st.query_params.get("page", None)
+
+if _page_param == "about":
+    _view = "about"
+elif _ticker_param:
+    _view = "detail"
+else:
+    _view = "summary"
 
 try:
-    if not has_any_data():
+    if _view == "about":
+        show_about()
+    elif not has_any_data():
         show_header()
         st.markdown(f"""
         <div class="pipeline-offline">
