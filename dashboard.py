@@ -292,6 +292,17 @@ def build_summary():
     return rows
 
 
+# ── NASDAQ ticker list ────────────────────────────────────────────────────────
+@st.cache_data(ttl=86400)
+def load_nasdaq_tickers():
+    try:
+        url = "https://raw.githubusercontent.com/datasets/nasdaq-listings/master/data/nasdaq-listed.csv"
+        df = pd.read_csv(url)
+        return sorted(df["Symbol"].dropna().str.strip().tolist())
+    except Exception:
+        return []
+
+
 # ── Sidebar ────────────────────────────────────────────────────────────────────
 def show_sidebar(rows_by_ticker):
     with st.sidebar:
@@ -341,12 +352,17 @@ def show_sidebar(rows_by_ticker):
 
         st.markdown("")
         st.markdown('<div class="sb-add-label">Add ticker</div>', unsafe_allow_html=True)
-        new_sym = st.text_input(
-            "", placeholder="e.g. GOOG",
-            label_visibility="collapsed", key="basket_add_input",
+        nasdaq = load_nasdaq_tickers()
+        selected_sym = st.selectbox(
+            "Search NASDAQ",
+            options=nasdaq if nasdaq else [],
+            index=None,
+            placeholder="Search ticker…",
+            label_visibility="collapsed",
+            key="basket_add_select",
         )
-        if st.button("Add to basket", key="basket_add_btn"):
-            sym = new_sym.strip().upper()
+        if st.button("ADD TO BASKET", key="basket_add_btn"):
+            sym = (selected_sym or "").strip().upper()
             if sym and sym not in st.session_state["basket"]:
                 valid, _ = validate_ticker_yf(sym)
                 if valid:
@@ -357,25 +373,6 @@ def show_sidebar(rows_by_ticker):
                     st.error(f"'{sym}' not found — check the ticker symbol.")
             elif sym in st.session_state["basket"]:
                 st.warning(f"{sym} is already in your basket.")
-
-        st.markdown("---")
-
-        _SIDEBAR_DEFS = [
-            ("price chg %",  "day-over-day price change"),
-            ("bullish %",    "share of alt data signals bullish"),
-            ("trends",       "google search interest, 0–100"),
-            ("news sent",    "news sentiment, −1 to +1"),
-            ("signal",       "composite alt data direction"),
-        ]
-        st.markdown('<div class="sb-defs-header">Definitions</div>', unsafe_allow_html=True)
-        for metric, defn in _SIDEBAR_DEFS:
-            st.markdown(
-                f'<div class="sb-def-row">'
-                f'<span class="sb-def-metric">{metric}</span>'
-                f'<span class="sb-def-text">{defn}</span>'
-                f'</div>',
-                unsafe_allow_html=True,
-            )
 
 
 # ── Ticker strip ───────────────────────────────────────────────────────────────
@@ -489,38 +486,6 @@ def build_signal_dist_chart(rows):
     return fig
 
 
-# ── Basket overlay charts ──────────────────────────────────────────────────────
-def show_basket_overlay_charts(basket):
-    st.markdown(
-        '<div class="sec-label">ALT DATA SIGNALS vs. PRICE</div>',
-        unsafe_allow_html=True,
-    )
-    st.markdown(
-        '<div class="overlay-sub">normalized to 0–100 · dotted line = price</div>',
-        unsafe_allow_html=True,
-    )
-
-    if not basket:
-        st.markdown(
-            '<div class="overlay-empty">Add tickers to your basket to see overlay charts.</div>',
-            unsafe_allow_html=True,
-        )
-        return
-
-    for i in range(0, len(basket), 2):
-        pair = basket[i:i + 2]
-        cols = st.columns(len(pair), gap="medium")
-        for col, ticker in zip(cols, pair):
-            with col:
-                st.markdown(
-                    f'<div class="overlay-ticker-hdr">{ticker} — {config.COMPANIES.get(ticker, ticker)}</div>',
-                    unsafe_allow_html=True,
-                )
-                fig = chart_overlay(ticker)
-                fig.update_layout(height=220, margin=dict(l=40, r=8, t=16, b=30))
-                st.plotly_chart(fig, use_container_width=True, config={"displayModeBar": False})
-
-
 # ── Glossary / metric definitions ──────────────────────────────────────────────
 _GLOSSARY = [
     ("price chg %",
@@ -545,7 +510,7 @@ _GLOSSARY = [
 ]
 
 def show_glossary():
-    with st.expander("METRIC DEFINITIONS", expanded=True):
+    with st.expander("METRIC DEFINITIONS", expanded=False):
         entries_html = "".join(
             f'<div class="glossary-entry">'
             f'<div class="glossary-term">{term}</div>'
@@ -734,6 +699,13 @@ def chart_stocktwits(ticker):
     mode   = "lines+markers" if sparse else "lines"
 
     fig = go.Figure()
+    pn = _price_norm(ticker)
+    if pn is not None:
+        fig.add_trace(go.Scatter(
+            x=pn.index, y=pn, mode="lines",
+            line=dict(color="#2C2416", width=1.5, dash="dot"),
+            name="Price (norm)", hovertemplate="%{y:.1f}<extra>Price (norm)</extra>",
+        ))
     fig.add_trace(go.Scatter(
         x=bull_n.index, y=bull_n, mode=mode,
         line=dict(color=GREEN, width=2.5), marker=dict(size=6),
@@ -746,13 +718,6 @@ def chart_stocktwits(ticker):
         fill="tozeroy", fillcolor="rgba(155,58,40,0.08)",
         name="Bearish (norm)", hovertemplate="%{y:.1f}<extra>Bearish</extra>",
     ))
-    pn = _price_norm(ticker)
-    if pn is not None:
-        fig.add_trace(go.Scatter(
-            x=pn.index, y=pn, mode="lines",
-            line=dict(color=C3, width=1.5, dash="dot"),
-            name="Price (norm)", hovertemplate="%{y:.1f}<extra>Price (norm)</extra>",
-        ))
 
     title = f"{ticker}  ·  StockTwits Sentiment (normalized 0–100){_NORM_SUBTITLE}"
     layout = chart_layout(title)
@@ -771,6 +736,13 @@ def chart_trends(ticker):
 
     interest_n = norm_0_100(df["interest"])
     fig = go.Figure()
+    pn = _price_norm(ticker)
+    if pn is not None:
+        fig.add_trace(go.Scatter(
+            x=pn.index, y=pn, mode="lines",
+            line=dict(color="#2C2416", width=1.5, dash="dot"),
+            name="Price (norm)", hovertemplate="%{y:.1f}<extra>Price (norm)</extra>",
+        ))
     fig.add_trace(go.Scatter(
         x=interest_n.index, y=interest_n, mode="lines",
         line=dict(color=C1, width=2.5),
@@ -788,14 +760,6 @@ def chart_trends(ticker):
             x=rolling_n.index, y=rolling_n, mode="lines",
             line=dict(color=BORDER, width=1.2, dash="dot"),
             name="7d avg (norm)", hovertemplate="%{y:.1f}<extra>7d avg</extra>",
-        ))
-
-    pn = _price_norm(ticker)
-    if pn is not None:
-        fig.add_trace(go.Scatter(
-            x=pn.index, y=pn, mode="lines",
-            line=dict(color=C3, width=1.5, dash="dot"),
-            name="Price (norm)", hovertemplate="%{y:.1f}<extra>Price (norm)</extra>",
         ))
 
     title = f"{ticker}  ·  Google Trends Search Interest (normalized 0–100){_NORM_SUBTITLE}"
@@ -824,6 +788,13 @@ def chart_news(ticker):
 
     colors = [GREEN if v >= neutral_pos else RED for v in sent_n]
     fig = go.Figure()
+    pn = _price_norm(ticker)
+    if pn is not None:
+        fig.add_trace(go.Scatter(
+            x=pn.index, y=pn, mode="lines",
+            line=dict(color="#2C2416", width=1.5, dash="dot"),
+            name="Price (norm)", hovertemplate="%{y:.1f}<extra>Price (norm)</extra>",
+        ))
     fig.add_trace(go.Bar(
         x=sent_n.index, y=sent_n, marker_color=colors,
         name="Sentiment (norm)",
@@ -833,14 +804,6 @@ def chart_news(ticker):
                   annotation_text="neutral",
                   annotation_font=dict(size=9, color=MUTED),
                   annotation_position="top right")
-
-    pn = _price_norm(ticker)
-    if pn is not None:
-        fig.add_trace(go.Scatter(
-            x=pn.index, y=pn, mode="lines",
-            line=dict(color=C3, width=1.5, dash="dot"),
-            name="Price (norm)", hovertemplate="%{y:.1f}<extra>Price (norm)</extra>",
-        ))
 
     title = f"{ticker}  ·  News Headline Sentiment (normalized 0–100){_NORM_SUBTITLE}"
     layout = chart_layout(title)
@@ -1007,12 +970,6 @@ def show_summary():
     # Ticker strip
     st.markdown(build_ticker_strip_html(rows), unsafe_allow_html=True)
 
-    # Basket overlay charts
-    show_basket_overlay_charts(st.session_state.get("basket", []))
-
-    # Metric definitions (open by default)
-    show_glossary()
-
     # Market chips
     st.markdown(build_market_chips_html(rows), unsafe_allow_html=True)
 
@@ -1026,6 +983,9 @@ def show_summary():
     # Sparkline grid
     st.markdown('<div class="sec-label">Individual Ticker Signals</div>', unsafe_allow_html=True)
     show_sparkline_grid(rows)
+
+    # Metric definitions (collapsed by default)
+    show_glossary()
 
     # Signal table
     st.markdown('<div class="sec-label">Market Intelligence Overview</div>', unsafe_allow_html=True)
