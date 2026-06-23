@@ -624,6 +624,28 @@ def build_table_html(rows):
 def build_animations_js():
     return """
 <script>
+function toggleSidebar() {
+  var sidebar = document.querySelector('section[data-testid="stSidebar"]');
+  var overlay = document.getElementById('sidebar-overlay');
+  var btn = document.getElementById('hamburger-btn');
+  var isOpen = sidebar.classList.contains('sidebar-open');
+  sidebar.classList.toggle('sidebar-open', !isOpen);
+  overlay.classList.toggle('active', !isOpen);
+  btn.classList.toggle('is-open', !isOpen);
+  document.body.style.overflow = isOpen ? '' : 'hidden';
+}
+window.addEventListener('resize', function () {
+  if (window.innerWidth > 768) {
+    var sidebar = document.querySelector('section[data-testid="stSidebar"]');
+    var overlay = document.getElementById('sidebar-overlay');
+    var btn = document.getElementById('hamburger-btn');
+    if (sidebar) sidebar.classList.remove('sidebar-open');
+    if (overlay) overlay.classList.remove('active');
+    if (btn) btn.classList.remove('is-open');
+    document.body.style.overflow = '';
+  }
+});
+
 (function () {
   var reduced = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
   if (reduced) return;
@@ -939,6 +961,12 @@ def show_sparkline_grid(rows):
 
 # ── Header ─────────────────────────────────────────────────────────────────────
 def show_header():
+    st.markdown("""
+    <button class="hamburger-btn" onclick="toggleSidebar()" aria-label="Open menu" id="hamburger-btn">
+      <span></span><span></span><span></span>
+    </button>
+    <div class="sidebar-overlay" id="sidebar-overlay" onclick="toggleSidebar()"></div>
+    """, unsafe_allow_html=True)
     st.markdown(f"""
     <div class="rh">
       <div class="rh-eyebrow">Alternative Data Research</div>
@@ -977,7 +1005,7 @@ def show_summary():
     st.plotly_chart(
         build_signal_dist_chart(rows),
         use_container_width=True,
-        config={"displayModeBar": False},
+        config={"displayModeBar": False, "responsive": True},
     )
 
     # Sparkline grid
@@ -1079,7 +1107,7 @@ def show_detail(ticker):
     st.markdown('<div class="sec-label">Price History</div>', unsafe_allow_html=True)
     fig1 = chart_price(ticker)
     if fig1:
-        st.plotly_chart(fig1, use_container_width=True, config={"displayModeBar": False})
+        st.plotly_chart(fig1, use_container_width=True, config={"displayModeBar": False, "responsive": True})
     else:
         st.info("No price data available.")
     note(
@@ -1092,7 +1120,7 @@ def show_detail(ticker):
     result2 = chart_stocktwits(ticker)
     if result2[0] is not None:
         fig2, sparse2 = result2
-        st.plotly_chart(fig2, use_container_width=True, config={"displayModeBar": False})
+        st.plotly_chart(fig2, use_container_width=True, config={"displayModeBar": False, "responsive": True})
     else:
         sparse2 = True
         st.info("No StockTwits data yet.")
@@ -1108,7 +1136,7 @@ def show_detail(ticker):
     st.markdown('<div class="sec-label">Google Trends Search Interest</div>', unsafe_allow_html=True)
     fig3 = chart_trends(ticker)
     if fig3:
-        st.plotly_chart(fig3, use_container_width=True, config={"displayModeBar": False})
+        st.plotly_chart(fig3, use_container_width=True, config={"displayModeBar": False, "responsive": True})
     else:
         st.info("No Google Trends data available.")
     note(
@@ -1121,7 +1149,7 @@ def show_detail(ticker):
     result4 = chart_news(ticker)
     if result4[0] is not None:
         fig4, sparse4 = result4
-        st.plotly_chart(fig4, use_container_width=True, config={"displayModeBar": False})
+        st.plotly_chart(fig4, use_container_width=True, config={"displayModeBar": False, "responsive": True})
     else:
         sparse4 = True
         st.info("No news data yet.")
@@ -1135,7 +1163,7 @@ def show_detail(ticker):
 
     st.markdown('<div class="sec-label">All Signals Overlaid (Normalized 0–100)</div>', unsafe_allow_html=True)
     fig5 = chart_overlay(ticker)
-    st.plotly_chart(fig5, use_container_width=True, config={"displayModeBar": False})
+    st.plotly_chart(fig5, use_container_width=True, config={"displayModeBar": False, "responsive": True})
     note(
         "All four signals normalized to 0–100 and plotted together to reveal lead/lag relationships. "
         "As data accumulates, this chart will show whether sentiment peaks tend to precede or follow "

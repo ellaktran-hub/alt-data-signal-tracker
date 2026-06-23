@@ -859,6 +859,152 @@ section[data-testid="stSidebar"] hr {
   margin: 8px 0 !important;
 }
 
+/* ── Hamburger button (hidden on desktop) ─────────────────────────────────── */
+.hamburger-btn {
+  display: none;
+}
+
+/* ── Mobile — 768px breakpoint ────────────────────────────────────────────── */
+@media (max-width: 768px) {
+
+  /* TASK 1: Sidebar drawer */
+  section[data-testid="stSidebar"] {
+    transform: translateX(-100%) !important;
+    transition: transform 250ms ease !important;
+    z-index: 999 !important;
+    width: 280px !important;
+    min-width: 280px !important;
+    max-width: 280px !important;
+    box-shadow: 4px 0 24px rgba(28,22,14,0.4) !important;
+  }
+  section[data-testid="stSidebar"].sidebar-open {
+    transform: translateX(0) !important;
+  }
+  [data-testid="stMain"],
+  section.main {
+    margin-left: 0 !important;
+    width: 100% !important;
+    max-width: 100% !important;
+  }
+  .block-container {
+    padding-left: 1rem !important;
+    padding-right: 1rem !important;
+  }
+  .rh,
+  .ticker-strip-outer {
+    margin-left: -1rem !important;
+    margin-right: -1rem !important;
+    width: calc(100% + 2rem) !important;
+  }
+  .sidebar-overlay {
+    display: none;
+    position: fixed;
+    inset: 0;
+    background: rgba(28,22,14,0.5);
+    z-index: 998;
+  }
+  .sidebar-overlay.active {
+    display: block;
+  }
+
+  /* Hamburger button */
+  .hamburger-btn {
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    width: 28px;
+    height: 20px;
+    background: transparent;
+    border: none;
+    cursor: pointer;
+    padding: 0;
+    position: fixed;
+    top: 14px;
+    left: 14px;
+    z-index: 1000;
+  }
+  .hamburger-btn span {
+    display: block;
+    width: 100%;
+    height: 2px;
+    background: #FAF6EF;
+    border-radius: 1px;
+    transition: all 200ms ease;
+  }
+  .hamburger-btn.is-open span:nth-child(1) {
+    transform: translateY(9px) rotate(45deg);
+  }
+  .hamburger-btn.is-open span:nth-child(2) {
+    opacity: 0;
+  }
+  .hamburger-btn.is-open span:nth-child(3) {
+    transform: translateY(-9px) rotate(-45deg);
+  }
+
+  /* TASK 2: Stop horizontal overflow */
+  body, .stApp, [data-testid="stAppViewContainer"] {
+    overflow-x: hidden !important;
+  }
+  .market-chips {
+    grid-template-columns: repeat(2, 1fr) !important;
+    gap: 8px !important;
+  }
+  .spark-grid {
+    grid-template-columns: 1fr !important;
+  }
+  .glossary-grid {
+    grid-template-columns: 1fr !important;
+  }
+  .data-tbl-wrap {
+    overflow-x: auto !important;
+    -webkit-overflow-scrolling: touch !important;
+  }
+  .data-tbl {
+    min-width: 560px !important;
+  }
+  [data-testid="metric-container"] {
+    min-width: 0 !important;
+  }
+
+  /* TASK 3: Charts readable on mobile */
+  [data-testid="stPlotlyChart"],
+  .stPlotlyChart {
+    width: 100% !important;
+    max-width: 100% !important;
+    overflow: hidden !important;
+  }
+  [data-testid="stHorizontalBlock"] {
+    flex-direction: column !important;
+  }
+  [data-testid="stHorizontalBlock"] > div {
+    width: 100% !important;
+    min-width: 0 !important;
+  }
+  .chart-note {
+    font-size: 0.75rem !important;
+  }
+  .signal-metric {
+    min-width: 0 !important;
+  }
+
+  /* TASK 4: Header band on mobile */
+  .rh {
+    padding: 1.2rem 1rem 1rem !important;
+    padding-left: 3.5rem !important;
+  }
+  .rh-title {
+    font-size: 1.4rem !important;
+  }
+  .rh-body {
+    font-size: 0.8rem !important;
+    display: none !important;
+  }
+  .rh-status {
+    font-size: 0.6rem !important;
+  }
+
+}
+
 /* ── Animation keyframes ──────────────────────────────────────────────────── */
 @keyframes marquee {
   from { transform: translateX(0); }
