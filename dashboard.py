@@ -566,6 +566,7 @@ _COLS = [
     ("TRENDS",    "75px",  True),
     ("NEWS SENT", "90px",  True),
     ("SIGNAL",    "90px",  True),
+    ("",          "70px",  True),
 ]
 
 def build_table_html(rows):
@@ -601,6 +602,7 @@ def build_table_html(rows):
             f'<td class="data-tbl-td num">{r["trends"]}</td>'
             f'<td class="data-tbl-td num">{r["news_sent"]}</td>'
             f'<td class="data-tbl-td num" style="color:{r["sig_color"]};font-weight:600">{r["signal"]}</td>'
+            f'<td class="data-tbl-td num"><a href="?ticker={ticker}" class="tbl-detail-btn">VIEW →</a></td>'
             f'</tr>'
         )
     body += "</tbody>"

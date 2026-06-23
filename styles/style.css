@@ -526,6 +526,26 @@ div[data-baseweb="notification"] {
 .data-tbl-td.num   { font-family: 'JetBrains Mono', monospace; font-size: 0.78rem; }
 .data-tbl-td.tkr   { font-family: 'JetBrains Mono', monospace; font-size: 0.82rem; font-weight: 500; text-align: left; }
 .data-tbl-td.act   { text-align: center; }
+.tbl-detail-btn {
+  display: inline-block;
+  font-family: 'Inter', sans-serif;
+  font-size: 0.65rem;
+  font-weight: 700;
+  letter-spacing: 0.07em;
+  text-transform: uppercase;
+  color: var(--accent) !important;
+  text-decoration: none;
+  padding: 3px 7px;
+  border: 1px solid rgba(139,111,71,0.35);
+  border-radius: 2px;
+  white-space: nowrap;
+  transition: background 150ms, color 150ms;
+}
+.tbl-detail-btn:hover {
+  background: var(--accent);
+  color: #FAF6EF !important;
+  border-color: var(--accent);
+}
 
 /* ── Column header tooltips ───────────────────────────────────────────────── */
 .th-tip {
@@ -838,7 +858,7 @@ section[data-testid="stSidebar"] input[type="text"] {
   font-size: 0.8rem !important;
 }
 section[data-testid="stSidebar"] input[type="text"]::placeholder {
-  color: rgba(200,184,154,0.4) !important;
+  color: rgba(44,36,22,0.45) !important;
 }
 section[data-testid="stSidebar"] .stButton > button {
   background: rgba(139,111,71,0.15) !important;
@@ -905,9 +925,12 @@ section[data-testid="stSidebar"] [data-baseweb="select"] [data-testid="stSelectb
 }
 section[data-testid="stSidebar"] [data-baseweb="select"] span,
 section[data-testid="stSidebar"] [data-baseweb="select"] div {
-  color: #FAF6EF !important;
+  color: #2C2416 !important;
   font-family: 'JetBrains Mono', monospace !important;
   font-size: 0.78rem !important;
+}
+section[data-testid="stSidebar"] [data-baseweb="select"] input {
+  color: #2C2416 !important;
 }
 section[data-testid="stSidebar"] hr {
   border-color: rgba(200,184,154,0.15) !important;
