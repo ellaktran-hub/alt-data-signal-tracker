@@ -1,0 +1,22 @@
+# Mac system files
+.DS_Store
+.AppleDouble
+
+# Python cache (auto-generated, not needed)
+__pycache__/
+*.pyc
+*.pyo
+
+# Secrets and credentials — never upload these
+.env
+*.env
+secrets.py
+credentials.py
+
+# Personal Mac scheduler — contains your local file paths
+com.altdata.pipeline.plist
+
+# Pipeline logs — local only
+data/pipeline_log.txt
+data/launchd_out.log
+data/launchd_err.log
