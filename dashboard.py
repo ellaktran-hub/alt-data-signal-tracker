@@ -46,6 +46,7 @@ C1 = "#6B4226"
 C2 = "#C47D3E"
 C3 = "#2C2416"
 C4 = "#A0896B"
+C5 = "#5B7FA6"   # slate-blue — Wikipedia trace
 GREEN = "#3A6B35"
 RED   = "#9B3A28"
 
@@ -146,6 +147,15 @@ def load_trends(ticker):
 @st.cache_data(ttl=300)
 def load_news(ticker):
     p = DATA_DIR / f"news_{ticker}.csv"
+    if not p.exists():
+        return pd.DataFrame()
+    df = pd.read_csv(p, index_col="date", parse_dates=True)
+    df.index = pd.to_datetime(df.index)
+    return df
+
+@st.cache_data(ttl=300)
+def load_wikipedia(ticker):
+    p = DATA_DIR / f"wikipedia_{ticker}.csv"
     if not p.exists():
         return pd.DataFrame()
     df = pd.read_csv(p, index_col="date", parse_dates=True)
@@ -843,11 +853,52 @@ def chart_news(ticker):
     return fig, sparse
 
 
+def chart_wikipedia(ticker):
+    wiki_df  = load_wikipedia(ticker)
+    price_df = load_prices(ticker)
+    fig      = go.Figure()
+
+    if wiki_df.empty or "page_views" not in wiki_df.columns:
+        return None
+
+    views = wiki_df["page_views"].dropna()
+    if len(views) < 3:
+        return None
+
+    views_n = norm_0_100(np.log1p(views))   # log-scale to dampen viral spikes
+    fig.add_trace(go.Scatter(
+        x=views_n.index, y=views_n, mode="lines+markers",
+        name="Wikipedia Views (log-norm)",
+        line=dict(color=C5, width=2.5), marker=dict(size=5),
+        hovertemplate="%{y:.1f}<extra>Wikipedia Views</extra>",
+    ))
+
+    if not price_df.empty:
+        p = price_df["close_price"].dropna()
+        if len(p) >= 2:
+            fig.add_trace(go.Scatter(
+                x=norm_0_100(p).index, y=norm_0_100(p),
+                mode="lines", name="Price (norm)",
+                line=dict(color=C3, width=1.5, dash="dot"),
+                hovertemplate="%{y:.1f}<extra>Price</extra>",
+            ))
+
+    title = f"{ticker}  ·  Wikipedia Page Views (log-normalized 0–100){_NORM_SUBTITLE}"
+    layout = chart_layout(title)
+    layout["yaxis"].update(
+        range=[-5, 108], tickvals=[0, 25, 50, 75, 100],
+        title=dict(text="Log-Normalized (0–100)", font=dict(size=9, color=MUTED)),
+    )
+    fig.update_layout(**layout)
+    return fig
+
+
 def chart_overlay(ticker):
     price_df  = load_prices(ticker)
     trends_df = load_trends(ticker)
     st_df     = load_stocktwits(ticker)
     news_df   = load_news(ticker)
+    wiki_df   = load_wikipedia(ticker)
     fig       = go.Figure()
 
     if not price_df.empty:
@@ -880,6 +931,15 @@ def chart_overlay(ticker):
             line=dict(color=C4, width=2.5), marker=dict(size=6),
             hovertemplate="%{y:.1f}<extra>News Sent.</extra>",
         ))
+    if not wiki_df.empty and "page_views" in wiki_df.columns:
+        views = wiki_df["page_views"].dropna()
+        if len(views) >= 3:
+            n = norm_0_100(np.log1p(views))
+            fig.add_trace(go.Scatter(
+                x=n.index, y=n, mode="lines", name="Wikipedia",
+                line=dict(color=C5, width=2, dash="dashdot"),
+                hovertemplate="%{y:.1f}<extra>Wikipedia Views</extra>",
+            ))
 
     layout = chart_layout(f"{ticker}  ·  All Signals Overlaid (normalized 0–100)", height=320)
     layout["yaxis"].update(
@@ -1224,6 +1284,23 @@ def show_detail(ticker):
         "(dotted). The dotted curve also shows the 7-day rolling average. Da, Engelberg &amp; Gao (2011) "
         "linked retail search attention to short-term price pressure in <em>In Search of Attention</em>."
     )
+
+    st.markdown('<div class="sec-label">Wikipedia Page Views</div>', unsafe_allow_html=True)
+    fig_wiki = chart_wikipedia(ticker)
+    if fig_wiki is not None:
+        st.plotly_chart(fig_wiki, use_container_width=True, config={"displayModeBar": False, "responsive": True})
+        note(
+            "Daily Wikipedia page-view counts (log-scaled, normalized 0–100) alongside normalized price (dotted). "
+            "High page-view spikes reflect sudden public attention — news events, earnings surprises, viral moments. "
+            "Moat et al. (2013, <em>Scientific Reports</em>) found Wikipedia views of financial topics "
+            "predict market moves up to 6 days ahead for DJIA components."
+        )
+    else:
+        article = config.WIKI_ARTICLES.get(ticker)
+        if article is None:
+            st.info(f"No Wikipedia article mapped for {ticker} — page-view data unavailable.")
+        else:
+            st.info("Wikipedia page-view data not yet collected. Run the pipeline to fetch it.")
 
     st.markdown('<div class="sec-label">News Headline Sentiment</div>', unsafe_allow_html=True)
     result4 = chart_news(ticker)

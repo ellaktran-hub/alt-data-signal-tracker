@@ -93,3 +93,66 @@ LOOKBACK_DAYS = 90
 
 # Fixed tickers shown on the overview by default (pinned)
 PINNED_TICKERS = ["AAPL", "NVDA", "TSLA", "MSFT"]
+
+# Wikipedia article names for page-view alt data (None = no article exists)
+WIKI_ARTICLES = {
+    # Original universe
+    "AAPL":  "Apple_Inc.",
+    "NVDA":  "Nvidia",
+    "TSLA":  "Tesla,_Inc.",
+    "GME":   "GameStop",
+    "AMC":   "AMC_Theatres",
+    "AMZN":  "Amazon_(company)",
+    "COIN":  "Coinbase",
+    "MSFT":  "Microsoft",
+    "SBUX":  "Starbucks",
+    "SPCX":  None,                          # no Wikipedia article
+    # Tech & Social
+    "GOOGL": "Alphabet_Inc.",
+    "META":  "Meta_Platforms",
+    "PLTR":  "Palantir_Technologies",
+    "SNAP":  "Snap_Inc.",
+    "PINS":  "Pinterest",
+    "RDDT":  "Reddit",
+    "SPOT":  "Spotify",
+    "NFLX":  "Netflix",
+    "DIS":   "The_Walt_Disney_Company",
+    "UBER":  "Uber",
+    # Fintech & Finance
+    "JPM":   "JPMorgan_Chase",
+    "GS":    "Goldman_Sachs",
+    "HOOD":  "Robinhood_Markets",
+    "PYPL":  "PayPal",
+    "SQ":    "Block,_Inc.",
+    "SOFI":  "SoFi",
+    "MSTR":  "Strategy_(company)",
+    # EV & Auto
+    "RIVN":  "Rivian",
+    "LCID":  "Lucid_Motors",
+    "F":     "Ford_Motor_Company",
+    "GM":    "General_Motors",
+    # Retail & Consumer
+    "WMT":   "Walmart",
+    "TGT":   "Target_Corporation",
+    "MCD":   "McDonald%27s",
+    "CHWY":  "Chewy",
+    "NKE":   "Nike,_Inc.",
+    "ABNB":  "Airbnb",
+    # Defense & Space
+    "RKLB":  "Rocket_Lab",
+    "LMT":   "Lockheed_Martin",
+    "RTX":   "RTX_(company)",
+    "BA":    "Boeing",
+    # Biotech & Pharma
+    "PFE":   "Pfizer",
+    "MRNA":  "Moderna",
+    "NVAX":  "Novavax",
+    # Quantum Computing
+    "IONQ":  "IonQ",
+    "QBTS":  "D-Wave_Systems",
+    "RGTI":  "Rigetti_Computing",
+    # Energy
+    "XOM":   "ExxonMobil",
+    "CVX":   "Chevron_Corporation",
+    "FSLR":  "First_Solar",
+}

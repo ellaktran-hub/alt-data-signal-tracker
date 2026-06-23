@@ -84,10 +84,12 @@ if __name__ == "__main__":
     log(f"========== Pipeline run started | tickers: {', '.join(config.TICKERS)} ==========")
 
     steps = [
-        ("Stock prices (Yahoo Finance)",    "fetch_price",      "fetch_price"),
-        ("Sentiment (StockTwits)",          "fetch_stocktwits", "fetch_stocktwits"),
-        ("Search interest (Google Trends)", "fetch_trends",     "fetch_trends"),
-        ("News headlines (Yahoo Finance)",  "fetch_news",       "fetch_news"),
+        ("Stock prices (Yahoo Finance)",    "fetch_price",       "fetch_price"),
+        ("Sentiment (StockTwits)",          "fetch_stocktwits",  "fetch_stocktwits"),
+        ("Search interest (Google Trends)", "fetch_trends",      "fetch_trends"),
+        ("News headlines (Yahoo Finance)",  "fetch_news",        "fetch_news"),
+        ("Wikipedia page views",            "fetch_wikipedia",   "fetch_wikipedia"),
+        ("Lead/lag correlations",           "correlations",      "compute_correlations"),
     ]
 
     results = {}
