@@ -19,10 +19,20 @@
 }
 
 /* ── App shell ────────────────────────────────────────────────────────────── */
+.stApp,
+.stApp > div,
+[data-testid="stAppViewContainer"],
+[data-testid="stAppViewContainer"] > section,
+[data-testid="stMain"],
+[data-testid="stMainBlockContainer"] {
+  background-color: #FAF6EF !important;
+}
 .stApp {
-  background-color: var(--bg) !important;
   font-family: 'Inter', sans-serif !important;
   font-size: 0.92rem;
+}
+.stIFrame, iframe {
+  background-color: #FAF6EF !important;
 }
 
 header[data-testid="stHeader"],
@@ -33,12 +43,22 @@ footer {
   display: none !important;
 }
 
+[data-testid="stAppViewContainer"] {
+  padding-top: 0 !important;
+}
+[data-testid="stMain"] {
+  padding-top: 0 !important;
+}
 .block-container {
   padding-top: 0 !important;
   padding-bottom: 4rem !important;
   padding-left: 3rem !important;
   padding-right: 3rem !important;
-  max-width: 1200px !important;
+  max-width: 100% !important;
+  width: 100% !important;
+}
+.rh {
+  margin-top: 0 !important;
 }
 
 /* ── Typography ───────────────────────────────────────────────────────────── */
@@ -78,10 +98,12 @@ hr {
 /* ── Research header — dark full-bleed band ───────────────────────────────── */
 .rh {
   background: var(--dark-header);
-  margin-left: -3rem;
-  margin-right: -3rem;
+  margin-left: -3rem !important;
+  margin-right: -3rem !important;
+  width: calc(100% + 6rem) !important;
   padding: 2rem 3rem 1.7rem;
   margin-bottom: 0;
+  margin-top: 0 !important;
 }
 .rh-eyebrow {
   font-family: 'Inter', sans-serif;
@@ -154,23 +176,29 @@ hr {
   font-size: 0.8rem !important;
 }
 
-/* ── Streamlit buttons ────────────────────────────────────────────────────── */
+/* ── Streamlit buttons — dark fill (matches .view-btn) ───────────────────── */
 .stButton > button {
   font-family: 'Inter', sans-serif !important;
-  font-size: 0.76rem !important;
-  font-weight: 500 !important;
-  background: transparent !important;
-  border: 1px solid var(--border) !important;
-  color: var(--muted) !important;
+  font-size: 0.68rem !important;
+  font-weight: 600 !important;
+  letter-spacing: 0.07em !important;
+  text-transform: uppercase !important;
+  background: #2C2416 !important;
+  border: 1px solid #2C2416 !important;
+  color: #FAF6EF !important;
   border-radius: 2px !important;
   padding: 5px 14px !important;
   box-shadow: none !important;
-  transition: border-color 0.15s, color 0.15s;
+  transition: all 140ms ease !important;
 }
 .stButton > button:hover {
-  border-color: var(--accent) !important;
-  color: var(--accent) !important;
-  background: transparent !important;
+  background: #1C160E !important;
+  border-color: #8B6F47 !important;
+  color: #FAF6EF !important;
+}
+.stButton > button:active {
+  background: #1C160E !important;
+  transform: scale(0.97) !important;
 }
 
 /* ── Selectbox ────────────────────────────────────────────────────────────── */
@@ -245,8 +273,9 @@ div[data-baseweb="notification"] {
 /* ── Ticker strip ─────────────────────────────────────────────────────────── */
 .ticker-strip-outer {
   background: var(--dark-header);
-  margin-left: -3rem;
-  margin-right: -3rem;
+  margin-left: -3rem !important;
+  margin-right: -3rem !important;
+  width: calc(100% + 6rem) !important;
   padding: 9px 0;
   overflow: hidden;
   border-bottom: 1px solid rgba(200,184,154,0.2);
@@ -485,7 +514,7 @@ div[data-baseweb="notification"] {
 }
 .data-tbl {
   width: 100%;
-  table-layout: fixed;
+  table-layout: auto;
   border-collapse: collapse;
 }
 .data-tbl thead {
@@ -493,7 +522,7 @@ div[data-baseweb="notification"] {
   border-bottom: 2px solid var(--border);
 }
 .data-tbl-th {
-  padding: 10px 10px;
+  padding: 8px 8px;
   font-family: 'Inter', sans-serif;
   font-size: 0.72rem;
   font-weight: 600;
@@ -517,7 +546,7 @@ div[data-baseweb="notification"] {
 .data-tbl tbody tr.odd  { background: var(--surface); }
 .data-tbl tbody tr:hover { background: var(--row-hover); }
 .data-tbl-td {
-  padding: 9px 10px;
+  padding: 8px 8px;
   font-family: 'Inter', sans-serif;
   font-size: 0.82rem;
   color: var(--text);
@@ -725,10 +754,23 @@ section[data-testid="stSidebar"] {
   background: var(--dark-header) !important;
   overflow-y: auto;
   overflow-x: hidden;
+  width: 260px !important;
+  min-width: 260px !important;
+  max-width: 260px !important;
+  flex-shrink: 0 !important;
 }
 section[data-testid="stSidebar"] > div {
   background: var(--dark-header) !important;
   padding-top: 1.2rem;
+}
+[data-testid="stMain"] {
+  margin-left: 260px !important;
+  min-width: 0 !important;
+  width: calc(100% - 260px) !important;
+}
+[data-testid="collapsedControl"],
+button[kind="header"] {
+  display: none !important;
 }
 section[data-testid="stSidebar"] [data-testid="stVerticalBlock"] {
   gap: 0 !important;

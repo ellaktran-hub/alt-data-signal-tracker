@@ -599,25 +599,34 @@ def _th(label, width, center=False):
         )
     return f'<th class="{cls}">{label}</th>'
 
-# col: (label, width%, centered)
+# col: (label, min-width, centered)
 _COLS = [
-    ("TICKER",    "10%", False),
-    ("COMPANY",   "8%",  False),
-    ("PRICE",     "7%",  True),
-    ("CHG %",     "13%", True),
-    ("BULLISH %", "13%", True),
-    ("TRENDS",    "11%", True),
-    ("NEWS SENT", "13%", True),
-    ("SIGNAL",    "13%", True),
-    ("",          "12%", True),
+    ("TICKER",    "70px",  False),
+    ("COMPANY",   None,    False),
+    ("PRICE",     "80px",  True),
+    ("CHG %",     "90px",  True),
+    ("BULLISH %", "80px",  True),
+    ("TRENDS",    "75px",  True),
+    ("NEWS SENT", "90px",  True),
+    ("SIGNAL",    "90px",  True),
 ]
 
 def build_table_html(rows):
-    colgroup = "<colgroup>" + "".join(
-        f'<col style="width:{w}">' for _, w, _ in _COLS
-    ) + "</colgroup>"
+    # Header — inline min-width on each th
+    def _th_cell(label, min_w, ctr):
+        style = f'style="min-width:{min_w}"' if min_w else ""
+        cls   = "data-tbl-th ctr" if ctr else "data-tbl-th"
+        if label in _TOOLTIPS:
+            return (
+                f'<th class="{cls}" {style}>{label}'
+                f'<span class="th-tip" tabindex="0">'
+                f'<span class="th-tip-icon" aria-label="Definition for {label}">ⓘ</span>'
+                f'<span class="th-tip-box" role="tooltip">{_TOOLTIPS[label]}</span>'
+                f'</span></th>'
+            )
+        return f'<th class="{cls}" {style}>{label}</th>'
 
-    head_cells = "".join(_th(label, w, ctr) for label, w, ctr in _COLS)
+    head_cells = "".join(_th_cell(label, min_w, ctr) for label, min_w, ctr in _COLS)
     head = f"<thead><tr>{head_cells}</tr></thead>"
 
     body = "<tbody>"
@@ -635,16 +644,13 @@ def build_table_html(rows):
             f'<td class="data-tbl-td num">{r["trends"]}</td>'
             f'<td class="data-tbl-td num">{r["news_sent"]}</td>'
             f'<td class="data-tbl-td num" style="color:{r["sig_color"]};font-weight:600">{r["signal"]}</td>'
-            f'<td class="data-tbl-td act">'
-            f'<a href="?ticker={ticker}" class="view-btn">View Details</a>'
-            f'</td>'
             f'</tr>'
         )
     body += "</tbody>"
 
     return (
         f'<div class="data-tbl-wrap">'
-        f'<table class="data-tbl">{colgroup}{head}{body}</table>'
+        f'<table class="data-tbl">{head}{body}</table>'
         f'</div>'
     )
 
@@ -928,33 +934,44 @@ def build_sparkline_svg(ticker, sig_color):
 
 
 # ── Sparkline card grid ────────────────────────────────────────────────────────
-def build_sparkline_grid_html(rows):
-    html = '<div class="spark-grid">'
-    for i, r in enumerate(rows):
-        ticker    = r["ticker"]
-        sig_color = r["sig_color"]
-        svg       = build_sparkline_svg(ticker, sig_color)
-        html += (
-            f'<div class="spark-card" '
-            f'style="border-top-color:{sig_color};animation-delay:{i * 80}ms">'
-            f'<div class="spark-card-top">'
-            f'<span class="spark-ticker">{ticker}</span>'
-            f'<span class="spark-sig" style="color:{sig_color}">{r["signal"]}</span>'
-            f'</div>'
-            f'{svg}'
-            f'<div class="spark-stats">'
-            f'<span class="spark-stat-label">Bullish</span>'
-            f'<span class="spark-stat-val">{r["bullish_pct"]}</span>'
-            f'<span class="spark-stat-label">News Sent.</span>'
-            f'<span class="spark-stat-val">{r["news_sent"]}</span>'
-            f'</div>'
-            f'<div class="spark-btn-wrap">'
-            f'<a href="?ticker={ticker}" class="view-btn">View Details</a>'
-            f'</div>'
-            f'</div>'
-        )
-    html += '</div>'
-    return html
+def _go_to_ticker(ticker):
+    st.query_params["ticker"] = ticker
+
+def show_sparkline_grid(rows):
+    """Renders sparkline cards using st.columns so VIEW DETAILS uses st.button (no anchor tags)."""
+    for row_start in range(0, len(rows), 4):
+        batch = rows[row_start:row_start + 4]
+        cols  = st.columns(4, gap="small")
+        for col, r in zip(cols, batch):
+            ticker    = r["ticker"]
+            sig_color = r["sig_color"]
+            delay_ms  = (row_start + batch.index(r)) * 80
+            svg       = build_sparkline_svg(ticker, sig_color)
+            with col:
+                st.markdown(
+                    f'<div class="spark-card" '
+                    f'style="border-top-color:{sig_color};animation-delay:{delay_ms}ms">'
+                    f'<div class="spark-card-top">'
+                    f'<span class="spark-ticker">{ticker}</span>'
+                    f'<span class="spark-sig" style="color:{sig_color}">{r["signal"]}</span>'
+                    f'</div>'
+                    f'{svg}'
+                    f'<div class="spark-stats">'
+                    f'<span class="spark-stat-label">Bullish</span>'
+                    f'<span class="spark-stat-val">{r["bullish_pct"]}</span>'
+                    f'<span class="spark-stat-label">News Sent.</span>'
+                    f'<span class="spark-stat-val">{r["news_sent"]}</span>'
+                    f'</div>'
+                    f'</div>',
+                    unsafe_allow_html=True,
+                )
+                st.button(
+                    "VIEW DETAILS",
+                    key=f"sg_{ticker}",
+                    use_container_width=True,
+                    on_click=_go_to_ticker,
+                    args=(ticker,),
+                )
 
 
 # ── Header ─────────────────────────────────────────────────────────────────────
@@ -1008,7 +1025,7 @@ def show_summary():
 
     # Sparkline grid
     st.markdown('<div class="sec-label">Individual Ticker Signals</div>', unsafe_allow_html=True)
-    st.markdown(build_sparkline_grid_html(rows), unsafe_allow_html=True)
+    show_sparkline_grid(rows)
 
     # Signal table
     st.markdown('<div class="sec-label">Market Intelligence Overview</div>', unsafe_allow_html=True)
@@ -1037,9 +1054,12 @@ def show_detail(ticker):
     show_sidebar(rows_by_ticker)
     show_header()
 
+    def _go_back():
+        st.query_params.clear()
+
     back_col, _, drop_col = st.columns([1.5, 6, 2])
     with back_col:
-        st.markdown('<a href="?" class="back-link">← Back to overview</a>', unsafe_allow_html=True)
+        st.button("← Back to overview", on_click=_go_back, key="back_btn")
     with drop_col:
         new_ticker = st.selectbox("Switch ticker", config.TICKERS, index=config.TICKERS.index(ticker))
         if new_ticker != ticker:
