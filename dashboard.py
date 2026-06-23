@@ -12,6 +12,7 @@ import numpy as np
 import pandas as pd
 import plotly.graph_objects as go
 import streamlit as st
+import streamlit.components.v1 as components
 
 try:
     import yfinance as yf
@@ -297,7 +298,7 @@ def build_summary():
             "chg_raw":       price_chg,
             "bullish_pct":   f"{bullish_pct:.0f}%" if bullish_pct is not None else "—",
             "trends":        f"{trends_score:.0f}/100" if trends_score is not None else "—",
-            "news_sent":     f"{news_sent:+.3f}" if news_sent is not None else "—",
+            "news_sent":     f"{int(round(news_sent*100)):+d}" if news_sent is not None else "—",
             "news_sent_raw": news_sent,
             "signal":        signal,
             "sig_color":     sig_color,
@@ -513,7 +514,7 @@ _GLOSSARY = [
      "over the measured period. rising scores can signal growing retail attention "
      "before it shows up in price."),
     ("news sent",
-     "aggregate news sentiment scored from −1 (fully bearish coverage) to +1 (fully bullish). "
+     "aggregate news sentiment scored from −100 (fully bearish coverage) to +100 (fully bullish). "
      "scores near zero mean mixed or neutral reporting. "
      "works best as a confirming signal alongside bullish %."),
     ("signal",
@@ -554,7 +555,7 @@ _TOOLTIPS = {
         "before it shows up in price."
     ),
     "NEWS SENT": (
-        "aggregate news sentiment scored from −1 (fully bearish coverage) to +1 (fully bullish). "
+        "aggregate news sentiment scored from −100 (fully bearish coverage) to +100 (fully bullish). "
         "scores near zero mean mixed or neutral reporting. "
         "works best as a confirming signal alongside bullish %."
     ),
@@ -957,22 +958,24 @@ def show_header():
       <span></span><span></span><span></span>
     </button>
     <div class="sidebar-overlay" id="sidebar-overlay"></div>
-    <script>
-    !function(){
+    """, unsafe_allow_html=True)
+    components.html("""<script>
+    (function(){
+      var pd=window.parent.document;
       function _toggle(){
-        var sb=document.querySelector('[data-testid="stSidebar"]');
+        var sb=pd.querySelector('[data-testid="stSidebar"]');
         if(!sb)return;
         var open=sb.classList.toggle('sidebar-open');
-        var ov=document.getElementById('sidebar-overlay');
-        var bt=document.getElementById('hamburger-btn');
+        var ov=pd.getElementById('sidebar-overlay');
+        var bt=pd.getElementById('hamburger-btn');
         if(ov)ov.classList.toggle('active',open);
         if(bt)bt.classList.toggle('is-open',open);
-        document.body.style.overflow=open?'hidden':'';
+        pd.body.style.overflow=open?'hidden':'';
       }
-      window.toggleSidebar=_toggle;
+      window.parent.toggleSidebar=_toggle;
       function _bind(){
-        var bt=document.getElementById('hamburger-btn');
-        var ov=document.getElementById('sidebar-overlay');
+        var bt=pd.getElementById('hamburger-btn');
+        var ov=pd.getElementById('sidebar-overlay');
         if(bt&&!bt._hb){
           bt._hb=true;
           bt.addEventListener('click',_toggle);
@@ -984,23 +987,20 @@ def show_header():
           ov.addEventListener('touchstart',function(e){e.preventDefault();_toggle();},{passive:false});
         }
       }
-      window.addEventListener('resize',function(){
-        if(window.innerWidth>768){
-          var sb=document.querySelector('[data-testid="stSidebar"]');
-          var ov=document.getElementById('sidebar-overlay');
-          var bt=document.getElementById('hamburger-btn');
+      window.parent.addEventListener('resize',function(){
+        if(window.parent.innerWidth>768){
+          var sb=pd.querySelector('[data-testid="stSidebar"]');
+          var ov=pd.getElementById('sidebar-overlay');
+          var bt=pd.getElementById('hamburger-btn');
           if(sb)sb.classList.remove('sidebar-open');
           if(ov)ov.classList.remove('active');
           if(bt)bt.classList.remove('is-open');
-          document.body.style.overflow='';
+          pd.body.style.overflow='';
         }
       });
-      document.readyState==='loading'
-        ?document.addEventListener('DOMContentLoaded',_bind)
-        :setTimeout(_bind,0);
-    }();
-    </script>
-    """, unsafe_allow_html=True)
+      _bind();
+    })();
+    </script>""", height=0)
     st.markdown(f"""
     <div class="rh">
       <div class="rh-eyebrow">Alternative Data Research</div>
@@ -1076,7 +1076,7 @@ def show_summary():
     <div class="signal-legend">
       <strong>Signal methodology —</strong>
       StockTwits bullish% &gt; 55% = +1 · &lt; 40% = −1 ·
-      News sentiment &gt; +0.10 = +1 · &lt; −0.10 = −1 ·
+      News sentiment &gt; +10 = +1 · &lt; −10 = −1 ·
       Google Trends &gt; 10% above 7-day avg = +1 · &gt; 10% below = −1 ·
       Prior-day price change &gt; +0.5% = +1 · &lt; −0.5% = −1 ·
       Score ≥ +2 = <span style="color:{GREEN};font-weight:600">BULLISH</span> ·
@@ -1180,7 +1180,7 @@ def show_detail(ticker):
     with m3:
         st.metric("Google Trends", f"{trends_score:.0f}/100" if trends_score is not None else "—")
     with m4:
-        st.metric("News Sentiment", f"{news_sent:+.3f}" if news_sent is not None else "—")
+        st.metric("News Sentiment", f"{int(round(news_sent*100)):+d}" if news_sent is not None else "—")
     with m5:
         st.markdown(f"""
         <div class="signal-metric">
