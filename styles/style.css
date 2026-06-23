@@ -1,0 +1,326 @@
+/* ── Google Fonts ─────────────────────────────────────────────────────────── */
+@import url('https://fonts.googleapis.com/css2?family=DM+Serif+Display:ital@0;1&family=Inter:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap');
+
+/* ── Design tokens ────────────────────────────────────────────────────────── */
+:root {
+  --bg:      #F5F0E8;
+  --surface: #EDE7D9;
+  --border:  #C8B89A;
+  --text:    #2C2416;
+  --muted:   #7A6A52;
+  --accent:  #8B6F47;
+  --green:   #4A6741;
+  --red:     #8B3A2A;
+}
+
+/* ── App shell ────────────────────────────────────────────────────────────── */
+.stApp {
+  background-color: var(--bg) !important;
+  font-family: 'Inter', sans-serif !important;
+}
+
+header[data-testid="stHeader"],
+[data-testid="stDecoration"],
+[data-testid="stToolbar"],
+[data-testid="collapsedControl"],
+#MainMenu,
+footer {
+  display: none !important;
+}
+
+.block-container {
+  padding-top: 2.4rem !important;
+  padding-bottom: 4rem !important;
+  padding-left: 3rem !important;
+  padding-right: 3rem !important;
+  max-width: 1200px !important;
+}
+
+/* ── Typography ───────────────────────────────────────────────────────────── */
+h1, h2, h3 {
+  font-family: 'DM Serif Display', serif !important;
+  color: var(--text) !important;
+  font-weight: 400 !important;
+  letter-spacing: -0.01em;
+}
+
+/* ── Dividers ─────────────────────────────────────────────────────────────── */
+hr {
+  border: none !important;
+  border-top: 1px solid var(--border) !important;
+  margin: 1.2rem 0 !important;
+}
+
+/* ── Section labels ───────────────────────────────────────────────────────── */
+.sec-label {
+  font-family: 'Inter', sans-serif;
+  font-size: 0.66rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.13em;
+  color: var(--muted);
+  border-bottom: 1px solid var(--border);
+  padding-bottom: 6px;
+  margin: 1.8rem 0 1rem;
+}
+
+/* ── Research header ──────────────────────────────────────────────────────── */
+.rh {
+  border-bottom: 1px solid var(--border);
+  padding-bottom: 1.4rem;
+  margin-bottom: 0.2rem;
+}
+.rh-eyebrow {
+  font-family: 'Inter', sans-serif;
+  font-size: 0.66rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.13em;
+  color: var(--accent);
+  margin-bottom: 0.55rem;
+}
+.rh-title {
+  font-family: 'DM Serif Display', serif !important;
+  font-size: 2rem !important;
+  color: var(--text) !important;
+  margin: 0 0 0.55rem !important;
+  line-height: 1.2 !important;
+  font-weight: 400 !important;
+}
+.rh-body {
+  font-family: 'Inter', sans-serif;
+  font-size: 0.875rem;
+  color: var(--muted);
+  line-height: 1.75;
+  max-width: 680px;
+  margin-bottom: 0.9rem;
+}
+.rh-status {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 0.66rem;
+  color: var(--muted);
+  letter-spacing: 0.04em;
+}
+.status-active {
+  display: inline-block;
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: var(--green);
+  margin-right: 6px;
+  vertical-align: middle;
+  position: relative;
+  top: -1px;
+}
+
+/* ── Metric widgets ───────────────────────────────────────────────────────── */
+[data-testid="metric-container"] {
+  background: transparent !important;
+  border: none !important;
+  border-top: 2px solid var(--border) !important;
+  border-radius: 0 !important;
+  padding: 10px 0 8px !important;
+  box-shadow: none !important;
+}
+[data-testid="stMetricLabel"] > div {
+  font-family: 'Inter', sans-serif !important;
+  font-size: 0.63rem !important;
+  font-weight: 600 !important;
+  text-transform: uppercase !important;
+  letter-spacing: 0.11em !important;
+  color: var(--muted) !important;
+}
+[data-testid="stMetricValue"] > div {
+  font-family: 'JetBrains Mono', monospace !important;
+  font-size: 1.3rem !important;
+  font-weight: 500 !important;
+  color: var(--text) !important;
+}
+[data-testid="stMetricDelta"] > div {
+  font-family: 'JetBrains Mono', monospace !important;
+  font-size: 0.76rem !important;
+}
+
+/* ── Buttons ──────────────────────────────────────────────────────────────── */
+.stButton > button {
+  font-family: 'Inter', sans-serif !important;
+  font-size: 0.76rem !important;
+  font-weight: 500 !important;
+  background: transparent !important;
+  border: 1px solid var(--border) !important;
+  color: var(--muted) !important;
+  border-radius: 3px !important;
+  padding: 5px 14px !important;
+  transition: border-color 0.15s, color 0.15s;
+}
+.stButton > button:hover {
+  border-color: var(--accent) !important;
+  color: var(--accent) !important;
+  background: transparent !important;
+}
+
+/* ── Selectbox ────────────────────────────────────────────────────────────── */
+[data-testid="stSelectbox"] label {
+  font-family: 'Inter', sans-serif !important;
+  font-size: 0.63rem !important;
+  font-weight: 600 !important;
+  text-transform: uppercase !important;
+  letter-spacing: 0.11em !important;
+  color: var(--muted) !important;
+}
+
+/* ── Info/alert boxes ─────────────────────────────────────────────────────── */
+[data-testid="stAlert"],
+div[data-baseweb="notification"] {
+  font-family: 'Inter', sans-serif !important;
+  font-size: 0.82rem !important;
+  background: var(--surface) !important;
+  border: 1px solid var(--border) !important;
+  color: var(--muted) !important;
+  border-radius: 3px !important;
+}
+
+/* ── Dataframe ────────────────────────────────────────────────────────────── */
+[data-testid="stDataFrameResizable"] {
+  border: 1px solid var(--border) !important;
+  border-radius: 2px !important;
+}
+.stDataFrame [data-testid="stDataFrameResizable"] {
+  font-family: 'JetBrains Mono', monospace !important;
+  font-size: 0.82rem !important;
+}
+
+/* Ag-Grid zebra rows */
+.ag-theme-alpine .ag-row-even,
+.ag-theme-alpine-dark .ag-row-even {
+  background-color: var(--bg) !important;
+}
+.ag-theme-alpine .ag-row-odd,
+.ag-theme-alpine-dark .ag-row-odd {
+  background-color: var(--surface) !important;
+}
+.ag-theme-alpine .ag-header-row,
+.ag-theme-alpine-dark .ag-header-row {
+  background-color: var(--surface) !important;
+  border-bottom: 1px solid var(--border) !important;
+}
+.ag-theme-alpine .ag-header-cell-label,
+.ag-theme-alpine-dark .ag-header-cell-label {
+  font-family: 'Inter', sans-serif !important;
+  font-size: 0.66rem !important;
+  font-weight: 600 !important;
+  text-transform: uppercase !important;
+  letter-spacing: 0.1em !important;
+  color: var(--muted) !important;
+}
+.ag-theme-alpine .ag-cell,
+.ag-theme-alpine-dark .ag-cell {
+  font-family: 'JetBrains Mono', monospace !important;
+  color: var(--text) !important;
+  border-color: var(--border) !important;
+}
+.ag-theme-alpine .ag-row-selected,
+.ag-theme-alpine-dark .ag-row-selected {
+  background-color: rgba(139,111,71,0.08) !important;
+}
+
+/* ── Chart annotation ─────────────────────────────────────────────────────── */
+.chart-note {
+  font-family: 'Inter', sans-serif;
+  font-size: 0.8rem;
+  color: var(--muted);
+  line-height: 1.75;
+  margin: 0.35rem 0 1.8rem;
+  padding-top: 0.65rem;
+  border-top: 1px solid var(--border);
+}
+.chart-note strong {
+  color: var(--text);
+  font-weight: 600;
+}
+.chart-note em {
+  font-style: italic;
+  color: var(--muted);
+}
+
+/* ── Sparse-data warning ──────────────────────────────────────────────────── */
+.sparse-note {
+  font-family: 'Inter', sans-serif;
+  font-size: 0.78rem;
+  color: var(--accent);
+  line-height: 1.65;
+  margin: 0.25rem 0 0.9rem;
+  padding: 8px 14px;
+  border-left: 2px solid var(--accent);
+  background: rgba(139,111,71,0.05);
+  border-radius: 0 3px 3px 0;
+}
+
+/* ── Signal legend footnote ───────────────────────────────────────────────── */
+.signal-legend {
+  font-family: 'Inter', sans-serif;
+  font-size: 0.77rem;
+  color: var(--muted);
+  line-height: 1.85;
+  margin-top: 0.7rem;
+  padding-top: 0.65rem;
+  border-top: 1px solid var(--border);
+}
+.signal-legend strong {
+  color: var(--text);
+  font-weight: 600;
+}
+
+/* ── Pipeline offline notice ──────────────────────────────────────────────── */
+.pipeline-offline {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-left: 3px solid var(--accent);
+  border-radius: 3px;
+  padding: 22px 28px;
+  margin-top: 1.8rem;
+}
+.pipeline-offline .po-label {
+  font-family: 'Inter', sans-serif;
+  font-size: 0.63rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.13em;
+  color: var(--accent);
+  margin-bottom: 10px;
+}
+.pipeline-offline .po-title {
+  font-family: 'DM Serif Display', serif;
+  font-size: 1.35rem;
+  color: var(--text);
+  font-weight: 400;
+  margin-bottom: 10px;
+  line-height: 1.3;
+}
+.pipeline-offline .po-body {
+  font-family: 'Inter', sans-serif;
+  font-size: 0.83rem;
+  color: var(--muted);
+  line-height: 1.75;
+}
+
+/* ── Custom signal metric (5th column in detail view) ─────────────────────── */
+.signal-metric {
+  border-top: 2px solid var(--border);
+  padding: 10px 0 8px;
+}
+.signal-metric .sm-label {
+  font-family: 'Inter', sans-serif;
+  font-size: 0.63rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.11em;
+  color: var(--muted);
+  margin-bottom: 5px;
+}
+.signal-metric .sm-value {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 1.3rem;
+  font-weight: 500;
+  line-height: 1.2;
+}
