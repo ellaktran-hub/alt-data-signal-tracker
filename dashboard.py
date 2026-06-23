@@ -42,10 +42,24 @@ YELLOW  = "#e3b341"
 st.markdown(f"""
 <style>
   .stApp {{ background-color: {BG}; }}
-  .block-container {{ padding: 1.2rem 2rem 2rem; max-width: 1440px; }}
 
-  /* Hide Streamlit chrome */
-  #MainMenu, footer, [data-testid="stToolbar"] {{ visibility: hidden; }}
+  /* Remove Streamlit chrome entirely (display:none kills the space too,
+     visibility:hidden hides it but leaves a gap at top/bottom) */
+  header[data-testid="stHeader"] {{ display: none !important; }}
+  [data-testid="stDecoration"]   {{ display: none !important; }}
+  [data-testid="stToolbar"]      {{ display: none !important; }}
+  [data-testid="collapsedControl"] {{ display: none !important; }}
+  #MainMenu {{ display: none !important; }}
+  footer    {{ display: none !important; }}
+
+  /* With the header gone, reclaim the top space */
+  .block-container {{
+    padding-top: 1rem !important;
+    padding-bottom: 1rem !important;
+    padding-left: 2rem;
+    padding-right: 2rem;
+    max-width: 1440px;
+  }}
 
   /* Metric cards */
   [data-testid="metric-container"] {{
@@ -103,7 +117,7 @@ st.markdown(f"""
     margin: 0 0 8px;
   }}
   .rh-body {{
-    color: {MUTED};
+    color: #94a3b8;
     font-family: monospace;
     font-size: 0.79rem;
     line-height: 1.75;

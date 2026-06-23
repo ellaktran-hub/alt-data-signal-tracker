@@ -12,6 +12,7 @@ __pycache__/
 *.env
 secrets.py
 credentials.py
+.github_token
 
 # Personal Mac scheduler — contains your local file paths
 com.altdata.pipeline.plist
