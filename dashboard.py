@@ -248,6 +248,40 @@ def fetch_yf_history(symbol):
     except Exception:
         return pd.DataFrame()
 
+@st.cache_data(ttl=3600)
+def fetch_recent_headlines(ticker, n=6):
+    if not _YF_OK:
+        return []
+    try:
+        items = yf.Ticker(ticker).news or []
+    except Exception:
+        return []
+    headlines = []
+    for item in items[:30]:
+        content = item.get("content", item)
+        title   = (content.get("title") or "").strip()
+        if not title:
+            continue
+        pub_str  = content.get("pubDate") or content.get("displayTime", "")
+        pub_date = None
+        try:
+            pub_date = datetime.strptime(pub_str, "%Y-%m-%dT%H:%M:%SZ").date()
+        except (ValueError, TypeError):
+            try:
+                pub_date = datetime.utcfromtimestamp(int(content.get("providerPublishTime", 0))).date()
+            except Exception:
+                pass
+        canonical = content.get("canonicalUrl") or {}
+        url = canonical.get("url", "") if isinstance(canonical, dict) else ""
+        if not url:
+            url = content.get("link", content.get("url", ""))
+        provider = content.get("provider") or {}
+        source   = provider.get("displayName", "") if isinstance(provider, dict) else ""
+        headlines.append({"title": title, "date": pub_date, "url": url, "source": source})
+        if len(headlines) >= n:
+            break
+    return headlines
+
 
 # ── Summary data ───────────────────────────────────────────────────────────────
 def build_summary():
@@ -1206,6 +1240,28 @@ def show_detail(ticker):
         "reference line shows the position of raw sentiment = 0 on the normalized axis. Bars above "
         "the line are net-positive days; below are net-negative days."
     )
+
+    # Recent headlines
+    headlines = fetch_recent_headlines(ticker)
+    if headlines:
+        st.markdown('<div class="sec-label" style="margin-top:1.2rem">Recent Headlines</div>',
+                    unsafe_allow_html=True)
+        items_html = ""
+        for h in headlines:
+            date_str = h["date"].strftime("%-m/%-d") if h["date"] else ""
+            source   = f'<span class="hl-source">{h["source"]}</span>' if h["source"] else ""
+            title_html = (
+                f'<a href="{h["url"]}" target="_blank" rel="noopener" class="hl-link">{h["title"]}</a>'
+                if h["url"] else
+                f'<span class="hl-title">{h["title"]}</span>'
+            )
+            items_html += (
+                f'<div class="hl-row">'
+                f'<span class="hl-date">{date_str}</span>'
+                f'<span class="hl-body">{title_html}{source}</span>'
+                f'</div>'
+            )
+        st.markdown(f'<div class="hl-feed">{items_html}</div>', unsafe_allow_html=True)
 
 
 # ── Routing ────────────────────────────────────────────────────────────────────
