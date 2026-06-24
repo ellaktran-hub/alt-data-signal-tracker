@@ -1436,6 +1436,21 @@ def show_header():
         _applyTheme(saved === 'dark');
       })();
 
+      // ── Star / watchlist clicks ───────────────────────────────────────────
+      // Use event delegation on pd so stars work even after table re-renders.
+      // window.parent.location navigates the Streamlit app (this script runs
+      // inside a components.html iframe, so window.parent = Streamlit page).
+      if (!pd._starListenerDone) {
+        pd._starListenerDone = true;
+        pd.addEventListener('click', function(e) {
+          var star = e.target.closest('[data-star]');
+          if (!star) return;
+          e.preventDefault();
+          e.stopPropagation();
+          window.parent.location.href = '?star=' + encodeURIComponent(star.dataset.star);
+        });
+      }
+
     })();
     </script>""", height=0)
 
