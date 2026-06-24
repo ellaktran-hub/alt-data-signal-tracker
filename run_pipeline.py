@@ -95,6 +95,7 @@ if __name__ == "__main__":
         ("Earnings calendar (Yahoo Finance)",             "fetch_earnings",      "fetch_earnings"),
         ("Macro events (Fed + BLS)",                      "fetch_macro_events",  "fetch_macro_events"),
         ("Lead/lag correlations",                         "correlations",        "compute_correlations"),
+        ("Daily predictions + fill actuals",              "fetch_predictions",   "fetch_predictions"),
     ]
 
     results = {}

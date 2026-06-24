@@ -415,7 +415,12 @@ def show_sidebar(rows_by_ticker):
                 st.rerun()
 
         st.markdown(
-            '<div class="sb-about-btn"><a href="?page=about">About this project</a></div>',
+            '<div class="sb-about-btn">'
+            '<a href="?page=predictions">Price Predictions</a>'
+            '</div>'
+            '<div class="sb-about-btn">'
+            '<a href="?page=about">About this project</a>'
+            '</div>',
             unsafe_allow_html=True,
         )
 
@@ -2627,6 +2632,386 @@ def show_about():
     st.markdown('</div>', unsafe_allow_html=True)
 
 
+# ── Predictions page ───────────────────────────────────────────────────────────
+@st.cache_data(ttl=300)
+def load_predictions():
+    p = DATA_DIR / "predictions.csv"
+    if not p.exists():
+        return pd.DataFrame()
+    df = pd.read_csv(p)
+    df["date"] = pd.to_datetime(df["date"])
+    return df
+
+
+def show_predictions():
+    rows           = build_summary()
+    rows_by_ticker = {r["ticker"]: r for r in rows}
+    show_sidebar(rows_by_ticker)
+    show_header()
+
+    def _go_home():
+        st.query_params.clear()
+    st.button("← Back to overview", on_click=_go_home, key="pred_back_btn")
+
+    st.markdown("""
+    <div class="about-hero">
+      <div class="about-hero-eyebrow">Live Research · Daily Updates</div>
+      <div class="about-hero-title">Price Predictions</div>
+      <div class="about-hero-sub">
+        Each day the model records a directional prediction (UP / DOWN / NEUTRAL) for
+        every ticker based on the composite alt-data signal. As days pass, the actual
+        price returns are filled in automatically and prediction accuracy is tracked.
+      </div>
+    </div>
+    """, unsafe_allow_html=True)
+
+    pred_df = load_predictions()
+    if pred_df.empty:
+        st.info("No prediction data yet — run the pipeline to generate predictions.")
+        return
+
+    today_str = pred_df["date"].max().strftime("%Y-%m-%d")
+    today_preds = pred_df[pred_df["date"] == pred_df["date"].max()].copy()
+    past_preds  = pred_df[pred_df["date"] < pred_df["date"].max()].copy()
+
+    # ── Section 1: Today's Forecast ───────────────────────────────────────────
+    st.markdown(
+        f'<div class="about-section-title" style="margin-top:1.5rem">'
+        f'Today\'s Forecast — {today_str}</div>',
+        unsafe_allow_html=True,
+    )
+
+    # Sort: BEARISH first (most negative score), then NEUTRAL, BULLISH last
+    today_preds = today_preds.sort_values("score")
+
+    bullish_n = (today_preds["signal"] == "BULLISH").sum()
+    bearish_n = (today_preds["signal"] == "BEARISH").sum()
+    neutral_n = (today_preds["signal"] == "NEUTRAL").sum()
+
+    c1, c2, c3, c4 = st.columns(4)
+    with c1:
+        st.metric("Tickers Predicted", len(today_preds))
+    with c2:
+        st.metric("↑ Predicted UP",   bullish_n)
+    with c3:
+        st.metric("↓ Predicted DOWN", bearish_n)
+    with c4:
+        st.metric("→ No Signal",      neutral_n)
+
+    st.markdown('<div style="margin-top:1rem"></div>', unsafe_allow_html=True)
+
+    # Build HTML table for today's predictions
+    def _dir_badge(sig):
+        if sig == "BULLISH":
+            return f'<span style="color:{GREEN};font-weight:700">↑ UP</span>'
+        if sig == "BEARISH":
+            return f'<span style="color:{RED};font-weight:700">↓ DOWN</span>'
+        return f'<span style="color:{MUTED}">→ NEUTRAL</span>'
+
+    def _score_bar(score):
+        pct = min(100, max(0, (score + 4) / 8 * 100))
+        color = GREEN if score >= 2 else (RED if score <= -2 else MUTED)
+        return (
+            f'<div style="display:flex;align-items:center;gap:6px">'
+            f'<div style="flex:1;height:4px;background:{SURFACE2};border-radius:2px">'
+            f'<div style="width:{pct:.0f}%;height:100%;background:{color};border-radius:2px"></div>'
+            f'</div>'
+            f'<span style="font-family:JetBrains Mono,monospace;font-size:0.78rem;'
+            f'color:{color};min-width:20px;text-align:right">{score:+d}</span>'
+            f'</div>'
+        )
+
+    tbl = '<div class="data-tbl-wrap"><table class="data-tbl"><thead><tr>'
+    for col in ["TICKER", "COMPANY", "PRICE", "SCORE", "PREDICTION", "TRENDS", "STOCKTWITS", "NEWS SENT"]:
+        tbl += f'<th class="data-tbl-th">{col}</th>'
+    tbl += '</tr></thead><tbody>'
+
+    for i, r in today_preds.iterrows():
+        cls  = "even" if i % 2 == 0 else "odd"
+        ticker = r["ticker"]
+        comp   = config.COMPANIES.get(ticker, ticker)
+        price  = f"${r['price']:,.2f}" if pd.notna(r.get("price")) else "—"
+        trends = f"{r['trends_score']:.0f}" if pd.notna(r.get("trends_score")) else "—"
+        st_pct = f"{r['bullish_pct']:.0f}%" if pd.notna(r.get("bullish_pct")) else "—"
+        news   = (f"{int(round(r['news_sent']*100)):+d}"
+                  if pd.notna(r.get("news_sent")) else "—")
+        tbl += (
+            f'<tr class="{cls}">'
+            f'<td class="data-tbl-td tkr">{ticker}</td>'
+            f'<td class="data-tbl-td left">{comp}</td>'
+            f'<td class="data-tbl-td num">{price}</td>'
+            f'<td class="data-tbl-td">{_score_bar(int(r["score"]))}</td>'
+            f'<td class="data-tbl-td num">{_dir_badge(r["signal"])}</td>'
+            f'<td class="data-tbl-td num">{trends}</td>'
+            f'<td class="data-tbl-td num">{st_pct}</td>'
+            f'<td class="data-tbl-td num">{news}</td>'
+            f'</tr>'
+        )
+    tbl += '</tbody></table></div>'
+    st.markdown(tbl, unsafe_allow_html=True)
+
+    note(
+        "Score ranges from −4 (all signals bearish) to +4 (all signals bullish). "
+        "≥ +2 = UP · ≤ −2 = DOWN · −1 to +1 = NEUTRAL. "
+        "Score bar shows position on that scale. "
+        "Actual returns will be filled in automatically each morning as prices come in."
+    )
+
+    # ── Section 2: Accuracy Scorecard ────────────────────────────────────────
+    st.markdown("---")
+    st.markdown(
+        '<div class="about-section-title">Prediction Accuracy Scorecard</div>',
+        unsafe_allow_html=True,
+    )
+
+    directional = pred_df[pred_df["signal"].isin(["BULLISH", "BEARISH"])].copy()
+
+    def _accuracy(col_hit):
+        vals = directional[col_hit].dropna()
+        if len(vals) < 3:
+            return None, len(vals)
+        return float(vals.mean() * 100), len(vals)
+
+    acc_1d, n_1d = _accuracy("hit_1d")
+    acc_3d, n_3d = _accuracy("hit_3d")
+    acc_7d, n_7d = _accuracy("hit_7d")
+
+    if acc_1d is None and acc_3d is None and acc_7d is None:
+        st.markdown(
+            '<div class="sparse-note">Accuracy data is building up — check back tomorrow. '
+            'The pipeline fills in actual returns each morning: 1-day results appear after 1 day, '
+            '3-day after 3 days, 7-day after 7 days.</div>',
+            unsafe_allow_html=True,
+        )
+    else:
+        a1, a2, a3, a4 = st.columns(4)
+        with a1:
+            if acc_1d is not None:
+                delta = f"{acc_1d - 50:+.1f}% vs random"
+                st.metric("1-Day Accuracy", f"{acc_1d:.1f}%", delta)
+            else:
+                st.metric("1-Day Accuracy", f"— ({n_1d} evaluated)")
+        with a2:
+            if acc_3d is not None:
+                delta = f"{acc_3d - 50:+.1f}% vs random"
+                st.metric("3-Day Accuracy", f"{acc_3d:.1f}%", delta)
+            else:
+                st.metric("3-Day Accuracy", f"— ({n_3d} evaluated)")
+        with a3:
+            if acc_7d is not None:
+                delta = f"{acc_7d - 50:+.1f}% vs random"
+                st.metric("7-Day Accuracy", f"{acc_7d:.1f}%", delta)
+            else:
+                st.metric("7-Day Accuracy", f"— ({n_7d} evaluated)")
+        with a4:
+            total_dir = len(directional)
+            total_days = pred_df["date"].nunique()
+            st.metric("Days of Predictions", total_days,
+                      f"{total_dir} directional calls total")
+
+        # Accuracy over time chart (if enough days)
+        dated_acc = (
+            directional[directional["hit_1d"].notna()]
+            .groupby("date")["hit_1d"]
+            .mean()
+            .reset_index()
+        )
+        dated_acc.columns = ["date", "accuracy"]
+        if len(dated_acc) >= 3:
+            dated_acc["rolling_acc"] = dated_acc["accuracy"].rolling(7, min_periods=1).mean()
+            fig = go.Figure()
+            fig.add_trace(go.Scatter(
+                x=dated_acc["date"], y=dated_acc["accuracy"] * 100,
+                name="Daily 1d Accuracy", mode="markers",
+                marker=dict(color=C4, size=5),
+                hovertemplate="%{y:.1f}%<extra>Daily accuracy</extra>",
+            ))
+            fig.add_trace(go.Scatter(
+                x=dated_acc["date"], y=dated_acc["rolling_acc"] * 100,
+                name="7-Day Rolling", mode="lines",
+                line=dict(color=C1, width=2.5),
+                hovertemplate="%{y:.1f}%<extra>7-Day rolling</extra>",
+            ))
+            fig.add_hline(y=50, line_color=BORDER, line_dash="dash", line_width=1,
+                          annotation_text="random (50%)", annotation_font=dict(size=9, color=MUTED))
+            layout = chart_layout("1-Day Prediction Accuracy Over Time", height=280)
+            layout["yaxis"].update(range=[0, 105], ticksuffix="%")
+            fig.update_layout(**layout)
+            st.plotly_chart(fig, use_container_width=True, config={"displayModeBar": False})
+
+        # Accuracy by signal strength
+        if len(directional[directional["hit_1d"].notna()]) >= 5:
+            by_score = (
+                directional[directional["hit_1d"].notna()]
+                .groupby("score")["hit_1d"]
+                .agg(["mean", "count"])
+                .reset_index()
+            )
+            by_score.columns = ["score", "accuracy", "count"]
+            by_score = by_score[by_score["count"] >= 2]
+            if not by_score.empty:
+                fig2 = go.Figure()
+                colors = [GREEN if s >= 2 else (RED if s <= -2 else MUTED) for s in by_score["score"]]
+                fig2.add_trace(go.Bar(
+                    x=by_score["score"].tolist(),
+                    y=(by_score["accuracy"] * 100).tolist(),
+                    marker_color=colors, marker_opacity=0.85,
+                    text=[f"{v:.0f}% (n={n})" for v, n in zip(by_score["accuracy"]*100, by_score["count"])],
+                    textposition="outside",
+                    hovertemplate="Score %{x}: %{y:.1f}%<extra></extra>",
+                ))
+                fig2.add_hline(y=50, line_color=BORDER, line_dash="dash", line_width=1)
+                layout2 = chart_layout("1-Day Accuracy by Signal Strength (score)", height=280)
+                layout2["xaxis"].update(
+                    tickvals=list(range(-4, 5)),
+                    title=dict(text="Score (−4 = strongest bearish, +4 = strongest bullish)",
+                               font=dict(size=10, color=MUTED)),
+                )
+                layout2["yaxis"].update(range=[0, 115], ticksuffix="%")
+                fig2.update_layout(**layout2)
+                st.plotly_chart(fig2, use_container_width=True, config={"displayModeBar": False})
+
+    # ── Section 3: Prediction History ─────────────────────────────────────────
+    st.markdown("---")
+    st.markdown(
+        '<div class="about-section-title">Full Prediction History</div>',
+        unsafe_allow_html=True,
+    )
+
+    if past_preds.empty:
+        st.markdown(
+            '<div class="sparse-note">No past predictions yet — today is Day 1. '
+            'Check back tomorrow to see yesterday\'s predictions alongside actual returns.</div>',
+            unsafe_allow_html=True,
+        )
+    else:
+        # Filters
+        f1, f2, f3 = st.columns([2, 2, 2])
+        with f1:
+            sig_filter = st.multiselect(
+                "Filter by signal", ["BULLISH", "BEARISH", "NEUTRAL"],
+                default=["BULLISH", "BEARISH", "NEUTRAL"], key="pred_sig_filter",
+            )
+        with f2:
+            horizon_view = st.selectbox(
+                "Show returns at", ["1 day", "3 days", "7 days"], key="pred_horizon",
+            )
+        with f3:
+            ticker_filter = st.selectbox(
+                "Filter by ticker", ["All"] + sorted(past_preds["ticker"].unique().tolist()),
+                key="pred_ticker_filter",
+            )
+
+        col_ret  = {"1 day": "actual_1d", "3 days": "actual_3d", "7 days": "actual_7d"}[horizon_view]
+        col_hit  = {"1 day": "hit_1d",    "3 days": "hit_3d",    "7 days": "hit_7d"}[horizon_view]
+
+        view = past_preds[past_preds["signal"].isin(sig_filter)].copy()
+        if ticker_filter != "All":
+            view = view[view["ticker"] == ticker_filter]
+        view = view.sort_values("date", ascending=False)
+
+        def _ret_cell(val):
+            if pd.isna(val):
+                return '<span style="color:{MUTED}">—</span>'
+            color = GREEN if val > 0 else RED
+            arrow = "▲" if val > 0 else "▼"
+            return f'<span style="color:{color};font-family:JetBrains Mono,monospace">{arrow} {abs(val):.2f}%</span>'
+
+        def _hit_cell(val, sig):
+            if sig == "NEUTRAL" or pd.isna(val):
+                return "—"
+            return f'<span style="color:{GREEN}">✓</span>' if val else f'<span style="color:{RED}">✗</span>'
+
+        hist_tbl = '<div class="data-tbl-wrap"><table class="data-tbl"><thead><tr>'
+        for h in ["DATE", "TICKER", "SIGNAL", "SCORE", "PRICE AT PRED", f"ACTUAL ({horizon_view.upper()})", "CORRECT"]:
+            hist_tbl += f'<th class="data-tbl-th">{h}</th>'
+        hist_tbl += '</tr></thead><tbody>'
+
+        for i, (_, r) in enumerate(view.iterrows()):
+            cls  = "even" if i % 2 == 0 else "odd"
+            sig  = r["signal"]
+            sig_color = GREEN if sig == "BULLISH" else (RED if sig == "BEARISH" else MUTED)
+            hist_tbl += (
+                f'<tr class="{cls}">'
+                f'<td class="data-tbl-td num" style="font-family:JetBrains Mono,monospace">'
+                f'{pd.Timestamp(r["date"]).strftime("%b %d")}</td>'
+                f'<td class="data-tbl-td tkr">{r["ticker"]}</td>'
+                f'<td class="data-tbl-td num" style="color:{sig_color};font-weight:600">{sig}</td>'
+                f'<td class="data-tbl-td num" style="font-family:JetBrains Mono,monospace">'
+                f'{int(r["score"]):+d}</td>'
+                f'<td class="data-tbl-td num">${float(r["price"]):,.2f}</td>'
+                f'<td class="data-tbl-td num">{_ret_cell(r.get(col_ret))}</td>'
+                f'<td class="data-tbl-td num">{_hit_cell(r.get(col_hit), sig)}</td>'
+                f'</tr>'
+            )
+        hist_tbl += '</tbody></table></div>'
+        st.markdown(hist_tbl, unsafe_allow_html=True)
+
+        note(
+            "Returns are calculated from the closing price on the prediction date to the closing price "
+            f"{horizon_view} later. ✓ = prediction was correct direction. "
+            "NEUTRAL predictions have no directional bet so no ✓/✗."
+        )
+
+    # ── Section 4: Per-Ticker Track Record ────────────────────────────────────
+    if not past_preds.empty:
+        st.markdown("---")
+        st.markdown(
+            '<div class="about-section-title">Per-Ticker Track Record</div>',
+            unsafe_allow_html=True,
+        )
+        ticker_opts = sorted(past_preds["ticker"].unique().tolist())
+        sel_ticker  = st.selectbox("Select ticker", ticker_opts, key="pred_tkr_detail")
+        tkr_df      = past_preds[past_preds["ticker"] == sel_ticker].copy()
+
+        # Mini accuracy stats
+        dir_tkr = tkr_df[tkr_df["signal"].isin(["BULLISH", "BEARISH"])]
+        t1, t2, t3, t4 = st.columns(4)
+        with t1:
+            vals = dir_tkr["hit_1d"].dropna()
+            st.metric("1d Accuracy", f"{vals.mean()*100:.0f}%" if len(vals) >= 1 else "—",
+                      f"n={len(vals)}")
+        with t2:
+            vals = dir_tkr["hit_3d"].dropna()
+            st.metric("3d Accuracy", f"{vals.mean()*100:.0f}%" if len(vals) >= 1 else "—",
+                      f"n={len(vals)}")
+        with t3:
+            vals = dir_tkr["hit_7d"].dropna()
+            st.metric("7d Accuracy", f"{vals.mean()*100:.0f}%" if len(vals) >= 1 else "—",
+                      f"n={len(vals)}")
+        with t4:
+            bull_n = (dir_tkr["signal"] == "BULLISH").sum()
+            bear_n = (dir_tkr["signal"] == "BEARISH").sum()
+            st.metric("Calls Made", len(dir_tkr), f"{bull_n}↑  {bear_n}↓")
+
+        # Mini chart: 1d actual returns over time for this ticker
+        has_ret = tkr_df[tkr_df["actual_1d"].notna()]
+        if not has_ret.empty:
+            fig_tkr = go.Figure()
+            colors_tkr = [GREEN if r > 0 else RED for r in has_ret["actual_1d"]]
+            fig_tkr.add_trace(go.Bar(
+                x=has_ret["date"].tolist(),
+                y=has_ret["actual_1d"].tolist(),
+                marker_color=colors_tkr,
+                marker_opacity=0.8,
+                text=[
+                    (f'<span style="color:{GREEN}">✓</span>'
+                     if h else f'<span style="color:{RED}">✗</span>')
+                    if s in ("BULLISH", "BEARISH") and pd.notna(h) else ""
+                    for s, h in zip(has_ret["signal"], has_ret["hit_1d"])
+                ],
+                textposition="outside",
+                hovertemplate="Date: %{x}<br>1d Return: %{y:.2f}%<extra></extra>",
+            ))
+            fig_tkr.add_hline(y=0, line_color=BORDER, line_width=1)
+            layout_tkr = chart_layout(
+                f"{sel_ticker}  ·  Actual 1-Day Return at Each Prediction Date", height=240
+            )
+            layout_tkr["yaxis"].update(ticksuffix="%")
+            fig_tkr.update_layout(**layout_tkr)
+            st.plotly_chart(fig_tkr, use_container_width=True, config={"displayModeBar": False})
+
+
 # ── Routing ────────────────────────────────────────────────────────────────────
 def has_any_data():
     return DATA_DIR.exists() and any(DATA_DIR.glob("prices_*.csv"))
@@ -2636,6 +3021,8 @@ _page_param   = st.query_params.get("page", None)
 
 if _page_param == "about":
     _view = "about"
+elif _page_param == "predictions":
+    _view = "predictions"
 elif _ticker_param:
     _view = "detail"
 else:
@@ -2644,6 +3031,8 @@ else:
 try:
     if _view == "about":
         show_about()
+    elif _view == "predictions":
+        show_predictions()
     elif not has_any_data():
         show_header()
         st.markdown(f"""
