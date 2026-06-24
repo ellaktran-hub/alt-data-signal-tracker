@@ -49,6 +49,9 @@ footer {
 [data-testid="stMain"] {
   padding-top: 0 !important;
 }
+[data-testid="stMainBlockContainer"] {
+  padding-top: 0 !important;
+}
 .block-container {
   padding-top: 0 !important;
   padding-bottom: 4rem !important;
@@ -861,30 +864,24 @@ section[data-testid="stSidebar"] input[type="text"]::placeholder {
   color: rgba(44,36,22,0.45) !important;
 }
 section[data-testid="stSidebar"] .stButton > button {
-  background: rgba(139,111,71,0.15) !important;
-  border-color: rgba(200,184,154,0.3) !important;
-  color: #B79C74 !important;
+  background: transparent !important;
+  border: 1px solid var(--border) !important;
+  border-radius: 6px !important;
+  color: var(--muted) !important;
+  font-family: 'JetBrains Mono', monospace !important;
+  font-size: 0.68rem !important;
+  font-weight: 400 !important;
+  letter-spacing: 0.1em !important;
+  text-transform: uppercase !important;
+  padding: 0.45rem !important;
   width: 100%;
+  box-shadow: none !important;
 }
 section[data-testid="stSidebar"] .stButton > button:hover {
-  background: rgba(139,111,71,0.3) !important;
+  background: transparent !important;
   border-color: var(--accent) !important;
-  color: #FAF6EF !important;
-}
-/* SEE MY BASKET / VIEW ALL — prominent CTA button */
-section[data-testid="stSidebar"] [data-testid="stButton-see_basket_btn"] > button,
-section[data-testid="stSidebar"] [data-testid="stButton-view_all_btn"] > button {
-  background: var(--accent) !important;
-  border-color: var(--accent) !important;
-  color: #FAF6EF !important;
-  font-weight: 600 !important;
-  letter-spacing: 0.05em !important;
-  margin-top: 0.5rem !important;
-}
-section[data-testid="stSidebar"] [data-testid="stButton-see_basket_btn"] > button:hover,
-section[data-testid="stSidebar"] [data-testid="stButton-view_all_btn"] > button:hover {
-  background: #7A5F3A !important;
-  border-color: #7A5F3A !important;
+  color: var(--accent) !important;
+  box-shadow: none !important;
 }
 /* Basket remove (×) button — inline, no border, vertically centered */
 section[data-testid="stSidebar"] [data-testid="stHorizontalBlock"] > [data-testid="stColumn"]:last-child {

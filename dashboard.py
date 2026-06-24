@@ -1926,12 +1926,58 @@ def show_summary():
             unsafe_allow_html=True,
         )
 
-    # ── Tabs ──────────────────────────────────────────────────────────────────
+    # Fear & Greed Index
+    fg_score, fg_label, fg_components = compute_fear_greed(rows)
+    st.markdown('<div class="sec-label">Fear &amp; Greed Index</div>', unsafe_allow_html=True)
+    fg_col_gauge, fg_col_comp = st.columns([1, 2])
+    with fg_col_gauge:
+        st.plotly_chart(
+            build_fear_greed_gauge(fg_score, fg_label, fg_components),
+            use_container_width=True,
+            config={"displayModeBar": False},
+        )
+    with fg_col_comp:
+        st.markdown('<div style="margin-top:1.2rem"></div>', unsafe_allow_html=True)
+        for comp_name, comp_val in fg_components.items():
+            bar_color = GREEN if comp_val > 55 else (RED if comp_val < 45 else MUTED)
+            st.markdown(
+                f'<div style="margin-bottom:0.5rem">'
+                f'<div style="font-family:Inter;font-size:0.78rem;color:{MUTED};margin-bottom:2px">'
+                f'{comp_name}: <strong style="color:{TEXT}">{comp_val:.0f}</strong></div>'
+                f'<div style="background:{SURFACE2};border-radius:4px;height:6px;overflow:hidden">'
+                f'<div style="width:{comp_val:.0f}%;height:100%;background:{bar_color};border-radius:4px"></div>'
+                f'</div></div>',
+                unsafe_allow_html=True,
+            )
+        st.markdown(
+            f'<div class="chart-note" style="margin-top:0.75rem">'
+            f'Score 0–100 · 0–25 Extreme Fear · 25–45 Fear · 45–55 Neutral · 55–75 Greed · 75–100 Extreme Greed'
+            f'</div>',
+            unsafe_allow_html=True,
+        )
+
+    st.markdown("---")
+
+    # Market chips
+    st.markdown(build_market_chips_html(display_rows), unsafe_allow_html=True)
+
+    # Signal distribution
+    st.plotly_chart(
+        build_signal_dist_chart(display_rows),
+        use_container_width=True,
+        config={"displayModeBar": False, "responsive": True},
+    )
+
+    # Sparkline grid
+    spark_label = "My Basket" if basket_view else "Featured Tickers"
+    st.markdown(f'<div class="sec-label">{spark_label}</div>', unsafe_allow_html=True)
+    show_sparkline_grid(sparkline_rows)
+
+    # ── Analysis tabs (below Featured Tickers) ────────────────────────────────
     (
-        tab_overview, tab_corr_mat, tab_lag, tab_bt,
+        tab_corr_mat, tab_lag, tab_bt,
         tab_acc, tab_sector, tab_div, tab_rc, tab_rd,
     ) = st.tabs([
-        "Overview",
         "Correlation Matrix",
         "Lag Analysis",
         "Backtesting",
@@ -1942,78 +1988,6 @@ def show_summary():
         "Returns Distribution",
     ])
 
-    # ── Overview tab ──────────────────────────────────────────────────────────
-    with tab_overview:
-        # Fear & Greed Index — prominently at top
-        fg_score, fg_label, fg_components = compute_fear_greed(rows)
-        st.markdown('<div class="sec-label">Fear &amp; Greed Index</div>', unsafe_allow_html=True)
-        fg_col_gauge, fg_col_comp = st.columns([1, 2])
-        with fg_col_gauge:
-            st.plotly_chart(
-                build_fear_greed_gauge(fg_score, fg_label, fg_components),
-                use_container_width=True,
-                config={"displayModeBar": False},
-            )
-        with fg_col_comp:
-            st.markdown('<div style="margin-top:1.2rem"></div>', unsafe_allow_html=True)
-            for comp_name, comp_val in fg_components.items():
-                bar_color = GREEN if comp_val > 55 else (RED if comp_val < 45 else MUTED)
-                st.markdown(
-                    f'<div style="margin-bottom:0.5rem">'
-                    f'<div style="font-family:Inter;font-size:0.78rem;color:{MUTED};margin-bottom:2px">'
-                    f'{comp_name}: <strong style="color:{TEXT}">{comp_val:.0f}</strong></div>'
-                    f'<div style="background:{SURFACE2};border-radius:4px;height:6px;overflow:hidden">'
-                    f'<div style="width:{comp_val:.0f}%;height:100%;background:{bar_color};border-radius:4px"></div>'
-                    f'</div></div>',
-                    unsafe_allow_html=True,
-                )
-            st.markdown(
-                f'<div class="chart-note" style="margin-top:0.75rem">'
-                f'Score 0–100 · 0–25 Extreme Fear · 25–45 Fear · 45–55 Neutral · 55–75 Greed · 75–100 Extreme Greed'
-                f'</div>',
-                unsafe_allow_html=True,
-            )
-
-        st.markdown("---")
-
-        # Market chips
-        st.markdown(build_market_chips_html(display_rows), unsafe_allow_html=True)
-
-        # Signal distribution
-        st.plotly_chart(
-            build_signal_dist_chart(display_rows),
-            use_container_width=True,
-            config={"displayModeBar": False, "responsive": True},
-        )
-
-        # Sparkline grid
-        spark_label = "My Basket" if basket_view else "Featured Tickers"
-        st.markdown(f'<div class="sec-label">{spark_label}</div>', unsafe_allow_html=True)
-        show_sparkline_grid(sparkline_rows)
-
-        # Metric definitions
-        show_glossary()
-
-        # Signal table
-        st.markdown('<div class="sec-label">Market Intelligence Overview</div>', unsafe_allow_html=True)
-        st.markdown(build_table_html(display_rows), unsafe_allow_html=True)
-
-        st.markdown(f"""
-        <div class="signal-legend">
-          <strong>Signal methodology —</strong>
-          StockTwits bullish% &gt; 55% = +1 · &lt; 40% = −1 ·
-          News sentiment &gt; +10 = +1 · &lt; −10 = −1 ·
-          Google Trends &gt; 10% above 7-day avg = +1 · &gt; 10% below = −1 ·
-          Prior-day price change &gt; +0.5% = +1 · &lt; −0.5% = −1 ·
-          Score ≥ +2 = <span style="color:{GREEN};font-weight:600">BULLISH</span> ·
-          ≤ −2 = <span style="color:{RED};font-weight:600">BEARISH</span> ·
-          otherwise <span style="color:{MUTED};font-weight:600">NEUTRAL</span>
-        </div>
-        """, unsafe_allow_html=True)
-
-        st.markdown(build_animations_js(), unsafe_allow_html=True)
-
-    # ── Analysis tabs ─────────────────────────────────────────────────────────
     with tab_corr_mat:
         tab_correlation_matrix()
 
@@ -2037,6 +2011,28 @@ def show_summary():
 
     with tab_rd:
         tab_returns_distribution()
+
+    # Metric definitions
+    show_glossary()
+
+    # Signal table
+    st.markdown('<div class="sec-label">Market Intelligence Overview</div>', unsafe_allow_html=True)
+    st.markdown(build_table_html(display_rows), unsafe_allow_html=True)
+
+    st.markdown(f"""
+    <div class="signal-legend">
+      <strong>Signal methodology —</strong>
+      StockTwits bullish% &gt; 55% = +1 · &lt; 40% = −1 ·
+      News sentiment &gt; +10 = +1 · &lt; −10 = −1 ·
+      Google Trends &gt; 10% above 7-day avg = +1 · &gt; 10% below = −1 ·
+      Prior-day price change &gt; +0.5% = +1 · &lt; −0.5% = −1 ·
+      Score ≥ +2 = <span style="color:{GREEN};font-weight:600">BULLISH</span> ·
+      ≤ −2 = <span style="color:{RED};font-weight:600">BEARISH</span> ·
+      otherwise <span style="color:{MUTED};font-weight:600">NEUTRAL</span>
+    </div>
+    """, unsafe_allow_html=True)
+
+    st.markdown(build_animations_js(), unsafe_allow_html=True)
 
 
 # ── Detail view ────────────────────────────────────────────────────────────────
