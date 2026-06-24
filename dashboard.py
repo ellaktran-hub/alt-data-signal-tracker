@@ -2833,7 +2833,7 @@ def show_predictions():
             f'${val:,.2f}{ret_str}</span>'
         )
 
-    tbl_cols = ["TICKER", "COMPANY", "PRICE", "SCORE", "SIGNAL", "1d FORECAST", "3d FORECAST", "7d FORECAST", "TRENDS", "STOCKTWITS", "NEWS"]
+    tbl_cols = ["TICKER", "COMPANY", "PRICE", "SCORE", "SIGNAL", "1d FORECAST", "3d FORECAST", "TRENDS", "STOCKTWITS", "NEWS"]
     tbl = '<div class="data-tbl-wrap"><table class="data-tbl"><thead><tr>'
     for col in tbl_cols:
         tbl += f'<th class="data-tbl-th">{col}</th>'
@@ -2843,14 +2843,12 @@ def show_predictions():
         cls    = "even" if i % 2 == 0 else "odd"
         ticker = r["ticker"]
         comp   = config.COMPANIES.get(ticker, ticker)
-        price  = f"${r['price']:,.2f}" if pd.notna(r.get("price")) else "—"
         trends = f"{r['trends_score']:.0f}" if pd.notna(r.get("trends_score")) else "—"
         st_pct = f"{r['bullish_pct']:.0f}%" if pd.notna(r.get("bullish_pct")) else "—"
         news   = (f"{int(round(r['news_sent']*100)):+d}"
                   if pd.notna(r.get("news_sent")) else "—")
         p1d = _pred_price_cell(r.get("pred_price_1d"), r.get("pred_ret_1d")) if has_price_cols else "—"
         p3d = _pred_price_cell(r.get("pred_price_3d"), r.get("pred_ret_3d")) if has_price_cols else "—"
-        p7d = _pred_price_cell(r.get("pred_price_7d"), r.get("pred_ret_7d")) if has_price_cols else "—"
         tbl += (
             f'<tr class="{cls}">'
             f'<td class="data-tbl-td tkr">{ticker}</td>'
@@ -2860,7 +2858,6 @@ def show_predictions():
             f'<td class="data-tbl-td num">{_dir_badge(r["signal"])}</td>'
             f'<td class="data-tbl-td num">{p1d}</td>'
             f'<td class="data-tbl-td num">{p3d}</td>'
-            f'<td class="data-tbl-td num">{p7d}</td>'
             f'<td class="data-tbl-td num">{trends}</td>'
             f'<td class="data-tbl-td num">{st_pct}</td>'
             f'<td class="data-tbl-td num">{news}</td>'
