@@ -1066,6 +1066,60 @@ def show_header():
     components.html("""<script>
     (function(){
       var pd=window.parent.document;
+
+      // ── Fix top gap by directly setting padding via JS (overrides any CSS) ──
+      function _fixGap(){
+        var targets=[
+          pd.querySelector('.block-container'),
+          pd.querySelector('[data-testid="stMainBlockContainer"]'),
+          pd.querySelector('[data-testid="stMain"]'),
+          pd.querySelector('[data-testid="stAppViewContainer"]'),
+        ];
+        targets.forEach(function(el){
+          if(el){ el.style.setProperty('padding-top','0','important'); }
+        });
+      }
+      _fixGap();
+      // Re-apply after Streamlit re-renders (it can reset inline styles)
+      setTimeout(_fixGap, 300);
+      setTimeout(_fixGap, 800);
+
+      // ── Style sidebar buttons to match the About/Predictions link style ──
+      function _styleSidebarBtns(){
+        var sb=pd.querySelector('[data-testid="stSidebar"]');
+        if(!sb)return;
+        var btns=sb.querySelectorAll('button');
+        btns.forEach(function(btn){
+          var txt=(btn.textContent||'').trim();
+          // × remove buttons keep their own style
+          if(txt==='×'||txt==='x'||btn.offsetWidth<40)return;
+          btn.style.setProperty('background','transparent','important');
+          btn.style.setProperty('border','1px solid rgba(139,111,71,0.4)','important');
+          btn.style.setProperty('border-radius','6px','important');
+          btn.style.setProperty('color','rgba(139,111,71,0.75)','important');
+          btn.style.setProperty('font-family','JetBrains Mono,monospace','important');
+          btn.style.setProperty('font-size','0.68rem','important');
+          btn.style.setProperty('font-weight','400','important');
+          btn.style.setProperty('letter-spacing','0.1em','important');
+          btn.style.setProperty('text-transform','uppercase','important');
+          btn.style.setProperty('text-align','center','important');
+          btn.style.setProperty('width','100%','important');
+          btn.style.setProperty('box-shadow','none','important');
+          btn.onmouseenter=function(){
+            this.style.setProperty('border-color','#8B6F47','important');
+            this.style.setProperty('color','#8B6F47','important');
+          };
+          btn.onmouseleave=function(){
+            this.style.setProperty('border-color','rgba(139,111,71,0.4)','important');
+            this.style.setProperty('color','rgba(139,111,71,0.75)','important');
+          };
+        });
+      }
+      _styleSidebarBtns();
+      setTimeout(_styleSidebarBtns, 300);
+      setTimeout(_styleSidebarBtns, 900);
+
+      // ── Hamburger toggle ──────────────────────────────────────────────────
       function _toggle(){
         var sb=pd.querySelector('[data-testid="stSidebar"]');
         if(!sb)return;
