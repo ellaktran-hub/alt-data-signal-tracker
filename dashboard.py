@@ -1300,9 +1300,9 @@ def show_header():
           firstEl.style.setProperty('margin-top','0','important');
           firstEl.style.setProperty('padding-top','0','important');
         }
-        // Zero out stVerticalBlock gap
-        var vblocks = pd.querySelectorAll('[data-testid="stVerticalBlock"]');
-        vblocks.forEach(function(el){ el.style.setProperty('gap','0','important'); });
+        // Only zero gap on the direct child stVerticalBlock (not all nested ones)
+        var topVblock = pd.querySelector('[data-testid="stMainBlockContainer"] > [data-testid="stVerticalBlock"]');
+        if(topVblock){ topVblock.style.setProperty('gap','0','important'); }
       }
       _fixGap();
       setTimeout(_fixGap, 200);
