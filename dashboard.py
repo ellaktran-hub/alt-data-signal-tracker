@@ -1330,6 +1330,12 @@ def show_header():
           btn.style.setProperty('text-align','center','important');
           btn.style.setProperty('width','100%','important');
           btn.style.setProperty('box-shadow','none','important');
+          // center the wrapper
+          var wrap = btn.closest('.stButton');
+          if(wrap){
+            wrap.style.setProperty('display','flex','important');
+            wrap.style.setProperty('justify-content','center','important');
+          }
           btn.onmouseenter=function(){
             this.style.setProperty('border-color','#8B6F47','important');
             this.style.setProperty('color','#8B6F47','important');
