@@ -51,6 +51,16 @@ footer {
 }
 [data-testid="stMainBlockContainer"] {
   padding-top: 0 !important;
+  gap: 0 !important;
+  row-gap: 0 !important;
+}
+[data-testid="stVerticalBlock"] {
+  gap: 0 !important;
+  row-gap: 0 !important;
+}
+[data-testid="stMainBlockContainer"] > .element-container:first-child {
+  margin-top: 0 !important;
+  padding-top: 0 !important;
 }
 /* Collapse the 0-height hamburger script iframe so it adds no gap */
 [data-testid="stMainBlockContainer"] iframe[height="0"] {
@@ -1658,6 +1668,8 @@ section[data-testid="stSidebar"] {
   color: var(--border);
   transition: color 120ms, transform 100ms;
   line-height: 1;
+  cursor: pointer;
+  user-select: none;
 }
 .star-btn:hover { color: #f0a32a; transform: scale(1.25); text-decoration: none; }
 .star-btn.starred { color: #f0a32a; }

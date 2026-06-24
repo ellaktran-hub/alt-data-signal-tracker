@@ -706,14 +706,15 @@ def build_table_html(rows, watchlist=None):
 
         star_cls  = "star-btn starred" if is_starred else "star-btn"
         star_icon = "★" if is_starred else "☆"
-        star_href = f"?star={ticker}"
+        star_title = "Unstar" if is_starred else "Star"
 
         sparkline = build_table_sparkline(ticker, r["sig_color"])
 
         body += (
             f'<tr class="{row_cls}" style="animation-delay:{delay_ms}ms">'
             f'<td class="data-tbl-td" style="text-align:center">'
-            f'<a href="{star_href}" class="{star_cls}" title="{"Unstar" if is_starred else "Star"} {ticker}">{star_icon}</a>'
+            f'<span class="{star_cls}" title="{star_title} {ticker}" role="button"'
+            f' onclick="window.location.href=\'?star={ticker}\'">{star_icon}</span>'
             f'</td>'
             f'<td class="data-tbl-td tkr" data-sort="{ticker}">{ticker}</td>'
             f'<td class="data-tbl-td left" data-sort="{r["company"]}">{r["company"]}</td>'
@@ -1250,9 +1251,7 @@ def show_header():
     </button>
     <div class="sidebar-overlay" id="sidebar-overlay"></div>
     <div class="rh">
-      <button class="theme-toggle" id="theme-toggle"
-              onclick="window.parent.toggleTheme && window.parent.toggleTheme()"
-              aria-label="Toggle dark/light mode">
+      <button class="theme-toggle" id="theme-toggle" aria-label="Toggle dark/light mode">
         <span class="theme-toggle-icon" id="theme-icon">◑</span>
         <span id="theme-label">DARK</span>
       </button>
@@ -1281,7 +1280,7 @@ def show_header():
     (function(){
       var pd=window.parent.document;
 
-      // ── Fix top gap by directly setting padding via JS (overrides any CSS) ──
+      // ── Fix top gap ───────────────────────────────────────────────────────
       function _fixGap(){
         var targets=[
           pd.querySelector('.block-container'),
@@ -1290,13 +1289,25 @@ def show_header():
           pd.querySelector('[data-testid="stAppViewContainer"]'),
         ];
         targets.forEach(function(el){
-          if(el){ el.style.setProperty('padding-top','0','important'); }
+          if(!el)return;
+          el.style.setProperty('padding-top','0','important');
+          el.style.setProperty('margin-top','0','important');
+          el.style.setProperty('gap','0','important');
+          el.style.setProperty('row-gap','0','important');
         });
+        // Also zero out the first element-container gap/margin
+        var firstEl = pd.querySelector('[data-testid="stMainBlockContainer"] > .element-container:first-child');
+        if(firstEl){
+          firstEl.style.setProperty('margin-top','0','important');
+          firstEl.style.setProperty('padding-top','0','important');
+        }
+        // Zero out stVerticalBlock gap
+        var vblocks = pd.querySelectorAll('[data-testid="stVerticalBlock"]');
+        vblocks.forEach(function(el){ el.style.setProperty('gap','0','important'); });
       }
       _fixGap();
-      // Re-apply after Streamlit re-renders (it can reset inline styles)
-      setTimeout(_fixGap, 300);
-      setTimeout(_fixGap, 800);
+      setTimeout(_fixGap, 200);
+      setTimeout(_fixGap, 600);
 
       // ── Style sidebar buttons to match the About/Predictions link style ──
       function _styleSidebarBtns(){
@@ -1383,15 +1394,27 @@ def show_header():
         var label = pd.getElementById('theme-label');
         if(icon)  icon.textContent  = dark ? '☀' : '◑';
         if(label) label.textContent = dark ? 'LIGHT' : 'DARK';
-        window.parent.localStorage.setItem('altdata_theme', dark ? 'dark' : 'light');
+        try { window.parent.localStorage.setItem('altdata_theme', dark ? 'dark' : 'light'); } catch(e){}
       }
-      window.parent.toggleTheme = function(){
+      function _toggleTheme(){
         var isDark = pd.documentElement.getAttribute('data-theme') === 'dark';
         _applyTheme(!isDark);
-      };
+      }
+      // Bind theme toggle button via addEventListener (same pattern as hamburger)
+      function _bindTheme(){
+        var tb = pd.getElementById('theme-toggle');
+        if(tb && !tb._th){
+          tb._th = true;
+          tb.addEventListener('click', _toggleTheme);
+        }
+      }
+      _bindTheme();
+      setTimeout(_bindTheme, 300);
+      setTimeout(_bindTheme, 800);
       // Restore saved preference on every page load
       (function(){
-        var saved = window.parent.localStorage.getItem('altdata_theme') || 'light';
+        var saved;
+        try { saved = window.parent.localStorage.getItem('altdata_theme'); } catch(e){}
         _applyTheme(saved === 'dark');
       })();
 
@@ -2233,7 +2256,12 @@ def show_summary():
         config={"displayModeBar": False, "responsive": True},
     )
 
-    # Fear & Greed Index — alongside the charts
+    # Sparkline grid
+    spark_label = "My Basket" if basket_view else "Featured Tickers"
+    st.markdown(f'<div class="sec-label">{spark_label}</div>', unsafe_allow_html=True)
+    show_sparkline_grid(sparkline_rows)
+
+    # Fear & Greed Index — below sparklines, above analysis tabs
     fg_score, fg_label, fg_components = compute_fear_greed(rows)
     st.markdown('<div class="sec-label">Fear &amp; Greed Index</div>', unsafe_allow_html=True)
     fg_col_gauge, fg_col_comp = st.columns([1, 2])
@@ -2262,11 +2290,6 @@ def show_summary():
             f'</div>',
             unsafe_allow_html=True,
         )
-
-    # Sparkline grid
-    spark_label = "My Basket" if basket_view else "Featured Tickers"
-    st.markdown(f'<div class="sec-label">{spark_label}</div>', unsafe_allow_html=True)
-    show_sparkline_grid(sparkline_rows)
 
     # ── Analysis tabs (below Featured Tickers) ────────────────────────────────
     (
