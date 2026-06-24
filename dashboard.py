@@ -1437,9 +1437,8 @@ def show_header():
       })();
 
       // ── Star / watchlist clicks ───────────────────────────────────────────
-      // Use event delegation on pd so stars work even after table re-renders.
-      // window.parent.location navigates the Streamlit app (this script runs
-      // inside a components.html iframe, so window.parent = Streamlit page).
+      // Inject a real <a> into the parent document and click it — avoids any
+      // iframe sandbox restriction on window.parent.location assignment.
       if (!pd._starListenerDone) {
         pd._starListenerDone = true;
         pd.addEventListener('click', function(e) {
@@ -1447,7 +1446,12 @@ def show_header():
           if (!star) return;
           e.preventDefault();
           e.stopPropagation();
-          window.parent.location.href = '?star=' + encodeURIComponent(star.dataset.star);
+          var a = pd.createElement('a');
+          a.href = '?star=' + encodeURIComponent(star.dataset.star);
+          a.style.display = 'none';
+          pd.body.appendChild(a);
+          a.click();
+          pd.body.removeChild(a);
         });
       }
 
