@@ -1436,9 +1436,35 @@ def show_header():
         _applyTheme(saved === 'dark');
       })();
 
-      // ── Star / watchlist clicks ───────────────────────────────────────────
-      // Inject a real <a> into the parent document and click it — avoids any
-      // iframe sandbox restriction on window.parent.location assignment.
+      // ── Watchlist — pure client-side, no page reload ─────────────────────
+      function _wlGet() {
+        try { return JSON.parse(window.parent.localStorage.getItem('altdata_watchlist') || '[]'); }
+        catch(e) { return []; }
+      }
+      function _wlSave(wl) {
+        try { window.parent.localStorage.setItem('altdata_watchlist', JSON.stringify(wl)); }
+        catch(e) {}
+      }
+      function _wlApply() {
+        var tbl = pd.getElementById('signal-tbl');
+        if (!tbl) return;
+        var tbody = tbl.querySelector('tbody');
+        if (!tbody) return;
+        var wl = _wlGet();
+        // Update each star icon + row class
+        pd.querySelectorAll('[data-star]').forEach(function(s) {
+          var on = wl.indexOf(s.dataset.star) !== -1;
+          s.textContent = on ? '★' : '☆';
+          s.classList.toggle('starred', on);
+          var row = s.closest('tr');
+          if (row) row.classList.toggle('watchlisted', on);
+        });
+        // Move starred rows to top without reloading
+        var rows = Array.from(tbody.querySelectorAll('tr'));
+        var top  = rows.filter(function(r){ return r.classList.contains('watchlisted'); });
+        var rest = rows.filter(function(r){ return !r.classList.contains('watchlisted'); });
+        top.concat(rest).forEach(function(r){ tbody.appendChild(r); });
+      }
       if (!pd._starListenerDone) {
         pd._starListenerDone = true;
         pd.addEventListener('click', function(e) {
@@ -1446,14 +1472,18 @@ def show_header():
           if (!star) return;
           e.preventDefault();
           e.stopPropagation();
-          var a = pd.createElement('a');
-          a.href = '?star=' + encodeURIComponent(star.dataset.star);
-          a.style.display = 'none';
-          pd.body.appendChild(a);
-          a.click();
-          pd.body.removeChild(a);
+          var ticker = star.dataset.star;
+          var wl = _wlGet();
+          var idx = wl.indexOf(ticker);
+          if (idx !== -1) { wl.splice(idx, 1); }
+          else { wl.unshift(ticker); }
+          _wlSave(wl);
+          _wlApply();
         });
       }
+      // Restore watchlist state after every page render
+      setTimeout(_wlApply, 400);
+      setTimeout(_wlApply, 1000);
 
     })();
     </script>""", height=0)
