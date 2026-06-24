@@ -52,6 +52,20 @@ footer {
 [data-testid="stMainBlockContainer"] {
   padding-top: 0 !important;
 }
+/* Collapse the 0-height hamburger script iframe so it adds no gap */
+[data-testid="stMainBlockContainer"] iframe[height="0"] {
+  display: block !important;
+  height: 0 !important;
+  max-height: 0 !important;
+  overflow: hidden !important;
+}
+[data-testid="stMainBlockContainer"] [data-testid="element-container"]:has(iframe[height="0"]) {
+  height: 0 !important;
+  min-height: 0 !important;
+  overflow: hidden !important;
+  margin: 0 !important;
+  padding: 0 !important;
+}
 .block-container {
   padding-top: 0 !important;
   padding-bottom: 4rem !important;
@@ -873,6 +887,7 @@ section[data-testid="stSidebar"] .stButton > button {
   font-weight: 400 !important;
   letter-spacing: 0.1em !important;
   text-transform: uppercase !important;
+  text-align: center !important;
   padding: 0.45rem !important;
   width: 100%;
   box-shadow: none !important;

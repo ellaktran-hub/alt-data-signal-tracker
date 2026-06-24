@@ -1038,11 +1038,30 @@ def show_sparkline_grid(rows):
 
 # ── Header ─────────────────────────────────────────────────────────────────────
 def show_header():
-    st.markdown("""
+    # Hamburger + overlay + header in ONE st.markdown so there is no Streamlit
+    # flex-gap above the dark band — components.html runs after, not before.
+    st.markdown(f"""
     <button class="hamburger-btn" id="hamburger-btn" aria-label="Open menu">
       <span></span><span></span><span></span>
     </button>
     <div class="sidebar-overlay" id="sidebar-overlay"></div>
+    <div class="rh">
+      <div class="rh-eyebrow">Alternative Data Research</div>
+      <div class="rh-title">Alt Data Signal Tracker</div>
+      <div class="rh-body">
+        Tracking community sentiment, search interest, and news tone across {len(config.TICKERS)} consumer
+        equities — collected daily and compared against closing prices to test whether alternative data
+        sources lead or lag short-term stock price movements.
+      </div>
+      <div class="rh-status">
+        <span class="status-active"></span>
+        UPDATED {date.today().strftime('%Y-%m-%d')}
+        &nbsp;&nbsp;·&nbsp;&nbsp;{len(config.TICKERS)} TICKERS
+        &nbsp;&nbsp;·&nbsp;&nbsp;4 SIGNALS
+        &nbsp;&nbsp;·&nbsp;&nbsp;PIPELINE ACTIVE · DAILY 06:30
+        &nbsp;&nbsp;·&nbsp;&nbsp;SENTIMENT FROM 2026-06-22
+      </div>
+    </div>
     """, unsafe_allow_html=True)
     components.html("""<script>
     (function(){
@@ -1086,25 +1105,6 @@ def show_header():
       _bind();
     })();
     </script>""", height=0)
-    st.markdown(f"""
-    <div class="rh">
-      <div class="rh-eyebrow">Alternative Data Research</div>
-      <div class="rh-title">Alt Data Signal Tracker</div>
-      <div class="rh-body">
-        Tracking community sentiment, search interest, and news tone across {len(config.TICKERS)} consumer
-        equities — collected daily and compared against closing prices to test whether alternative data
-        sources lead or lag short-term stock price movements.
-      </div>
-      <div class="rh-status">
-        <span class="status-active"></span>
-        UPDATED {date.today().strftime('%Y-%m-%d')}
-        &nbsp;&nbsp;·&nbsp;&nbsp;{len(config.TICKERS)} TICKERS
-        &nbsp;&nbsp;·&nbsp;&nbsp;4 SIGNALS
-        &nbsp;&nbsp;·&nbsp;&nbsp;PIPELINE ACTIVE · DAILY 06:30
-        &nbsp;&nbsp;·&nbsp;&nbsp;SENTIMENT FROM 2026-06-22
-      </div>
-    </div>
-    """, unsafe_allow_html=True)
 
 
 # ── Sector mapping ─────────────────────────────────────────────────────────────
@@ -1931,7 +1931,17 @@ def show_summary():
             unsafe_allow_html=True,
         )
 
-    # Fear & Greed Index
+    # Market chips
+    st.markdown(build_market_chips_html(display_rows), unsafe_allow_html=True)
+
+    # Signal distribution
+    st.plotly_chart(
+        build_signal_dist_chart(display_rows),
+        use_container_width=True,
+        config={"displayModeBar": False, "responsive": True},
+    )
+
+    # Fear & Greed Index — alongside the charts
     fg_score, fg_label, fg_components = compute_fear_greed(rows)
     st.markdown('<div class="sec-label">Fear &amp; Greed Index</div>', unsafe_allow_html=True)
     fg_col_gauge, fg_col_comp = st.columns([1, 2])
@@ -1960,18 +1970,6 @@ def show_summary():
             f'</div>',
             unsafe_allow_html=True,
         )
-
-    st.markdown("---")
-
-    # Market chips
-    st.markdown(build_market_chips_html(display_rows), unsafe_allow_html=True)
-
-    # Signal distribution
-    st.plotly_chart(
-        build_signal_dist_chart(display_rows),
-        use_container_width=True,
-        config={"displayModeBar": False, "responsive": True},
-    )
 
     # Sparkline grid
     spark_label = "My Basket" if basket_view else "Featured Tickers"
