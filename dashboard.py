@@ -431,12 +431,11 @@ def show_sidebar(rows_by_ticker):
             label_visibility="collapsed",
             key="basket_add_select",
         )
-        if st.button("ADD TO BASKET", key="basket_add_btn"):
+        if st.button("ADD TO BASKET", key="basket_add_btn", use_container_width=True):
             sym = selected_sym or ""
             if sym and sym not in st.session_state["basket"]:
                 st.session_state["basket"].append(sym)
                 st.rerun()
-
         st.markdown("")
         basket_view = st.session_state.get("basket_view", False)
         if basket_view:
@@ -2267,41 +2266,13 @@ def show_summary():
     st.markdown(f'<div class="sec-label">{spark_label}</div>', unsafe_allow_html=True)
     show_sparkline_grid(sparkline_rows)
 
-    # Fear & Greed Index — below sparklines, above analysis tabs
-    fg_score, fg_label, fg_components = compute_fear_greed(rows)
-    st.markdown('<div class="sec-label">Fear &amp; Greed Index</div>', unsafe_allow_html=True)
-    fg_col_gauge, fg_col_comp = st.columns([1, 2])
-    with fg_col_gauge:
-        st.plotly_chart(
-            build_fear_greed_gauge(fg_score, fg_label, fg_components),
-            use_container_width=True,
-            config={"displayModeBar": False},
-        )
-    with fg_col_comp:
-        st.markdown('<div style="margin-top:1.2rem"></div>', unsafe_allow_html=True)
-        for comp_name, comp_val in fg_components.items():
-            bar_color = GREEN if comp_val > 55 else (RED if comp_val < 45 else MUTED)
-            st.markdown(
-                f'<div style="margin-bottom:0.5rem">'
-                f'<div style="font-family:Inter;font-size:0.78rem;color:{MUTED};margin-bottom:2px">'
-                f'{comp_name}: <strong style="color:{TEXT}">{comp_val:.0f}</strong></div>'
-                f'<div style="background:{SURFACE2};border-radius:4px;height:6px;overflow:hidden">'
-                f'<div style="width:{comp_val:.0f}%;height:100%;background:{bar_color};border-radius:4px"></div>'
-                f'</div></div>',
-                unsafe_allow_html=True,
-            )
-        st.markdown(
-            f'<div class="chart-note" style="margin-top:0.75rem">'
-            f'Score 0–100 · 0–25 Extreme Fear · 25–45 Fear · 45–55 Neutral · 55–75 Greed · 75–100 Extreme Greed'
-            f'</div>',
-            unsafe_allow_html=True,
-        )
-
     # ── Analysis tabs (below Featured Tickers) ────────────────────────────────
+    fg_score, fg_label, fg_components = compute_fear_greed(rows)
     (
-        tab_corr_mat, tab_lag, tab_bt,
+        tab_fg, tab_corr_mat, tab_lag, tab_bt,
         tab_acc, tab_sector, tab_div, tab_rc, tab_rd,
     ) = st.tabs([
+        "Fear & Greed",
         "Correlation Matrix",
         "Lag Analysis",
         "Backtesting",
@@ -2311,6 +2282,34 @@ def show_summary():
         "Rolling Correlation",
         "Returns Distribution",
     ])
+
+    with tab_fg:
+        fg_col_gauge, fg_col_comp = st.columns([1, 2])
+        with fg_col_gauge:
+            st.plotly_chart(
+                build_fear_greed_gauge(fg_score, fg_label, fg_components),
+                use_container_width=True,
+                config={"displayModeBar": False},
+            )
+        with fg_col_comp:
+            st.markdown('<div style="margin-top:1.2rem"></div>', unsafe_allow_html=True)
+            for comp_name, comp_val in fg_components.items():
+                bar_color = GREEN if comp_val > 55 else (RED if comp_val < 45 else MUTED)
+                st.markdown(
+                    f'<div style="margin-bottom:0.5rem">'
+                    f'<div style="font-family:Inter;font-size:0.78rem;color:{MUTED};margin-bottom:2px">'
+                    f'{comp_name}: <strong style="color:{TEXT}">{comp_val:.0f}</strong></div>'
+                    f'<div style="background:{SURFACE2};border-radius:4px;height:6px;overflow:hidden">'
+                    f'<div style="width:{comp_val:.0f}%;height:100%;background:{bar_color};border-radius:4px"></div>'
+                    f'</div></div>',
+                    unsafe_allow_html=True,
+                )
+            st.markdown(
+                f'<div class="chart-note" style="margin-top:0.75rem">'
+                f'Score 0–100 · 0–25 Extreme Fear · 25–45 Fear · 45–55 Neutral · 55–75 Greed · 75–100 Extreme Greed'
+                f'</div>',
+                unsafe_allow_html=True,
+            )
 
     with tab_corr_mat:
         tab_correlation_matrix()

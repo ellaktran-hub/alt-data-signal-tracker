@@ -792,7 +792,7 @@ section[data-testid="stSidebar"] {
 }
 section[data-testid="stSidebar"] > div {
   background: var(--dark-header) !important;
-  padding-top: 1.2rem;
+  padding: 1.2rem 1rem !important;
 }
 [data-testid="stMain"] {
   margin-left: 260px !important;
@@ -887,9 +887,13 @@ section[data-testid="stSidebar"] input[type="text"] {
 section[data-testid="stSidebar"] input[type="text"]::placeholder {
   color: rgba(44,36,22,0.45) !important;
 }
+section[data-testid="stSidebar"] [data-testid="stSidebarUserContent"] {
+  padding: 0 !important;
+}
 section[data-testid="stSidebar"] .stButton {
   display: flex !important;
   justify-content: center !important;
+  width: 100% !important;
 }
 section[data-testid="stSidebar"] .stButton > button {
   background: transparent !important;
