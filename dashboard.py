@@ -101,6 +101,12 @@ def format_et(dt):
     ampm   = "AM" if dt.hour < 12 else "PM"
     return f"{dt.strftime('%b')} {dt.day}, {dt.year} · {hour}:{minute} {ampm} ET"
 
+def format_et_short(dt):
+    hour   = dt.hour % 12 or 12
+    minute = dt.strftime("%M")
+    ampm   = "AM" if dt.hour < 12 else "PM"
+    return f"{dt.strftime('%b')} {dt.day} · {hour}:{minute} {ampm}"
+
 
 def get_last_updated():
     """Return most-recent mtime of any price CSV, as an ET datetime."""
@@ -496,7 +502,14 @@ def build_market_chips_html(rows):
     avg_news_int = int(round(avg_news_raw * 100))
     avg_sign     = "+" if avg_news_int >= 0 else ""
 
-    ts = format_et(now_et())
+    ts       = format_et(now_et())
+    ts_short = format_et_short(now_et())
+
+    _sig_tip  = ("Count of tickers right now with a BULLISH, BEARISH, or NEUTRAL composite signal "
+                 "— built from a majority vote across StockTwits, News Sentiment, Google Trends, and Price Change.")
+    _news_tip = ("Average VADER sentiment score across all tracked tickers, scaled −100 to +100. "
+                 "Positive = net-bullish news today. Zero = neutral. "
+                 "Computed from Yahoo Finance headlines each morning.")
 
     return f"""
 <div class="market-chips">
@@ -505,18 +518,18 @@ def build_market_chips_html(rows):
     <div class="chip-value" data-countup-int="{total}">{total}</div>
   </div>
   <div class="chip">
-    <div class="chip-label">Signal Distribution</div>
+    <div class="chip-label">Signal Distribution <span class="chip-tip"><button class="chip-info-btn" aria-label="About Signal Distribution">ⓘ</button><div class="chip-info-popup">{_sig_tip}</div></span></div>
     <div class="chip-dist">
       <span class="dist-b" data-countup-int="{bullish}">{bullish}</span>
-      <span class="dist-sep"> B · </span>
+      <span class="dist-sep"> Bullish · </span>
       <span class="dist-r" data-countup-int="{bearish}">{bearish}</span>
-      <span class="dist-sep"> Be · </span>
+      <span class="dist-sep"> Bearish · </span>
       <span class="dist-n" data-countup-int="{neutral}">{neutral}</span>
-      <span class="dist-sep"> N</span>
+      <span class="dist-sep"> Neutral</span>
     </div>
   </div>
   <div class="chip">
-    <div class="chip-label">Avg News Sentiment</div>
+    <div class="chip-label">Avg News Sentiment <span class="chip-tip"><button class="chip-info-btn" aria-label="About Avg News Sentiment">ⓘ</button><div class="chip-info-popup">{_news_tip}</div></span></div>
     <div class="chip-value" data-countup-int="{abs(avg_news_int)}" data-countup-prefix="{avg_sign}">
       {avg_sign}{abs(avg_news_int)}
     </div>
@@ -525,7 +538,8 @@ def build_market_chips_html(rows):
     <div class="chip-label">Last Updated</div>
     <div class="chip-value">
       <span class="live-pulse" aria-label="Live data"></span>
-      <span class="chip-time">{ts}</span>
+      <span class="chip-time chip-time-full">{ts}</span>
+      <span class="chip-time chip-time-short" aria-hidden="true">{ts_short}</span>
     </div>
   </div>
 </div>
@@ -868,11 +882,81 @@ def build_animations_js():
     });
   })();
 
+  /* ── Chip info toggles (click for mobile, hover via CSS for desktop) ─── */
+  function initChipInfo() {
+    var pd = window.parent.document;
+    pd.querySelectorAll('.chip-info-btn').forEach(function(btn) {
+      if (btn._ci) return; btn._ci = true;
+      btn.addEventListener('click', function(e) {
+        e.stopPropagation();
+        var tip = btn.closest('.chip-tip');
+        if (!tip) return;
+        var open = tip.classList.contains('open');
+        pd.querySelectorAll('.chip-tip.open').forEach(function(t){ t.classList.remove('open'); });
+        if (!open) tip.classList.add('open');
+      });
+    });
+    if (!pd._chipClose) {
+      pd._chipClose = true;
+      pd.addEventListener('click', function() {
+        pd.querySelectorAll('.chip-tip.open').forEach(function(t){ t.classList.remove('open'); });
+      });
+    }
+  }
+
+  /* ── Mobile: collapse long chart notes with Read-more toggle ─────────── */
+  function initExpandNotes() {
+    if (window.parent.innerWidth > 768) return;
+    var pd = window.parent.document;
+    pd.querySelectorAll('.chart-note:not([data-ei])').forEach(function(el) {
+      el.setAttribute('data-ei', '1');
+      if (el.scrollHeight <= 76) return;
+      el.classList.add('note-truncated');
+      var btn = pd.createElement('button');
+      btn.className   = 'expand-note-btn';
+      btn.textContent = 'Read more ↓';
+      btn.addEventListener('click', function() {
+        var collapsed = el.classList.toggle('note-truncated');
+        btn.textContent = collapsed ? 'Read more ↓' : 'Show less ↑';
+      });
+      el.parentNode.insertBefore(btn, el.nextSibling);
+    });
+  }
+
+  /* ── Zoom-reset text: reposition to bottom + match site style ───────── */
+  function initZoomText() {
+    var pd = window.parent.document;
+    function _attach(chart) {
+      if (chart._zto) return; chart._zto = true;
+      new MutationObserver(function() {
+        chart.querySelectorAll('g.zoomlayer text, g.drag text').forEach(function(t) {
+          if (t._zs) return; t._zs = true;
+          t.setAttribute('fill', '#7A6A52');
+          t.style.fontFamily = 'JetBrains Mono, monospace';
+          t.style.fontSize   = '9px';
+          var svg = t.closest('svg');
+          if (svg) {
+            var h = parseFloat(svg.getAttribute('height') || svg.getBoundingClientRect().height || 200);
+            t.setAttribute('y', String(Math.max(h - 12, 20)));
+            t.setAttribute('text-anchor', 'middle');
+          }
+        });
+      }).observe(chart, {childList: true, subtree: true, attributes: true});
+    }
+    function _scan() {
+      pd.querySelectorAll('.js-plotly-plot').forEach(_attach);
+    }
+    _scan(); setTimeout(_scan, 1500); setTimeout(_scan, 4000);
+  }
+
   setTimeout(initTableSort, 600);
   setTimeout(initTableSort, 1500);
   setTimeout(addFullscreenBtns, 800);
   setTimeout(addFullscreenBtns, 2000);
   setTimeout(addFullscreenBtns, 4000);
+  initChipInfo(); setTimeout(initChipInfo, 600);
+  setTimeout(initExpandNotes, 1000); setTimeout(initExpandNotes, 2500);
+  initZoomText();
 
 })();
 </script>
@@ -1691,11 +1775,15 @@ def tab_correlation_matrix():
     pivot = pivot[sig_order]
     col_labels = [_SIG_LABELS.get(c, c) for c in sig_order]
 
-    zvals = pivot.values.tolist()
-    text  = [[f"{v:.3f}" if not math.isnan(v) else "—" for v in row] for row in pivot.values.tolist()]
+    n_all      = len(pivot)
+    show_all   = st.session_state.get("cm_show_all", False)
+    pivot_disp = pivot if (show_all or n_all <= 10) else pivot.iloc[:10]
+
+    zvals = pivot_disp.values.tolist()
+    text  = [[f"{v:.3f}" if not math.isnan(v) else "—" for v in row] for row in pivot_disp.values.tolist()]
 
     fig = go.Figure(go.Heatmap(
-        z=zvals, x=col_labels, y=pivot.index.tolist(),
+        z=zvals, x=col_labels, y=pivot_disp.index.tolist(),
         colorscale=[[0, RED], [0.5, SURFACE], [1, GREEN]],
         zmid=0, zmin=-0.5, zmax=0.5,
         text=text, texttemplate="%{text}",
@@ -1707,7 +1795,7 @@ def tab_correlation_matrix():
             len=0.8,
         ),
     ))
-    h = max(420, len(pivot) * 16 + 80)
+    h = max(360, len(pivot_disp) * 18 + 80)
     layout = chart_layout(f"Signal → {lag}-Day Forward Return Correlation  ·  All Tickers", height=h)
     layout["xaxis"].update(side="top")
     layout["yaxis"].update(autorange="reversed")
@@ -1719,6 +1807,12 @@ def tab_correlation_matrix():
         f"price return {lag} day(s) later. Green = signal predicts gains; red = signal predicts losses; "
         f"white = no relationship. StockTwits and News columns appear once 30+ days of data accumulate."
     )
+
+    if n_all > 10:
+        btn_lbl = f"Show all {n_all} tickers ↓" if not show_all else "Collapse to 10 ↑"
+        if st.button(btn_lbl, key="cm_expand_btn"):
+            st.session_state["cm_show_all"] = not show_all
+            st.rerun()
 
 
 # ── Tab: Lag Analysis ──────────────────────────────────────────────────────────
@@ -2404,7 +2498,7 @@ def show_summary():
     st.markdown('<div class="sec-label">Market Intelligence Overview</div>', unsafe_allow_html=True)
 
     # Search bar + sector filter controls
-    ctrl_left, ctrl_right = st.columns([2, 6])
+    ctrl_left, ctrl_right = st.columns([3, 2])
     with ctrl_left:
         st.markdown('<div class="tbl-search-wrap">', unsafe_allow_html=True)
         search_q = st.text_input(
@@ -2416,18 +2510,14 @@ def show_summary():
         st.markdown('</div>', unsafe_allow_html=True)
     with ctrl_right:
         all_sectors = ["All"] + list(SECTORS.keys())
-        st.markdown('<div class="sector-filter-wrap">', unsafe_allow_html=True)
-        sector_selected = st.radio(
-            "Sector filter",
+        sector_selected = st.selectbox(
+            "Category",
             all_sectors,
             index=all_sectors.index(st.session_state.get("sector_filter", "All"))
             if st.session_state.get("sector_filter", "All") in all_sectors else 0,
-            horizontal=True,
-            key="sector_radio",
-            label_visibility="collapsed",
+            key="sector_select",
         )
         st.session_state["sector_filter"] = sector_selected
-        st.markdown('</div>', unsafe_allow_html=True)
 
     # Apply search filter
     tbl_rows = display_rows
@@ -2671,6 +2761,7 @@ def show_detail(ticker):
                 f'</div>'
             )
         st.markdown(f'<div class="hl-feed">{items_html}</div>', unsafe_allow_html=True)
+    st.markdown(build_animations_js(), unsafe_allow_html=True)
 
 
 # ── About page ─────────────────────────────────────────────────────────────────
@@ -2727,7 +2818,7 @@ def show_about():
     <div class="about-cards">
 
       <div class="about-card">
-        <div class="about-card-icon">📈</div>
+        <div class="about-card-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><polyline points="2 18 8 10 14 14 22 4"/><polyline points="17 4 22 4 22 9"/></svg></div>
         <div class="about-card-name">Prices</div>
         <div class="about-card-title">Stock Closing Prices</div>
         <div class="about-card-body">
@@ -2740,7 +2831,7 @@ def show_about():
       </div>
 
       <div class="about-card">
-        <div class="about-card-icon">💬</div>
+        <div class="about-card-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg></div>
         <div class="about-card-name">StockTwits</div>
         <div class="about-card-title">Community Sentiment</div>
         <div class="about-card-body">
@@ -2753,7 +2844,7 @@ def show_about():
       </div>
 
       <div class="about-card">
-        <div class="about-card-icon">🔍</div>
+        <div class="about-card-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/><polyline points="7 13 9 10 12 13 15 8"/></svg></div>
         <div class="about-card-name">Google Trends</div>
         <div class="about-card-title">Search Interest</div>
         <div class="about-card-body">
@@ -2766,7 +2857,7 @@ def show_about():
       </div>
 
       <div class="about-card">
-        <div class="about-card-icon">📰</div>
+        <div class="about-card-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="8" y1="13" x2="16" y2="13"/><line x1="8" y1="17" x2="14" y2="17"/></svg></div>
         <div class="about-card-name">News</div>
         <div class="about-card-title">Headline Sentiment</div>
         <div class="about-card-body">
@@ -2779,7 +2870,7 @@ def show_about():
       </div>
 
       <div class="about-card">
-        <div class="about-card-icon">📖</div>
+        <div class="about-card-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"/><path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"/></svg></div>
         <div class="about-card-name">Wikipedia</div>
         <div class="about-card-title">Page View Attention</div>
         <div class="about-card-body">

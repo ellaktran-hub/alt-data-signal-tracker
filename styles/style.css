@@ -1333,8 +1333,15 @@ section[data-testid="stSidebar"] hr {
   padding: 1rem 1.1rem 1.1rem;
 }
 .about-card-icon {
-  font-size: 1.3rem;
-  margin-bottom: 0.4rem;
+  width: 28px;
+  height: 28px;
+  margin-bottom: 0.6rem;
+}
+.about-card-icon svg {
+  width: 100%;
+  height: 100%;
+  display: block;
+  stroke: var(--accent);
 }
 .about-card-name {
   font-family: 'JetBrains Mono', monospace;
@@ -1870,4 +1877,88 @@ html[data-theme="dark"] .chart-fs-btn {
 
   /* About page hero: smaller title */
   .about-hero-title { font-size: 1.5rem !important; }
+}
+
+/* ── Chip info tooltip ────────────────────────────────────────────────────── */
+.chip-tip {
+  position: relative;
+  display: inline-block;
+}
+.chip-info-btn {
+  background: none;
+  border: none;
+  cursor: pointer;
+  color: var(--muted);
+  font-size: 0.6rem;
+  padding: 0 3px;
+  line-height: 1;
+  vertical-align: middle;
+  font-family: 'Inter', sans-serif;
+  opacity: 0.65;
+  transition: opacity 120ms;
+}
+.chip-info-btn:hover { opacity: 1; }
+.chip-info-popup {
+  display: none;
+  position: absolute;
+  top: calc(100% + 8px);
+  left: -10px;
+  background: var(--dark-header);
+  color: rgba(250,246,239,0.85);
+  font-family: 'Inter', sans-serif;
+  font-size: 0.78rem;
+  font-weight: 400;
+  line-height: 1.65;
+  padding: 10px 14px;
+  border-radius: 4px;
+  min-width: 200px;
+  max-width: 260px;
+  z-index: 2000;
+  box-shadow: 0 4px 20px rgba(28,22,14,0.45);
+  white-space: normal;
+}
+.chip-tip.open .chip-info-popup { display: block; }
+@media (hover: hover) {
+  .chip-tip:hover .chip-info-popup,
+  .chip-tip:focus-within .chip-info-popup { display: block; }
+}
+
+/* ── Mobile read-more for chart notes ────────────────────────────────────── */
+.note-truncated {
+  max-height: 4.2rem;
+  overflow: hidden;
+  position: relative;
+}
+.note-truncated::after {
+  content: '';
+  position: absolute;
+  bottom: 0; left: 0; right: 0;
+  height: 1.8rem;
+  background: linear-gradient(transparent, var(--bg));
+  pointer-events: none;
+}
+html[data-theme="dark"] .note-truncated::after {
+  background: linear-gradient(transparent, #0a0c10);
+}
+.expand-note-btn {
+  display: block;
+  background: none;
+  border: none;
+  padding: 3px 0 6px;
+  font-family: 'Inter', sans-serif;
+  font-size: 0.7rem;
+  font-weight: 600;
+  color: var(--accent);
+  cursor: pointer;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+}
+
+/* ── Mobile date variants ─────────────────────────────────────────────────── */
+.chip-time-short { display: none; }
+@media (max-width: 480px) {
+  .chip-time-full  { display: none; }
+  .chip-time-short { display: inline; }
+  .chip-dist { font-size: 0.75rem !important; line-height: 1.5 !important; }
+  .chip-label { font-size: 0.62rem !important; }
 }
