@@ -4,6 +4,7 @@ Professional financial research dashboard — Alt Data Signal Tracker.
 Run with: python3 -m streamlit run dashboard.py
 """
 
+import math
 import sys
 from pathlib import Path
 from datetime import date, datetime
@@ -1101,6 +1102,802 @@ def show_header():
     """, unsafe_allow_html=True)
 
 
+# ── Sector mapping ─────────────────────────────────────────────────────────────
+SECTORS = {
+    "Mega-Cap Tech":     ["AAPL", "NVDA", "AMZN", "MSFT", "GOOGL"],
+    "Social / Media":    ["META", "SNAP", "PINS", "RDDT", "SPOT", "NFLX", "DIS", "UBER"],
+    "Fintech / Finance": ["JPM", "GS", "HOOD", "PYPL", "SQ", "SOFI"],
+    "Crypto":            ["COIN", "MSTR"],
+    "EV & Auto":         ["TSLA", "RIVN", "LCID", "F", "GM"],
+    "Retail & Consumer": ["WMT", "TGT", "MCD", "CHWY", "NKE", "ABNB", "SBUX"],
+    "Defense & Space":   ["RKLB", "LMT", "RTX", "BA"],
+    "Biotech & Pharma":  ["PFE", "MRNA", "NVAX"],
+    "Quantum / Tech":    ["IONQ", "QBTS", "RGTI"],
+    "Energy":            ["XOM", "CVX", "FSLR"],
+    "Meme / Gaming":     ["GME", "AMC"],
+    "ETF":               ["SPCX"],
+}
+
+# ── Analysis helpers ───────────────────────────────────────────────────────────
+@st.cache_data(ttl=300)
+def load_correlations_all():
+    p = DATA_DIR / "correlations_all.csv"
+    if not p.exists():
+        return pd.DataFrame()
+    return pd.read_csv(p)
+
+
+def _pearson_pvalue(r, n):
+    """Two-tailed p-value for Pearson r (uses normal approximation, good for n > 20)."""
+    if n < 3 or abs(r) >= 1.0 - 1e-12:
+        return 1.0
+    t = r * math.sqrt(n - 2) / math.sqrt(max(1e-12, 1.0 - r * r))
+    p = 2.0 * (1.0 - 0.5 * (1.0 + math.erf(abs(t) / math.sqrt(2.0))))
+    return float(p)
+
+
+@st.cache_data(ttl=300)
+def build_historical_signals(ticker):
+    """Daily composite-signal series built from available history."""
+    price_df  = load_prices(ticker)
+    trends_df = load_trends(ticker)
+    st_df     = load_stocktwits(ticker)
+    news_df   = load_news(ticker)
+
+    if price_df.empty:
+        return pd.DataFrame()
+
+    price_s = price_df["close_price"].dropna().sort_index()
+    df = pd.DataFrame({"close": price_s})
+    df["pct_chg"] = price_s.pct_change() * 100
+
+    # Google Trends vote
+    if not trends_df.empty and "interest" in trends_df.columns:
+        tr = trends_df["interest"].reindex(df.index, method="ffill", tolerance=pd.Timedelta("3d"))
+        tr_avg = tr.rolling(7, min_periods=1).mean()
+        df["trends_v"] = np.where(tr > tr_avg * 1.1, 1, np.where(tr < tr_avg * 0.9, -1, 0))
+    else:
+        df["trends_v"] = 0.0
+
+    # Price vote
+    df["price_v"] = np.where(df["pct_chg"] > 0.5, 1, np.where(df["pct_chg"] < -0.5, -1, 0))
+
+    # StockTwits vote (sparse — typically only a few days)
+    if not st_df.empty and {"bullish_count", "message_count"}.issubset(st_df.columns):
+        valid = st_df.dropna(subset=["message_count"])
+        valid = valid[valid["message_count"] > 0].copy()
+        valid["bull_pct"] = valid["bullish_count"] / valid["message_count"] * 100
+        bull_s = valid["bull_pct"].reindex(df.index, method="ffill", tolerance=pd.Timedelta("2d"))
+        df["st_v"] = np.where(bull_s > 55, 1, np.where(bull_s < 40, -1, np.where(bull_s.isna(), 0, 0)))
+    else:
+        df["st_v"] = 0.0
+
+    # News vote (sparse)
+    if not news_df.empty and "avg_sentiment" in news_df.columns:
+        ns = news_df["avg_sentiment"].reindex(df.index, method="ffill", tolerance=pd.Timedelta("2d")).fillna(0)
+        df["news_v"] = np.where(ns > 0.1, 1, np.where(ns < -0.1, -1, 0))
+    else:
+        df["news_v"] = 0.0
+
+    df["score"] = df["trends_v"] + df["price_v"] + df["st_v"] + df["news_v"]
+    df["signal"] = np.where(df["score"] >= 2, "BULLISH",
+                   np.where(df["score"] <= -2, "BEARISH", "NEUTRAL"))
+    return df.dropna(subset=["close"])
+
+
+# ── Fear & Greed Index ─────────────────────────────────────────────────────────
+def compute_fear_greed(rows):
+    """Return (score 0-100, label, dict of components)."""
+    total = len(rows)
+    if total == 0:
+        return 50.0, "Neutral", {}
+
+    bullish_n = sum(1 for r in rows if r["signal"] == "BULLISH")
+    bearish_n = sum(1 for r in rows if r["signal"] == "BEARISH")
+    up_n      = sum(1 for r in rows if r.get("chg_raw") is not None and r["chg_raw"] > 0)
+
+    breadth   = bullish_n / total * 100
+    momentum  = up_n / total * 100
+
+    news_vals = [r["news_sent_raw"] for r in rows if r["news_sent_raw"] is not None]
+    news_comp = (sum(news_vals) / len(news_vals) / 0.3 * 50 + 50) if news_vals else 50.0
+    news_comp = max(0.0, min(100.0, news_comp))
+
+    # Trends: % of tickers where latest trends > 50 (above mid-range)
+    trends_above = 0
+    trends_total = 0
+    for ticker in config.TICKERS:
+        tdf = load_trends(ticker)
+        if not tdf.empty and "interest" in tdf.columns:
+            val = tdf["interest"].dropna()
+            if len(val) > 0:
+                trends_total += 1
+                if float(val.iloc[-1]) > float(val.mean()):
+                    trends_above += 1
+    trend_comp = (trends_above / trends_total * 100) if trends_total > 0 else 50.0
+
+    components = {
+        "Signal Breadth":   breadth,
+        "Price Momentum":   momentum,
+        "News Sentiment":   news_comp,
+        "Search Interest":  trend_comp,
+    }
+    score = sum(components.values()) / len(components)
+
+    if score < 25:
+        label = "Extreme Fear"
+    elif score < 45:
+        label = "Fear"
+    elif score < 55:
+        label = "Neutral"
+    elif score < 75:
+        label = "Greed"
+    else:
+        label = "Extreme Greed"
+
+    return round(score, 1), label, components
+
+
+def build_fear_greed_gauge(score, label, components):
+    fg_color = (RED if score < 25 else C2 if score < 45 else MUTED if score < 55 else C4 if score < 75 else GREEN)
+    fig = go.Figure(go.Indicator(
+        mode="gauge+number",
+        value=score,
+        number={"font": {"size": 36, "color": fg_color, "family": "DM Serif Display"}, "suffix": ""},
+        title={"text": f"Fear & Greed<br><sup style='font-size:13px'>{label}</sup>",
+               "font": {"size": 13, "color": MUTED, "family": "Inter"}},
+        gauge={
+            "axis": {"range": [0, 100], "tickfont": {"size": 9, "family": "JetBrains Mono", "color": MUTED},
+                     "tickvals": [0, 25, 50, 75, 100]},
+            "bar": {"color": fg_color, "thickness": 0.25},
+            "bgcolor": "rgba(0,0,0,0)",
+            "borderwidth": 0,
+            "steps": [
+                {"range": [0, 25],  "color": "rgba(155,58,40,0.18)"},
+                {"range": [25, 45], "color": "rgba(196,125,62,0.18)"},
+                {"range": [45, 55], "color": "rgba(122,106,82,0.12)"},
+                {"range": [55, 75], "color": "rgba(160,137,107,0.18)"},
+                {"range": [75, 100],"color": "rgba(58,107,53,0.20)"},
+            ],
+        }
+    ))
+    fig.update_layout(
+        paper_bgcolor="rgba(0,0,0,0)",
+        plot_bgcolor="rgba(0,0,0,0)",
+        font=dict(family="Inter", color=MUTED),
+        height=200,
+        margin=dict(l=20, r=20, t=60, b=10),
+    )
+    return fig
+
+
+# ── Tab: Correlation Matrix ─────────────────────────────────────────────────────
+_SIG_LABELS = {
+    "google_trends":   "Google Trends",
+    "wikipedia_views": "Wikipedia Views",
+    "stocktwits_sent": "StockTwits Sent.",
+    "news_sent":       "News Sentiment",
+}
+
+def tab_correlation_matrix():
+    corr_df = load_correlations_all()
+    if corr_df.empty:
+        st.info("No correlation data yet — run the pipeline to generate correlations_all.csv.")
+        return
+
+    lag = st.selectbox(
+        "Forward lag (days)",
+        options=[1, 2, 3],
+        index=0,
+        help="lag=1: does today's signal predict tomorrow's price return?",
+        key="cm_lag",
+    )
+
+    filt = corr_df[corr_df["lag"] == lag]
+    if filt.empty:
+        st.info(f"No data for lag = {lag}.")
+        return
+
+    pivot = filt.pivot_table(index="ticker", columns="signal", values="correlation")
+    sig_order = [s for s in ["google_trends", "wikipedia_views", "stocktwits_sent", "news_sent"]
+                 if s in pivot.columns]
+    pivot = pivot[sig_order]
+    col_labels = [_SIG_LABELS.get(c, c) for c in sig_order]
+
+    zvals = pivot.values.tolist()
+    text  = [[f"{v:.3f}" if not math.isnan(v) else "—" for v in row] for row in pivot.values.tolist()]
+
+    fig = go.Figure(go.Heatmap(
+        z=zvals, x=col_labels, y=pivot.index.tolist(),
+        colorscale=[[0, RED], [0.5, SURFACE], [1, GREEN]],
+        zmid=0, zmin=-0.5, zmax=0.5,
+        text=text, texttemplate="%{text}",
+        textfont=dict(size=8, family="JetBrains Mono"),
+        hovertemplate="<b>%{y}</b> · %{x}<br>r = %{z:.3f}<extra></extra>",
+        colorbar=dict(
+            title=dict(text="Pearson r", side="right"),
+            tickfont=dict(size=9, family="JetBrains Mono"),
+            len=0.8,
+        ),
+    ))
+    h = max(420, len(pivot) * 16 + 80)
+    layout = chart_layout(f"Signal → {lag}-Day Forward Return Correlation  ·  All Tickers", height=h)
+    layout["xaxis"].update(side="top")
+    layout["yaxis"].update(autorange="reversed")
+    layout["margin"] = dict(l=72, r=24, t=72, b=20)
+    fig.update_layout(**layout)
+    st.plotly_chart(fig, use_container_width=True, config={"displayModeBar": False})
+    note(
+        f"Each cell is the Pearson correlation between that signal on day t and the stock's "
+        f"price return {lag} day(s) later. Green = signal predicts gains; red = signal predicts losses; "
+        f"white = no relationship. StockTwits and News columns appear once 30+ days of data accumulate."
+    )
+
+
+# ── Tab: Lag Analysis ──────────────────────────────────────────────────────────
+def tab_lag_analysis():
+    corr_df = load_correlations_all()
+    if corr_df.empty:
+        st.info("No lag data yet — run the pipeline first.")
+        return
+
+    available = sorted(corr_df["ticker"].unique().tolist())
+    def_idx   = available.index("AAPL") if "AAPL" in available else 0
+    ticker    = st.selectbox("Select ticker", available, index=def_idx, key="lag_ticker")
+
+    sub = corr_df[corr_df["ticker"] == ticker].copy()
+    if sub.empty:
+        st.info(f"No data for {ticker}.")
+        return
+
+    sub["pvalue"] = sub.apply(
+        lambda r: _pearson_pvalue(float(r["correlation"]), int(r["n_obs"])), axis=1
+    )
+    sub["stars"] = sub["pvalue"].apply(
+        lambda p: "***" if p < 0.01 else ("**" if p < 0.05 else ("*" if p < 0.10 else ""))
+    )
+
+    sig_colors = {
+        "google_trends":   C2,
+        "wikipedia_views": C5,
+        "stocktwits_sent": GREEN,
+        "news_sent":       C4,
+    }
+
+    fig = go.Figure()
+    for sig in sub["signal"].unique():
+        chunk = sub[sub["signal"] == sig].sort_values("lag")
+        color = sig_colors.get(sig, ACCENT)
+        fig.add_trace(go.Bar(
+            name=_SIG_LABELS.get(sig, sig),
+            x=chunk["lag"].tolist(),
+            y=chunk["correlation"].tolist(),
+            text=chunk["stars"].tolist(),
+            textposition="outside",
+            textfont=dict(size=12, color=TEXT),
+            marker_color=color, marker_opacity=0.85,
+            hovertemplate=(
+                "<b>" + _SIG_LABELS.get(sig, sig) + "</b><br>"
+                "Lag: %{x}d<br>r = %{y:.4f}<extra></extra>"
+            ),
+        ))
+
+    layout = chart_layout(
+        f"{ticker}  ·  Lag Analysis  "
+        "(lag < 0 = signal follows price | lag > 0 = signal predicts price)",
+        height=380,
+    )
+    layout["barmode"] = "group"
+    layout["xaxis"].update(
+        tickvals=list(range(-3, 4)),
+        ticktext=["−3d", "−2d", "−1d", "Today", "+1d", "+2d", "+3d"],
+        title=dict(text="Lag (days)", font=dict(size=10, color=MUTED)),
+    )
+    layout["yaxis"].update(
+        zeroline=True, zerolinecolor=BORDER, zerolinewidth=1.5,
+        title=dict(text="Pearson r", font=dict(size=10, color=MUTED)),
+    )
+    fig.update_layout(**layout)
+    st.plotly_chart(fig, use_container_width=True, config={"displayModeBar": False})
+
+    note(
+        "<strong>P-value markers:</strong> *** p&lt;0.01 · ** p&lt;0.05 · * p&lt;0.10 — shown above each bar. "
+        "Positive lag = signal leads price (predictive). Negative lag = price already moved (reactive). "
+        "Normal approximation used; more reliable with 30+ observations."
+    )
+
+    with st.expander("Raw lag data table"):
+        tbl = sub[["signal", "lag", "correlation", "n_obs", "pvalue", "stars"]].copy()
+        tbl["signal"] = tbl["signal"].map(_SIG_LABELS).fillna(tbl["signal"])
+        tbl.columns   = ["Signal", "Lag", "Correlation", "N", "P-Value", "Sig."]
+        tbl = tbl.sort_values(["Signal", "Lag"])
+        st.dataframe(
+            tbl.style.format({"Correlation": "{:.4f}", "P-Value": "{:.4f}"}),
+            hide_index=True, use_container_width=True,
+        )
+
+
+# ── Tab: Backtesting ────────────────────────────────────────────────────────────
+def tab_backtesting():
+    ticker = st.selectbox("Select ticker to backtest", config.TICKERS, index=0, key="bt_ticker")
+
+    df = build_historical_signals(ticker)
+    if df.empty or len(df) < 5:
+        st.info("Not enough price data to backtest.")
+        return
+
+    # Strategy: long when BULLISH, cash when BEARISH, hold when NEUTRAL
+    df = df.copy()
+    df["daily_ret"] = df["close"].pct_change()
+
+    # Position: enter after signal day (next day), so shift signal by 1
+    df["pos"] = df["signal"].shift(1).map({"BULLISH": 1.0, "BEARISH": 0.0, "NEUTRAL": None})
+    df["pos"] = df["pos"].ffill().fillna(1.0)  # neutral = hold last position; start fully invested
+
+    df["strat_ret"]  = df["pos"] * df["daily_ret"]
+    df["cum_strat"]  = (1 + df["strat_ret"].fillna(0)).cumprod()
+    df["cum_hold"]   = (1 + df["daily_ret"].fillna(0)).cumprod()
+
+    # SPY for comparison
+    spy_df = fetch_yf_history("SPY")
+    spy_cum = None
+    if not spy_df.empty:
+        spy_r = spy_df["close_price"].pct_change()
+        spy_r = spy_r.reindex(df.index, method="nearest", tolerance=pd.Timedelta("2d"))
+        spy_cum = (1 + spy_r.fillna(0)).cumprod()
+
+    fig = go.Figure()
+    fig.add_trace(go.Scatter(
+        x=df.index, y=(df["cum_strat"] - 1) * 100,
+        name="Signal Strategy", mode="lines",
+        line=dict(color=GREEN, width=2.5),
+        hovertemplate="Strategy: %{y:.1f}%<extra></extra>",
+    ))
+    fig.add_trace(go.Scatter(
+        x=df.index, y=(df["cum_hold"] - 1) * 100,
+        name=f"Buy & Hold {ticker}", mode="lines",
+        line=dict(color=C1, width=2, dash="dot"),
+        hovertemplate="Buy & Hold: %{y:.1f}%<extra></extra>",
+    ))
+    if spy_cum is not None:
+        fig.add_trace(go.Scatter(
+            x=spy_cum.index, y=(spy_cum - 1) * 100,
+            name="SPY (benchmark)", mode="lines",
+            line=dict(color=C5, width=1.8, dash="dash"),
+            hovertemplate="SPY: %{y:.1f}%<extra></extra>",
+        ))
+
+    strat_ret_total = float((df["cum_strat"].iloc[-1] - 1) * 100)
+    hold_ret_total  = float((df["cum_hold"].iloc[-1] - 1) * 100)
+
+    layout = chart_layout(
+        f"{ticker}  ·  Signal Strategy vs Buy & Hold vs SPY  (cumulative return %)",
+        height=360,
+    )
+    layout["yaxis"].update(ticksuffix="%", title=dict(text="Cumulative Return", font=dict(size=10, color=MUTED)))
+    layout["yaxis"]["zeroline"]      = True
+    layout["yaxis"]["zerolinecolor"] = BORDER
+    layout["yaxis"]["zerolinewidth"] = 1.5
+    fig.update_layout(**layout)
+    st.plotly_chart(fig, use_container_width=True, config={"displayModeBar": False})
+
+    m1, m2, m3 = st.columns(3)
+    with m1:
+        delta = strat_ret_total - hold_ret_total
+        st.metric("Strategy Return", f"{strat_ret_total:+.1f}%", f"{delta:+.1f}% vs hold")
+    with m2:
+        st.metric("Buy & Hold Return", f"{hold_ret_total:+.1f}%")
+    with m3:
+        if spy_cum is not None:
+            spy_total = float((spy_cum.iloc[-1] - 1) * 100)
+            st.metric("SPY Return", f"{spy_total:+.1f}%")
+
+    note(
+        "Strategy: go long when composite signal = BULLISH; move to cash when BEARISH; hold last position when NEUTRAL. "
+        "Signals use Google Trends (90 days) + prior-day price change — StockTwits &amp; News activate as more data accumulates. "
+        "No transaction costs. Past performance doesn't predict future returns."
+    )
+
+
+# ── Tab: Signal Accuracy Scorecard ─────────────────────────────────────────────
+def tab_signal_accuracy():
+    _NOTE_DAYS = 7
+
+    rows_out = []
+    for ticker in config.TICKERS:
+        df = build_historical_signals(ticker)
+        if df.empty or len(df) < _NOTE_DAYS + 2:
+            continue
+
+        price = df["close"]
+        fwd_ret = price.shift(-_NOTE_DAYS) / price - 1
+
+        for sig_name, vote_col in [
+            ("Google Trends", "trends_v"),
+            ("Price Momentum", "price_v"),
+            ("StockTwits",     "st_v"),
+            ("News Sent.",     "news_v"),
+        ]:
+            if vote_col not in df.columns:
+                continue
+            bull_mask = (df[vote_col] == 1)
+            bear_mask = (df[vote_col] == -1)
+            n_bull = int(bull_mask.sum())
+            n_bear = int(bear_mask.sum())
+
+            if n_bull >= 3:
+                hit = float((fwd_ret[bull_mask] > 0).mean() * 100)
+                rows_out.append({"Signal": sig_name, "Ticker": ticker,
+                                 "Direction": "BULLISH", "N Calls": n_bull, "Hit Rate %": hit})
+            if n_bear >= 3:
+                hit = float((fwd_ret[bear_mask] < 0).mean() * 100)
+                rows_out.append({"Signal": sig_name, "Ticker": ticker,
+                                 "Direction": "BEARISH", "N Calls": n_bear, "Hit Rate %": hit})
+
+    if not rows_out:
+        st.info("Not enough historical signal + price data yet. Check back after 30+ days of accumulation.")
+        return
+
+    agg = (
+        pd.DataFrame(rows_out)
+        .groupby(["Signal", "Direction"])
+        .agg(Avg_Hit_Rate=("Hit Rate %", "mean"), N_Tickers=("Ticker", "nunique"))
+        .reset_index()
+    )
+    agg["Avg_Hit_Rate"] = agg["Avg_Hit_Rate"].round(1)
+
+    signals = agg["Signal"].unique().tolist()
+    directions = ["BULLISH", "BEARISH"]
+    dir_colors = {"BULLISH": GREEN, "BEARISH": RED}
+
+    fig = go.Figure()
+    for direction in directions:
+        sub = agg[agg["Direction"] == direction]
+        fig.add_trace(go.Bar(
+            name=direction,
+            x=sub["Signal"].tolist(),
+            y=sub["Avg_Hit_Rate"].tolist(),
+            marker_color=dir_colors[direction],
+            marker_opacity=0.85,
+            text=[f"{v:.0f}%" for v in sub["Avg_Hit_Rate"].tolist()],
+            textposition="outside",
+            hovertemplate=(
+                f"<b>{direction}</b><br>%{{x}}<br>Avg hit rate: %{{y:.1f}}%<extra></extra>"
+            ),
+        ))
+
+    fig.add_hline(y=50, line_color=BORDER, line_dash="dash", line_width=1,
+                  annotation_text="random (50%)", annotation_font=dict(size=9, color=MUTED))
+
+    layout = chart_layout(
+        f"Signal Accuracy — % of {_NOTE_DAYS}-Day Calls That Were Correct  (avg across all tickers)",
+        height=360,
+    )
+    layout["barmode"] = "group"
+    layout["yaxis"].update(range=[0, 115], ticksuffix="%",
+                           title=dict(text="Hit Rate", font=dict(size=10, color=MUTED)))
+    fig.update_layout(**layout)
+    st.plotly_chart(fig, use_container_width=True, config={"displayModeBar": False})
+
+    note(
+        f"For each signal, this shows what % of BULLISH calls were followed by a positive {_NOTE_DAYS}-day return "
+        f"and what % of BEARISH calls were followed by a negative {_NOTE_DAYS}-day return, averaged across all tickers. "
+        f"50% = random. Requires ≥3 signal events per ticker to include."
+    )
+
+    with st.expander("Per-ticker breakdown"):
+        detail = pd.DataFrame(rows_out).round(1)
+        st.dataframe(detail.sort_values(["Signal", "Hit Rate %"], ascending=[True, False]),
+                     hide_index=True, use_container_width=True)
+
+
+# ── Tab: Sector Heatmap ─────────────────────────────────────────────────────────
+def tab_sector_heatmap(rows):
+    rows_by_ticker = {r["ticker"]: r for r in rows}
+
+    sector_data = []
+    for sector, tickers in SECTORS.items():
+        for ticker in tickers:
+            r = rows_by_ticker.get(ticker)
+            if r is None:
+                continue
+            sig = r["signal"]
+            sig_num = 1 if sig == "BULLISH" else (-1 if sig == "BEARISH" else 0)
+            sector_data.append({
+                "sector":  sector,
+                "ticker":  ticker,
+                "signal":  sig,
+                "sig_num": sig_num,
+                "chg":     r.get("chg_raw") or 0.0,
+            })
+
+    if not sector_data:
+        st.info("No signal data available.")
+        return
+
+    agg = (
+        pd.DataFrame(sector_data)
+        .groupby("sector")
+        .agg(avg_sig=("sig_num", "mean"), n_bull=("signal", lambda x: (x == "BULLISH").sum()),
+             n_bear=("signal", lambda x: (x == "BEARISH").sum()), count=("ticker", "count"))
+        .reset_index()
+    )
+    agg["label"] = agg.apply(
+        lambda r: f"{r['sector']}<br><sup>{r['n_bull']}B · {r['n_bear']}Be · {int(r['count'] - r['n_bull'] - r['n_bear'])}N</sup>",
+        axis=1
+    )
+
+    # Grid layout: 4 columns
+    n_sectors = len(agg)
+    ncols = 4
+    nrows = math.ceil(n_sectors / ncols)
+
+    fig = go.Figure()
+    for i, row in agg.iterrows():
+        c = i % ncols
+        r_idx = i // ncols
+        color = (GREEN if row["avg_sig"] > 0.2 else RED if row["avg_sig"] < -0.2 else ACCENT)
+        fig.add_annotation(
+            x=c, y=nrows - 1 - r_idx,
+            text=row["label"],
+            showarrow=False,
+            font=dict(size=11, color="white", family="Inter"),
+            bgcolor=color, bordercolor="rgba(0,0,0,0.2)", borderwidth=1,
+            borderpad=10, width=200, align="center",
+            xanchor="center", yanchor="middle",
+        )
+
+    fig.update_layout(
+        paper_bgcolor="rgba(0,0,0,0)",
+        plot_bgcolor="rgba(0,0,0,0)",
+        height=nrows * 90 + 60,
+        margin=dict(l=20, r=20, t=40, b=20),
+        title=dict(text="SECTOR SENTIMENT HEATMAP — COMPOSITE SIGNAL TODAY",
+                   font=dict(size=10, color=MUTED, family="Inter"), x=0),
+        xaxis=dict(visible=False, range=[-0.6, ncols - 0.4]),
+        yaxis=dict(visible=False, range=[-0.6, nrows - 0.4]),
+    )
+    st.plotly_chart(fig, use_container_width=True, config={"displayModeBar": False})
+
+    note(
+        "Each box shows the sector's average composite signal direction right now. "
+        "B = Bullish count · Be = Bearish count · N = Neutral count within that sector. "
+        "Green = majority bullish; red = majority bearish."
+    )
+
+
+# ── Tab: Signal Divergence Detector ───────────────────────────────────────────
+def tab_divergence_detector(rows):
+    rows_by_ticker = {r["ticker"]: r for r in rows}
+
+    divergences = []
+    for ticker in config.TICKERS:
+        st_df   = load_stocktwits(ticker)
+        news_df = load_news(ticker)
+
+        st_sent = None
+        if not st_df.empty and {"bullish_count", "message_count"}.issubset(st_df.columns):
+            valid = st_df.dropna(subset=["message_count"])
+            valid = valid[valid["message_count"] > 0]
+            if len(valid) > 0:
+                last = valid.iloc[-1]
+                bull_pct = last["bullish_count"] / last["message_count"] * 100
+                st_sent = "BULLISH" if bull_pct > 55 else ("BEARISH" if bull_pct < 40 else "NEUTRAL")
+
+        news_sent_val = None
+        news_sig = None
+        if not news_df.empty and "avg_sentiment" in news_df.columns:
+            vs = news_df["avg_sentiment"].dropna()
+            if len(vs) > 0:
+                news_sent_val = float(vs.iloc[-1])
+                news_sig = "BULLISH" if news_sent_val > 0.1 else ("BEARISH" if news_sent_val < -0.1 else "NEUTRAL")
+
+        r = rows_by_ticker.get(ticker, {})
+        if st_sent is not None and news_sig is not None and st_sent != news_sig:
+            divergences.append({
+                "Ticker":       ticker,
+                "Company":      r.get("company", ticker),
+                "StockTwits":   st_sent,
+                "News Sent.":   news_sig,
+                "News Score":   f"{int(round(news_sent_val*100)):+d}" if news_sent_val is not None else "—",
+                "Price Chg":    r.get("chg", "—"),
+                "Comp. Signal": r.get("signal", "—"),
+            })
+
+    if not divergences:
+        st.markdown(
+            '<div class="sparse-note">No StockTwits vs News divergences detected right now — '
+            'or signals are too sparse. Divergences will appear as daily data accumulates '
+            '(target: 30+ days, July 2026).</div>',
+            unsafe_allow_html=True,
+        )
+        return
+
+    div_df = pd.DataFrame(divergences)
+
+    def _color_sig(val):
+        if val == "BULLISH":
+            return f"color: {GREEN}; font-weight: 600"
+        if val == "BEARISH":
+            return f"color: {RED}; font-weight: 600"
+        return f"color: {MUTED}"
+
+    st.markdown(f'<div class="sec-label">{len(divergences)} Tickers with StockTwits vs News Signal Divergence</div>',
+                unsafe_allow_html=True)
+
+    tbl_html = '<div class="data-tbl-wrap"><table class="data-tbl"><thead><tr>'
+    for col in div_df.columns:
+        tbl_html += f'<th class="data-tbl-th">{col}</th>'
+    tbl_html += '</tr></thead><tbody>'
+    for i, row_d in div_df.iterrows():
+        cls = "even" if i % 2 == 0 else "odd"
+        tbl_html += f'<tr class="{cls}">'
+        for col, val in row_d.items():
+            color_style = ""
+            if col in ("StockTwits", "News Sent.", "Comp. Signal"):
+                if val == "BULLISH":
+                    color_style = f'style="color:{GREEN};font-weight:600"'
+                elif val == "BEARISH":
+                    color_style = f'style="color:{RED};font-weight:600"'
+            tbl_html += f'<td class="data-tbl-td num" {color_style}>{val}</td>'
+        tbl_html += '</tr>'
+    tbl_html += '</tbody></table></div>'
+    st.markdown(tbl_html, unsafe_allow_html=True)
+
+    note(
+        "Shows tickers where StockTwits community sentiment and news headline sentiment point in opposite "
+        "directions — potential divergence signals. High divergence can precede volatility as one side is "
+        "eventually proven wrong."
+    )
+
+
+# ── Tab: Rolling Correlation ────────────────────────────────────────────────────
+def tab_rolling_correlation():
+    ticker  = st.selectbox("Select ticker", config.TICKERS, index=0, key="rc_ticker")
+    window  = st.slider("Rolling window (days)", min_value=7, max_value=30, value=14, step=1, key="rc_window")
+
+    price_df  = load_prices(ticker)
+    trends_df = load_trends(ticker)
+    wiki_df   = load_wikipedia(ticker)
+
+    if price_df.empty:
+        st.info("No price data available.")
+        return
+
+    price_s = price_df["close_price"].dropna().sort_index()
+    returns = price_s.pct_change()
+
+    fig = go.Figure()
+    added = 0
+
+    def _add_rolling(signal_s, name, color, dash="solid"):
+        nonlocal added
+        aligned = pd.concat([signal_s, returns], axis=1).dropna()
+        if len(aligned) < window + 2:
+            return
+        sig_col = aligned.columns[0]
+        ret_col = aligned.columns[1]
+        rolled  = aligned[sig_col].rolling(window).corr(aligned[ret_col])
+        if rolled.dropna().empty:
+            return
+        fig.add_trace(go.Scatter(
+            x=rolled.index, y=rolled,
+            name=name, mode="lines",
+            line=dict(color=color, width=2.2, dash=dash),
+            hovertemplate=f"{name}: %{{y:.3f}}<extra></extra>",
+        ))
+        added += 1
+
+    if not trends_df.empty and "interest" in trends_df.columns:
+        _add_rolling(trends_df["interest"], "Google Trends", C2)
+
+    if not wiki_df.empty and "page_views" in wiki_df.columns:
+        _add_rolling(np.log1p(wiki_df["page_views"]).rename("wiki_log"), "Wikipedia Views", C5, "dash")
+
+    st_df = load_stocktwits(ticker)
+    if not st_df.empty and "net_sentiment" in st_df.columns:
+        _add_rolling(st_df["net_sentiment"], "StockTwits Sent.", GREEN, "dot")
+
+    news_df = load_news(ticker)
+    if not news_df.empty and "avg_sentiment" in news_df.columns:
+        _add_rolling(news_df["avg_sentiment"], "News Sentiment", C4, "dashdot")
+
+    if added == 0:
+        st.info(f"Not enough overlapping data for {ticker} with a {window}-day window.")
+        return
+
+    fig.add_hline(y=0, line_color=BORDER, line_width=1)
+    layout = chart_layout(
+        f"{ticker}  ·  {window}-Day Rolling Correlation: Each Signal vs Daily Price Return",
+        height=360,
+    )
+    layout["yaxis"].update(
+        range=[-1.1, 1.1], zeroline=True, zerolinecolor=BORDER, zerolinewidth=1.5,
+        title=dict(text="Pearson r", font=dict(size=10, color=MUTED)),
+    )
+    fig.update_layout(**layout)
+    st.plotly_chart(fig, use_container_width=True, config={"displayModeBar": False})
+
+    note(
+        f"Each line shows the rolling {window}-day Pearson correlation between that signal and same-day price returns. "
+        "When a line is consistently positive, the signal moves with price; consistently negative means it moves against. "
+        "Stability over time suggests a reliable relationship. Signals with only a few days of data won't appear until sufficient history accumulates."
+    )
+
+
+# ── Tab: Returns Distribution ───────────────────────────────────────────────────
+def tab_returns_distribution():
+    _FWD = 7
+
+    all_bull, all_bear, all_neut = [], [], []
+
+    for ticker in config.TICKERS:
+        df = build_historical_signals(ticker)
+        if df.empty or len(df) < _FWD + 3:
+            continue
+        price  = df["close"]
+        fwd    = (price.shift(-_FWD) / price - 1) * 100
+        for sig, bucket in [("BULLISH", all_bull), ("BEARISH", all_bear), ("NEUTRAL", all_neut)]:
+            mask = df["signal"] == sig
+            vals = fwd[mask].dropna().tolist()
+            bucket.extend(vals)
+
+    if not all_bull and not all_bear and not all_neut:
+        st.info("Not enough historical data yet. Check back after 30+ days.")
+        return
+
+    fig = go.Figure()
+    for vals, name, color in [
+        (all_bull, "BULLISH Signal", GREEN),
+        (all_bear, "BEARISH Signal", RED),
+        (all_neut, "NEUTRAL Signal", MUTED),
+    ]:
+        if not vals:
+            continue
+        arr = np.array(vals)
+        fig.add_trace(go.Histogram(
+            x=arr, name=f"{name} (n={len(arr)})",
+            nbinsx=40, opacity=0.65,
+            marker_color=color,
+            hovertemplate="Return: %{x:.1f}%<br>Count: %{y}<extra></extra>",
+        ))
+
+    fig.add_vline(x=0, line_color=TEXT, line_width=1.5, line_dash="solid")
+    layout = chart_layout(
+        f"{_FWD}-Day Forward Price Return Distribution  ·  Grouped by Composite Signal at Entry",
+        height=380,
+    )
+    layout["barmode"] = "overlay"
+    layout["xaxis"].update(ticksuffix="%",
+                           title=dict(text=f"{_FWD}-Day Forward Return", font=dict(size=10, color=MUTED)))
+    layout["yaxis"].update(title=dict(text="Count (ticker-days)", font=dict(size=10, color=MUTED)))
+    fig.update_layout(**layout)
+    st.plotly_chart(fig, use_container_width=True, config={"displayModeBar": False})
+
+    if all_bull or all_bear:
+        m1, m2, m3 = st.columns(3)
+        with m1:
+            if all_bull:
+                st.metric("Avg return after BULLISH",
+                          f"{np.mean(all_bull):+.1f}%",
+                          f"median {np.median(all_bull):+.1f}%")
+        with m2:
+            if all_bear:
+                st.metric("Avg return after BEARISH",
+                          f"{np.mean(all_bear):+.1f}%",
+                          f"median {np.median(all_bear):+.1f}%")
+        with m3:
+            if all_neut:
+                st.metric("Avg return after NEUTRAL",
+                          f"{np.mean(all_neut):+.1f}%",
+                          f"median {np.median(all_neut):+.1f}%")
+
+    note(
+        f"Histogram of {_FWD}-day forward price returns across all 50 tickers, split by the composite signal "
+        f"on the day of entry. If the model has edge, the BULLISH distribution should skew right of the BEARISH one."
+    )
+
+
 # ── Summary / overview page ────────────────────────────────────────────────────
 def show_summary():
     rows            = build_summary()
@@ -1112,10 +1909,10 @@ def show_summary():
 
     # Basket view: show only basket tickers. Default view: show all 50.
     if basket_view:
-        display_rows  = [rows_by_ticker[t] for t in basket if t in rows_by_ticker]
+        display_rows   = [rows_by_ticker[t] for t in basket if t in rows_by_ticker]
         sparkline_rows = display_rows
     else:
-        display_rows  = rows
+        display_rows   = rows
         sparkline_rows = [rows_by_ticker[t] for t in config.PINNED_TICKERS if t in rows_by_ticker]
 
     # Ticker strip (always full universe)
@@ -1129,42 +1926,117 @@ def show_summary():
             unsafe_allow_html=True,
         )
 
-    # Market chips
-    st.markdown(build_market_chips_html(display_rows), unsafe_allow_html=True)
+    # ── Tabs ──────────────────────────────────────────────────────────────────
+    (
+        tab_overview, tab_corr_mat, tab_lag, tab_bt,
+        tab_acc, tab_sector, tab_div, tab_rc, tab_rd,
+    ) = st.tabs([
+        "Overview",
+        "Correlation Matrix",
+        "Lag Analysis",
+        "Backtesting",
+        "Signal Accuracy",
+        "Sector Heatmap",
+        "Divergence Detector",
+        "Rolling Correlation",
+        "Returns Distribution",
+    ])
 
-    # Signal distribution
-    st.plotly_chart(
-        build_signal_dist_chart(display_rows),
-        use_container_width=True,
-        config={"displayModeBar": False, "responsive": True},
-    )
+    # ── Overview tab ──────────────────────────────────────────────────────────
+    with tab_overview:
+        # Fear & Greed Index — prominently at top
+        fg_score, fg_label, fg_components = compute_fear_greed(rows)
+        st.markdown('<div class="sec-label">Fear &amp; Greed Index</div>', unsafe_allow_html=True)
+        fg_col_gauge, fg_col_comp = st.columns([1, 2])
+        with fg_col_gauge:
+            st.plotly_chart(
+                build_fear_greed_gauge(fg_score, fg_label, fg_components),
+                use_container_width=True,
+                config={"displayModeBar": False},
+            )
+        with fg_col_comp:
+            st.markdown('<div style="margin-top:1.2rem"></div>', unsafe_allow_html=True)
+            for comp_name, comp_val in fg_components.items():
+                bar_color = GREEN if comp_val > 55 else (RED if comp_val < 45 else MUTED)
+                st.markdown(
+                    f'<div style="margin-bottom:0.5rem">'
+                    f'<div style="font-family:Inter;font-size:0.78rem;color:{MUTED};margin-bottom:2px">'
+                    f'{comp_name}: <strong style="color:{TEXT}">{comp_val:.0f}</strong></div>'
+                    f'<div style="background:{SURFACE2};border-radius:4px;height:6px;overflow:hidden">'
+                    f'<div style="width:{comp_val:.0f}%;height:100%;background:{bar_color};border-radius:4px"></div>'
+                    f'</div></div>',
+                    unsafe_allow_html=True,
+                )
+            st.markdown(
+                f'<div class="chart-note" style="margin-top:0.75rem">'
+                f'Score 0–100 · 0–25 Extreme Fear · 25–45 Fear · 45–55 Neutral · 55–75 Greed · 75–100 Extreme Greed'
+                f'</div>',
+                unsafe_allow_html=True,
+            )
 
-    # Sparkline grid — pinned 4 in default view, full basket in basket view
-    spark_label = "My Basket" if basket_view else "Featured Tickers"
-    st.markdown(f'<div class="sec-label">{spark_label}</div>', unsafe_allow_html=True)
-    show_sparkline_grid(sparkline_rows)
+        st.markdown("---")
 
-    # Metric definitions (collapsed by default)
-    show_glossary()
+        # Market chips
+        st.markdown(build_market_chips_html(display_rows), unsafe_allow_html=True)
 
-    # Signal table
-    st.markdown('<div class="sec-label">Market Intelligence Overview</div>', unsafe_allow_html=True)
-    st.markdown(build_table_html(display_rows), unsafe_allow_html=True)
+        # Signal distribution
+        st.plotly_chart(
+            build_signal_dist_chart(display_rows),
+            use_container_width=True,
+            config={"displayModeBar": False, "responsive": True},
+        )
 
-    st.markdown(f"""
-    <div class="signal-legend">
-      <strong>Signal methodology —</strong>
-      StockTwits bullish% &gt; 55% = +1 · &lt; 40% = −1 ·
-      News sentiment &gt; +10 = +1 · &lt; −10 = −1 ·
-      Google Trends &gt; 10% above 7-day avg = +1 · &gt; 10% below = −1 ·
-      Prior-day price change &gt; +0.5% = +1 · &lt; −0.5% = −1 ·
-      Score ≥ +2 = <span style="color:{GREEN};font-weight:600">BULLISH</span> ·
-      ≤ −2 = <span style="color:{RED};font-weight:600">BEARISH</span> ·
-      otherwise <span style="color:{MUTED};font-weight:600">NEUTRAL</span>
-    </div>
-    """, unsafe_allow_html=True)
+        # Sparkline grid
+        spark_label = "My Basket" if basket_view else "Featured Tickers"
+        st.markdown(f'<div class="sec-label">{spark_label}</div>', unsafe_allow_html=True)
+        show_sparkline_grid(sparkline_rows)
 
-    st.markdown(build_animations_js(), unsafe_allow_html=True)
+        # Metric definitions
+        show_glossary()
+
+        # Signal table
+        st.markdown('<div class="sec-label">Market Intelligence Overview</div>', unsafe_allow_html=True)
+        st.markdown(build_table_html(display_rows), unsafe_allow_html=True)
+
+        st.markdown(f"""
+        <div class="signal-legend">
+          <strong>Signal methodology —</strong>
+          StockTwits bullish% &gt; 55% = +1 · &lt; 40% = −1 ·
+          News sentiment &gt; +10 = +1 · &lt; −10 = −1 ·
+          Google Trends &gt; 10% above 7-day avg = +1 · &gt; 10% below = −1 ·
+          Prior-day price change &gt; +0.5% = +1 · &lt; −0.5% = −1 ·
+          Score ≥ +2 = <span style="color:{GREEN};font-weight:600">BULLISH</span> ·
+          ≤ −2 = <span style="color:{RED};font-weight:600">BEARISH</span> ·
+          otherwise <span style="color:{MUTED};font-weight:600">NEUTRAL</span>
+        </div>
+        """, unsafe_allow_html=True)
+
+        st.markdown(build_animations_js(), unsafe_allow_html=True)
+
+    # ── Analysis tabs ─────────────────────────────────────────────────────────
+    with tab_corr_mat:
+        tab_correlation_matrix()
+
+    with tab_lag:
+        tab_lag_analysis()
+
+    with tab_bt:
+        tab_backtesting()
+
+    with tab_acc:
+        tab_signal_accuracy()
+
+    with tab_sector:
+        tab_sector_heatmap(rows)
+
+    with tab_div:
+        tab_divergence_detector(rows)
+
+    with tab_rc:
+        tab_rolling_correlation()
+
+    with tab_rd:
+        tab_returns_distribution()
 
 
 # ── Detail view ────────────────────────────────────────────────────────────────
