@@ -4,6 +4,7 @@ Professional financial research dashboard — Alt Data Signal Tracker.
 Run with: python3 -m streamlit run dashboard.py
 """
 
+import json
 import math
 import sys
 from pathlib import Path
@@ -24,7 +25,24 @@ except ImportError:
 sys.path.insert(0, str(Path(__file__).parent))
 import config
 
-DATA_DIR = Path(__file__).parent / "data"
+DATA_DIR      = Path(__file__).parent / "data"
+WATCHLIST_FILE = Path(__file__).parent / "watchlist.json"
+
+
+def load_watchlist():
+    """Load starred tickers from JSON file."""
+    if WATCHLIST_FILE.exists():
+        try:
+            data = json.loads(WATCHLIST_FILE.read_text())
+            return set(data) if isinstance(data, list) else set()
+        except Exception:
+            return set()
+    return set()
+
+
+def save_watchlist(wl):
+    """Persist watchlist to JSON file."""
+    WATCHLIST_FILE.write_text(json.dumps(sorted(wl), indent=2))
 
 # ── Page config ────────────────────────────────────────────────────────────────
 st.set_page_config(
@@ -67,6 +85,10 @@ if "basket" not in st.session_state:
     st.session_state["basket"] = list(config.PINNED_TICKERS)
 if "basket_view" not in st.session_state:
     st.session_state["basket_view"] = False
+if "watchlist" not in st.session_state:
+    st.session_state["watchlist"] = load_watchlist()
+if "sector_filter" not in st.session_state:
+    st.session_state["sector_filter"] = "All"
 
 
 # ── ET timezone helper ─────────────────────────────────────────────────────────
@@ -78,6 +100,18 @@ def format_et(dt):
     minute = dt.strftime("%M")
     ampm   = "AM" if dt.hour < 12 else "PM"
     return f"{dt.strftime('%b')} {dt.day}, {dt.year} · {hour}:{minute} {ampm} ET"
+
+
+def get_last_updated():
+    """Return most-recent mtime of any price CSV, as an ET datetime."""
+    files = list(DATA_DIR.glob("prices_*.csv"))
+    if not files:
+        return None
+    try:
+        mtime = max(f.stat().st_mtime for f in files)
+        return datetime.fromtimestamp(mtime, tz=ZoneInfo("America/New_York"))
+    except Exception:
+        return None
 
 
 # ── Plotly layout factory ──────────────────────────────────────────────────────
@@ -611,52 +645,85 @@ def _th(label, width, center=False):
         )
     return f'<th class="{cls}">{label}</th>'
 
-# col: (label, min-width, centered)
+# Sortable columns: (label, min-width, centered, sortable, data-type)
 _COLS = [
-    ("TICKER",    "70px",  False),
-    ("COMPANY",   None,    False),
-    ("PRICE",     "80px",  True),
-    ("CHG %",     "90px",  True),
-    ("BULLISH %", "80px",  True),
-    ("TRENDS",    "75px",  True),
-    ("NEWS SENT", "90px",  True),
-    ("SIGNAL",    "90px",  True),
-    ("",          "70px",  True),
+    ("★",         "34px",  True,  False, "str"),   # watchlist star — not sortable
+    ("TICKER",    "68px",  False, True,  "str"),
+    ("COMPANY",   None,    False, True,  "str"),
+    ("PRICE",     "80px",  True,  True,  "num"),
+    ("CHG %",     "90px",  True,  True,  "num"),
+    ("BULLISH %", "80px",  True,  True,  "num"),
+    ("TRENDS",    "75px",  True,  True,  "num"),
+    ("NEWS SENT", "90px",  True,  True,  "num"),
+    ("SIGNAL",    "90px",  True,  True,  "num"),
+    ("30D TREND", "90px",  True,  False, "str"),   # sparkline — not sortable
+    ("",          "68px",  True,  False, "str"),   # VIEW button
 ]
 
-def build_table_html(rows):
-    # Header — inline min-width on each th
-    def _th_cell(label, min_w, ctr):
+
+def build_table_html(rows, watchlist=None):
+    watchlist = watchlist or set()
+
+    def _th_cell(label, min_w, ctr, sortable, dtype):
         style = f'style="min-width:{min_w}"' if min_w else ""
-        cls   = "data-tbl-th ctr" if ctr else "data-tbl-th"
+        base  = "data-tbl-th ctr" if ctr else "data-tbl-th"
+        cls   = (base + " sortable") if sortable else base
+        sort_attr = f'data-dtype="{dtype}"' if sortable else ""
         if label in _TOOLTIPS:
-            return (
-                f'<th class="{cls}" {style}>{label}'
+            inner = (
+                f'{label}'
                 f'<span class="th-tip" tabindex="0">'
                 f'<span class="th-tip-icon" aria-label="Definition for {label}">ⓘ</span>'
                 f'<span class="th-tip-box" role="tooltip">{_TOOLTIPS[label]}</span>'
-                f'</span></th>'
+                f'</span>'
             )
-        return f'<th class="{cls}" {style}>{label}</th>'
+        else:
+            inner = label
+        icon = '<span class="sort-icon">⇅</span>' if sortable else ""
+        return f'<th class="{cls}" {style} {sort_attr}>{inner}{icon}</th>'
 
-    head_cells = "".join(_th_cell(label, min_w, ctr) for label, min_w, ctr in _COLS)
-    head = f"<thead><tr>{head_cells}</tr></thead>"
+    head_cells = "".join(
+        _th_cell(label, min_w, ctr, sortable, dtype)
+        for label, min_w, ctr, sortable, dtype in _COLS
+    )
+    head = f'<thead><tr id="tbl-header-row">{head_cells}</tr></thead>'
 
     body = "<tbody>"
     for i, r in enumerate(rows):
-        row_cls  = "even" if i % 2 == 0 else "odd"
-        delay_ms = 800 + i * 80
-        ticker   = r["ticker"]
+        ticker      = r["ticker"]
+        is_starred  = ticker in watchlist
+        row_extra   = " watchlisted" if is_starred else ""
+        row_cls     = ("even" if i % 2 == 0 else "odd") + row_extra
+        delay_ms    = 800 + i * 80
+
+        # Raw numeric values for sort (stored in data-sort)
+        price_raw   = float(r["price"].replace("$", "").replace(",", "")) if r["price"] != "—" else -999999
+        chg_raw     = r.get("chg_raw") or 0.0
+        bull_raw    = float(r["bullish_pct"].replace("%", "")) if r["bullish_pct"] != "—" else -1
+        trends_raw  = float(r["trends"].split("/")[0]) if r["trends"] != "—" else -1
+        news_raw    = float(r["news_sent"].replace("+", "")) if r["news_sent"] != "—" else -999
+        sig_num     = {"BULLISH": 1, "NEUTRAL": 0, "BEARISH": -1}.get(r["signal"], 0)
+
+        star_cls  = "star-btn starred" if is_starred else "star-btn"
+        star_icon = "★" if is_starred else "☆"
+        star_href = f"?star={ticker}"
+
+        sparkline = build_table_sparkline(ticker, r["sig_color"])
+
         body += (
             f'<tr class="{row_cls}" style="animation-delay:{delay_ms}ms">'
-            f'<td class="data-tbl-td tkr">{ticker}</td>'
-            f'<td class="data-tbl-td left">{r["company"]}</td>'
-            f'<td class="data-tbl-td num">{r["price"]}</td>'
-            f'<td class="data-tbl-td num" style="color:{r["chg_color"]}">{r["chg"]}</td>'
-            f'<td class="data-tbl-td num">{r["bullish_pct"]}</td>'
-            f'<td class="data-tbl-td num">{r["trends"]}</td>'
-            f'<td class="data-tbl-td num">{r["news_sent"]}</td>'
-            f'<td class="data-tbl-td num" style="color:{r["sig_color"]};font-weight:600">{r["signal"]}</td>'
+            f'<td class="data-tbl-td" style="text-align:center">'
+            f'<a href="{star_href}" class="{star_cls}" title="{"Unstar" if is_starred else "Star"} {ticker}">{star_icon}</a>'
+            f'</td>'
+            f'<td class="data-tbl-td tkr" data-sort="{ticker}">{ticker}</td>'
+            f'<td class="data-tbl-td left" data-sort="{r["company"]}">{r["company"]}</td>'
+            f'<td class="data-tbl-td num" data-sort="{price_raw}">{r["price"]}</td>'
+            f'<td class="data-tbl-td num" data-sort="{chg_raw}" style="color:{r["chg_color"]}">{r["chg"]}</td>'
+            f'<td class="data-tbl-td num" data-sort="{bull_raw}">{r["bullish_pct"]}</td>'
+            f'<td class="data-tbl-td num" data-sort="{trends_raw}">{r["trends"]}</td>'
+            f'<td class="data-tbl-td num" data-sort="{news_raw}">{r["news_sent"]}</td>'
+            f'<td class="data-tbl-td num" data-sort="{sig_num}" style="color:{r["sig_color"]};font-weight:600">{r["signal"]}</td>'
+            f'<td class="data-tbl-td" style="text-align:center">{sparkline}</td>'
             f'<td class="data-tbl-td num"><a href="?ticker={ticker}" class="tbl-detail-btn">VIEW →</a></td>'
             f'</tr>'
         )
@@ -664,61 +731,156 @@ def build_table_html(rows):
 
     return (
         f'<div class="data-tbl-wrap">'
-        f'<table class="data-tbl">{head}{body}</table>'
+        f'<table class="data-tbl" id="signal-tbl">{head}{body}</table>'
         f'</div>'
     )
 
 
-# ── Count-up JS ────────────────────────────────────────────────────────────────
+# ── Count-up + Sort + Fullscreen JS ───────────────────────────────────────────
 def build_animations_js():
     return """
 <script>
 (function () {
   var reduced = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
-  if (reduced) return;
 
-  function easeOut(t) { return 1 - (1 - t) * (1 - t); }
-
-  function animateInt(el, target) {
-    var start = performance.now(), dur = 600;
-    (function step(ts) {
-      var p = Math.min((ts - start) / dur, 1);
-      el.textContent = Math.round(easeOut(p) * target);
-      if (p < 1) requestAnimationFrame(step);
-      else el.textContent = target;
-    })(start);
+  /* ── Count-up animations ─────────────────────────────────────── */
+  if (!reduced) {
+    function easeOut(t) { return 1 - (1 - t) * (1 - t); }
+    function animateInt(el, target) {
+      var start = performance.now(), dur = 600;
+      (function step(ts) {
+        var p = Math.min((ts - start) / dur, 1);
+        el.textContent = Math.round(easeOut(p) * target);
+        if (p < 1) requestAnimationFrame(step);
+        else el.textContent = target;
+      })(start);
+    }
+    function animateFloat(el, target, dec, prefix) {
+      var start = performance.now(), dur = 600;
+      prefix = prefix || '';
+      (function step(ts) {
+        var p = Math.min((ts - start) / dur, 1);
+        el.textContent = prefix + (easeOut(p) * target).toFixed(dec);
+        if (p < 1) requestAnimationFrame(step);
+        else el.textContent = prefix + target.toFixed(dec);
+      })(start);
+    }
+    setTimeout(function () {
+      document.querySelectorAll('[data-countup-int]').forEach(function (el) {
+        animateInt(el, parseInt(el.dataset.countupInt, 10));
+      });
+      document.querySelectorAll('[data-countup-float]').forEach(function (el) {
+        animateFloat(el,
+          parseFloat(el.dataset.countupFloat),
+          parseInt(el.dataset.countupDec || '2', 10),
+          el.dataset.countupPrefix || '');
+      });
+    }, 400);
   }
 
-  function animateFloat(el, target, dec, prefix) {
-    var start = performance.now(), dur = 600;
-    prefix = prefix || '';
-    (function step(ts) {
-      var p = Math.min((ts - start) / dur, 1);
-      el.textContent = prefix + (easeOut(p) * target).toFixed(dec);
-      if (p < 1) requestAnimationFrame(step);
-      else el.textContent = prefix + target.toFixed(dec);
-    })(start);
+  /* ── Client-side table sort ──────────────────────────────────── */
+  function initTableSort() {
+    var pd  = window.parent.document;
+    var tbl = pd.getElementById('signal-tbl');
+    if (!tbl || tbl._sortDone) return;
+    tbl._sortDone = true;
+    var header = pd.getElementById('tbl-header-row');
+    if (!header) return;
+    var ths = header.querySelectorAll('th.sortable');
+    var sortCol  = -1;
+    var sortAsc  = true;
+
+    ths.forEach(function(th, idx) {
+      // Find absolute column index (header has non-sortable cols too)
+      var allThs = Array.from(header.querySelectorAll('th'));
+      var colIdx = allThs.indexOf(th);
+      th.addEventListener('click', function() {
+        if (sortCol === colIdx) { sortAsc = !sortAsc; }
+        else { sortCol = colIdx; sortAsc = true; }
+        // Update sort icons
+        ths.forEach(function(t) {
+          t.classList.remove('sort-asc','sort-desc');
+          var ic = t.querySelector('.sort-icon');
+          if (ic) ic.textContent = '⇅';
+        });
+        th.classList.add(sortAsc ? 'sort-asc' : 'sort-desc');
+        var ic = th.querySelector('.sort-icon');
+        if (ic) ic.textContent = sortAsc ? '▲' : '▼';
+        // Sort rows
+        var tbody = tbl.querySelector('tbody');
+        var rows  = Array.from(tbody.querySelectorAll('tr'));
+        var dtype = th.dataset.dtype || 'str';
+        rows.sort(function(a, b) {
+          var aCell = a.querySelectorAll('td')[colIdx];
+          var bCell = b.querySelectorAll('td')[colIdx];
+          var aVal  = aCell ? (aCell.dataset.sort !== undefined ? aCell.dataset.sort : aCell.textContent.trim()) : '';
+          var bVal  = bCell ? (bCell.dataset.sort !== undefined ? bCell.dataset.sort : bCell.textContent.trim()) : '';
+          var cmp   = 0;
+          if (dtype === 'num') {
+            var an = parseFloat(aVal), bn = parseFloat(bVal);
+            cmp = (isNaN(an) ? -Infinity : an) - (isNaN(bn) ? -Infinity : bn);
+          } else {
+            cmp = aVal.localeCompare(bVal);
+          }
+          return sortAsc ? cmp : -cmp;
+        });
+        rows.forEach(function(r) { tbody.appendChild(r); });
+      });
+    });
   }
 
-  setTimeout(function () {
-    document.querySelectorAll('[data-countup-int]').forEach(function (el) {
-      animateInt(el, parseInt(el.dataset.countupInt, 10));
+  /* ── Fullscreen chart buttons ────────────────────────────────── */
+  function addFullscreenBtns() {
+    var pd = window.parent.document;
+    pd.querySelectorAll('[data-testid="stPlotlyChart"]').forEach(function(el) {
+      if (el._fsDone) return;
+      el._fsDone = true;
+      var btn = pd.createElement('button');
+      btn.className = 'chart-fs-btn';
+      btn.title     = 'Fullscreen (click again to exit)';
+      btn.textContent = '⛶';
+      btn.addEventListener('click', function(e) {
+        e.stopPropagation();
+        if (el.classList.contains('chart-fullscreen')) {
+          el.classList.remove('chart-fullscreen');
+          pd.body.style.overflow = '';
+          btn.textContent = '⛶';
+        } else {
+          el.classList.add('chart-fullscreen');
+          pd.body.style.overflow = 'hidden';
+          btn.textContent = '✕';
+        }
+      });
+      el.appendChild(btn);
     });
-    document.querySelectorAll('[data-countup-float]').forEach(function (el) {
-      animateFloat(el,
-        parseFloat(el.dataset.countupFloat),
-        parseInt(el.dataset.countupDec || '2', 10),
-        el.dataset.countupPrefix || '');
-    });
-  }, 400);
+  }
+
+  setTimeout(initTableSort, 600);
+  setTimeout(initTableSort, 1500);
+  setTimeout(addFullscreenBtns, 800);
+  setTimeout(addFullscreenBtns, 2000);
+  setTimeout(addFullscreenBtns, 4000);
+
 })();
 </script>
 """
 
 
 # ── Chart builders ─────────────────────────────────────────────────────────────
-def chart_price(ticker):
+def _apply_date_range(df, date_from, date_to):
+    """Slice a datetime-indexed DataFrame to the given date range."""
+    if date_from is not None:
+        df = df[df.index >= pd.Timestamp(date_from)]
+    if date_to is not None:
+        df = df[df.index <= pd.Timestamp(date_to)]
+    return df
+
+
+def chart_price(ticker, date_from=None, date_to=None):
     df = load_prices(ticker)
+    if df.empty:
+        return None
+    df = _apply_date_range(df, date_from, date_to)
     if df.empty:
         return None
     fig = go.Figure()
@@ -733,11 +895,13 @@ def chart_price(ticker):
     return fig
 
 
-def chart_stocktwits(ticker):
+def chart_stocktwits(ticker, date_from=None, date_to=None):
     df = load_stocktwits(ticker)
     if df.empty or "bullish_count" not in df.columns:
         return None, True
-    df = df.copy()
+    df = _apply_date_range(df.copy(), date_from, date_to)
+    if df.empty:
+        return None, True
     total       = df["message_count"].replace(0, np.nan)
     df["bull%"] = (df["bullish_count"] / total * 100).fillna(0)
     df["bear%"] = (df["bearish_count"] / total * 100).fillna(0)
@@ -778,8 +942,11 @@ def chart_stocktwits(ticker):
     return fig, sparse
 
 
-def chart_trends(ticker):
+def chart_trends(ticker, date_from=None, date_to=None):
     df = load_trends(ticker)
+    if df.empty:
+        return None
+    df = _apply_date_range(df, date_from, date_to)
     if df.empty:
         return None
 
@@ -821,9 +988,12 @@ def chart_trends(ticker):
     return fig
 
 
-def chart_news(ticker):
+def chart_news(ticker, date_from=None, date_to=None):
     df = load_news(ticker)
     if df.empty or "avg_sentiment" not in df.columns:
+        return None, True
+    df = _apply_date_range(df, date_from, date_to)
+    if df.empty:
         return None, True
 
     sent = df["avg_sentiment"].dropna()
@@ -864,9 +1034,10 @@ def chart_news(ticker):
     return fig, sparse
 
 
-def chart_wikipedia(ticker):
+def chart_wikipedia(ticker, date_from=None, date_to=None):
     wiki_df  = load_wikipedia(ticker)
     price_df = load_prices(ticker)
+    wiki_df  = _apply_date_range(wiki_df, date_from, date_to)
     fig      = go.Figure()
 
     if wiki_df.empty or "page_views" not in wiki_df.columns:
@@ -904,12 +1075,12 @@ def chart_wikipedia(ticker):
     return fig
 
 
-def chart_overlay(ticker):
-    price_df  = load_prices(ticker)
-    trends_df = load_trends(ticker)
-    st_df     = load_stocktwits(ticker)
-    news_df   = load_news(ticker)
-    wiki_df   = load_wikipedia(ticker)
+def chart_overlay(ticker, date_from=None, date_to=None):
+    price_df  = _apply_date_range(load_prices(ticker),      date_from, date_to)
+    trends_df = _apply_date_range(load_trends(ticker),      date_from, date_to)
+    st_df     = _apply_date_range(load_stocktwits(ticker),  date_from, date_to)
+    news_df   = _apply_date_range(load_news(ticker),        date_from, date_to)
+    wiki_df   = _apply_date_range(load_wikipedia(ticker),   date_from, date_to)
     fig       = go.Figure()
 
     if not price_df.empty:
@@ -995,6 +1166,36 @@ def build_sparkline_svg(ticker, sig_color):
     )
 
 
+def build_table_sparkline(ticker, sig_color, days=30):
+    """Tiny 80×22px SVG sparkline for the summary table."""
+    df = load_prices(ticker)
+    if df.empty:
+        return '<span style="color:var(--border)">—</span>'
+    prices = df["close_price"].dropna().tail(days).values
+    if len(prices) < 2:
+        return '<span style="color:var(--border)">—</span>'
+    W, H, PAD = 80, 22, 2
+    mn, mx    = prices.min(), prices.max()
+    if mx == mn:
+        mid = H / 2
+        d   = f"M {PAD},{mid:.1f} L {W - PAD},{mid:.1f}"
+    else:
+        n    = len(prices)
+        step = (W - 2 * PAD) / (n - 1)
+        pts  = [
+            (PAD + i * step, PAD + (1 - (p - mn) / (mx - mn)) * (H - 2 * PAD))
+            for i, p in enumerate(prices)
+        ]
+        d = "M " + " L ".join(f"{x:.1f},{y:.1f}" for x, y in pts)
+    return (
+        f'<div class="tbl-spark">'
+        f'<svg viewBox="0 0 {W} {H}" aria-hidden="true">'
+        f'<path d="{d}" fill="none" stroke="{sig_color}" stroke-width="1.8" '
+        f'stroke-linejoin="round" stroke-linecap="round"/>'
+        f'</svg></div>'
+    )
+
+
 # ── Sparkline card grid ────────────────────────────────────────────────────────
 def _go_to_ticker(ticker):
     st.query_params["ticker"] = ticker
@@ -1038,6 +1239,9 @@ def show_sparkline_grid(rows):
 
 # ── Header ─────────────────────────────────────────────────────────────────────
 def show_header():
+    last_up     = get_last_updated()
+    last_up_str = format_et(last_up) if last_up else date.today().strftime("%Y-%m-%d")
+
     # Hamburger + overlay + header in ONE st.markdown so there is no Streamlit
     # flex-gap above the dark band — components.html runs after, not before.
     st.markdown(f"""
@@ -1046,6 +1250,12 @@ def show_header():
     </button>
     <div class="sidebar-overlay" id="sidebar-overlay"></div>
     <div class="rh">
+      <button class="theme-toggle" id="theme-toggle"
+              onclick="window.parent.toggleTheme && window.parent.toggleTheme()"
+              aria-label="Toggle dark/light mode">
+        <span class="theme-toggle-icon" id="theme-icon">◑</span>
+        <span id="theme-label">DARK</span>
+      </button>
       <div class="rh-eyebrow">Alternative Data Research</div>
       <div class="rh-title">Alt Data Signal Tracker</div>
       <div class="rh-body">
@@ -1060,6 +1270,10 @@ def show_header():
         &nbsp;&nbsp;·&nbsp;&nbsp;4 SIGNALS
         &nbsp;&nbsp;·&nbsp;&nbsp;PIPELINE ACTIVE · DAILY 06:30
         &nbsp;&nbsp;·&nbsp;&nbsp;SENTIMENT FROM 2026-06-22
+      </div>
+      <div class="rh-last-updated">
+        <span class="lu-dot"></span>
+        DATA LAST FETCHED: {last_up_str}
       </div>
     </div>
     """, unsafe_allow_html=True)
@@ -1157,6 +1371,30 @@ def show_header():
         }
       });
       _bind();
+
+      // ── Dark mode ────────────────────────────────────────────────────────
+      function _applyTheme(dark){
+        if(dark){
+          pd.documentElement.setAttribute('data-theme','dark');
+        } else {
+          pd.documentElement.removeAttribute('data-theme');
+        }
+        var icon  = pd.getElementById('theme-icon');
+        var label = pd.getElementById('theme-label');
+        if(icon)  icon.textContent  = dark ? '☀' : '◑';
+        if(label) label.textContent = dark ? 'LIGHT' : 'DARK';
+        window.parent.localStorage.setItem('altdata_theme', dark ? 'dark' : 'light');
+      }
+      window.parent.toggleTheme = function(){
+        var isDark = pd.documentElement.getAttribute('data-theme') === 'dark';
+        _applyTheme(!isDark);
+      };
+      // Restore saved preference on every page load
+      (function(){
+        var saved = window.parent.localStorage.getItem('altdata_theme') || 'light';
+        _applyTheme(saved === 'dark');
+      })();
+
     })();
     </script>""", height=0)
 
@@ -2072,9 +2310,57 @@ def show_summary():
     # Metric definitions
     show_glossary()
 
-    # Signal table
+    # ── Signal table with search, sector filter, and watchlist ───────────────
     st.markdown('<div class="sec-label">Market Intelligence Overview</div>', unsafe_allow_html=True)
-    st.markdown(build_table_html(display_rows), unsafe_allow_html=True)
+
+    # Search bar + sector filter controls
+    ctrl_left, ctrl_right = st.columns([2, 6])
+    with ctrl_left:
+        st.markdown('<div class="tbl-search-wrap">', unsafe_allow_html=True)
+        search_q = st.text_input(
+            "Search",
+            placeholder="Search ticker or company…",
+            label_visibility="collapsed",
+            key="summary_search",
+        )
+        st.markdown('</div>', unsafe_allow_html=True)
+    with ctrl_right:
+        all_sectors = ["All"] + list(SECTORS.keys())
+        st.markdown('<div class="sector-filter-wrap">', unsafe_allow_html=True)
+        sector_selected = st.radio(
+            "Sector filter",
+            all_sectors,
+            index=all_sectors.index(st.session_state.get("sector_filter", "All"))
+            if st.session_state.get("sector_filter", "All") in all_sectors else 0,
+            horizontal=True,
+            key="sector_radio",
+            label_visibility="collapsed",
+        )
+        st.session_state["sector_filter"] = sector_selected
+        st.markdown('</div>', unsafe_allow_html=True)
+
+    # Apply search filter
+    tbl_rows = display_rows
+    if search_q:
+        q = search_q.strip().lower()
+        tbl_rows = [r for r in tbl_rows if q in r["ticker"].lower() or q in r["company"].lower()]
+
+    # Apply sector filter
+    if sector_selected != "All":
+        sector_tickers = set(SECTORS.get(sector_selected, []))
+        tbl_rows = [r for r in tbl_rows if r["ticker"] in sector_tickers]
+
+    # Pin watchlisted tickers to top
+    watchlist = st.session_state.get("watchlist", set())
+    if watchlist:
+        starred   = [r for r in tbl_rows if r["ticker"] in watchlist]
+        unstarred = [r for r in tbl_rows if r["ticker"] not in watchlist]
+        tbl_rows  = starred + unstarred
+
+    if not tbl_rows:
+        st.info("No tickers match the current filter. Try a different search or sector.")
+    else:
+        st.markdown(build_table_html(tbl_rows, watchlist=watchlist), unsafe_allow_html=True)
 
     st.markdown(f"""
     <div class="signal-legend">
@@ -2113,6 +2399,25 @@ def show_detail(ticker):
         if new_ticker != ticker:
             st.query_params["ticker"] = new_ticker
             st.rerun()
+
+    # Date range selector
+    st.markdown('<div class="detail-date-wrap">', unsafe_allow_html=True)
+    dc_label, dc_from, dc_to, dc_reset = st.columns([1.2, 2, 2, 1])
+    with dc_label:
+        st.markdown('<span class="detail-date-label">Date range</span>', unsafe_allow_html=True)
+    default_from = date.today() - pd.Timedelta(days=90)
+    with dc_from:
+        date_from = st.date_input("From", value=default_from, key="detail_date_from",
+                                  label_visibility="collapsed")
+    with dc_to:
+        date_to = st.date_input("To", value=date.today(), key="detail_date_to",
+                                label_visibility="collapsed")
+    with dc_reset:
+        if st.button("Reset", key="detail_date_reset"):
+            st.session_state["detail_date_from"] = default_from
+            st.session_state["detail_date_to"]   = date.today()
+            st.rerun()
+    st.markdown('</div>', unsafe_allow_html=True)
 
     st.markdown("---")
 
@@ -2164,10 +2469,17 @@ def show_detail(ticker):
 
     st.markdown("---")
 
+    _chart_cfg = {
+        "displayModeBar": True,
+        "modeBarButtonsToRemove": ["lasso2d", "select2d", "toImage"],
+        "displaylogo": False,
+        "responsive": True,
+    }
+
     # All signals overlaid — first
     st.markdown('<div class="sec-label">All Signals Overlaid (Normalized 0–100)</div>', unsafe_allow_html=True)
-    fig5 = chart_overlay(ticker)
-    st.plotly_chart(fig5, use_container_width=True, config={"displayModeBar": False, "responsive": True})
+    fig5 = chart_overlay(ticker, date_from=date_from, date_to=date_to)
+    st.plotly_chart(fig5, use_container_width=True, config=_chart_cfg)
     note(
         "All four signals normalized to 0–100 and plotted together to reveal lead/lag relationships. "
         "As data accumulates, this chart will show whether sentiment peaks tend to precede or follow "
@@ -2175,9 +2487,9 @@ def show_detail(ticker):
     )
 
     st.markdown('<div class="sec-label">Price History</div>', unsafe_allow_html=True)
-    fig1 = chart_price(ticker)
+    fig1 = chart_price(ticker, date_from=date_from, date_to=date_to)
     if fig1:
-        st.plotly_chart(fig1, use_container_width=True, config={"displayModeBar": False, "responsive": True})
+        st.plotly_chart(fig1, use_container_width=True, config=_chart_cfg)
     else:
         st.info("No price data available.")
     note(
@@ -2187,10 +2499,10 @@ def show_detail(ticker):
     )
 
     st.markdown('<div class="sec-label">StockTwits Community Sentiment</div>', unsafe_allow_html=True)
-    result2 = chart_stocktwits(ticker)
+    result2 = chart_stocktwits(ticker, date_from=date_from, date_to=date_to)
     if result2[0] is not None:
         fig2, sparse2 = result2
-        st.plotly_chart(fig2, use_container_width=True, config={"displayModeBar": False, "responsive": True})
+        st.plotly_chart(fig2, use_container_width=True, config=_chart_cfg)
     else:
         sparse2 = True
         st.info("No StockTwits data yet.")
@@ -2204,9 +2516,9 @@ def show_detail(ticker):
     )
 
     st.markdown('<div class="sec-label">Google Trends Search Interest</div>', unsafe_allow_html=True)
-    fig3 = chart_trends(ticker)
+    fig3 = chart_trends(ticker, date_from=date_from, date_to=date_to)
     if fig3:
-        st.plotly_chart(fig3, use_container_width=True, config={"displayModeBar": False, "responsive": True})
+        st.plotly_chart(fig3, use_container_width=True, config=_chart_cfg)
     else:
         st.info("No Google Trends data available.")
     note(
@@ -2216,9 +2528,9 @@ def show_detail(ticker):
     )
 
     st.markdown('<div class="sec-label">Wikipedia Page Views</div>', unsafe_allow_html=True)
-    fig_wiki = chart_wikipedia(ticker)
+    fig_wiki = chart_wikipedia(ticker, date_from=date_from, date_to=date_to)
     if fig_wiki is not None:
-        st.plotly_chart(fig_wiki, use_container_width=True, config={"displayModeBar": False, "responsive": True})
+        st.plotly_chart(fig_wiki, use_container_width=True, config=_chart_cfg)
         note(
             "Daily Wikipedia page-view counts (log-scaled, normalized 0–100) alongside normalized price (dotted). "
             "High page-view spikes reflect sudden public attention — news events, earnings surprises, viral moments. "
@@ -2233,10 +2545,10 @@ def show_detail(ticker):
             st.info("Wikipedia page-view data not yet collected. Run the pipeline to fetch it.")
 
     st.markdown('<div class="sec-label">News Headline Sentiment</div>', unsafe_allow_html=True)
-    result4 = chart_news(ticker)
+    result4 = chart_news(ticker, date_from=date_from, date_to=date_to)
     if result4[0] is not None:
         fig4, sparse4 = result4
-        st.plotly_chart(fig4, use_container_width=True, config={"displayModeBar": False, "responsive": True})
+        st.plotly_chart(fig4, use_container_width=True, config=_chart_cfg)
     else:
         sparse4 = True
         st.info("No news data yet.")
@@ -3208,6 +3520,19 @@ def show_predictions():
 # ── Routing ────────────────────────────────────────────────────────────────────
 def has_any_data():
     return DATA_DIR.exists() and any(DATA_DIR.glob("prices_*.csv"))
+
+# Handle watchlist star toggle via ?star=TICKER
+_star_param = st.query_params.get("star", None)
+if _star_param:
+    _wl = load_watchlist()
+    if _star_param in _wl:
+        _wl.remove(_star_param)
+    else:
+        _wl.add(_star_param)
+    save_watchlist(_wl)
+    st.session_state["watchlist"] = _wl
+    st.query_params.clear()
+    st.rerun()
 
 _ticker_param = st.query_params.get("ticker", None)
 _page_param   = st.query_params.get("page", None)

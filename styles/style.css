@@ -1446,3 +1446,341 @@ section[data-testid="stSidebar"] hr {
   border-radius: 6px;
 }
 .sb-about-btn a:hover { color: var(--accent); border-color: var(--accent); }
+
+/* ── Dark Mode (Bloomberg aesthetic) ─────────────────────────────────────── */
+html[data-theme="dark"] {
+  --bg:          #0a0c10;
+  --surface:     #111318;
+  --surface2:    #1a1e26;
+  --border:      #2a2e38;
+  --text:        #e2e8f0;
+  --muted:       #8892a4;
+  --accent:      #f0a32a;
+  --dark-header: #050810;
+  --green:       #22c55e;
+  --red:         #ef4444;
+  --row-hover:   #1a1e26;
+  --c1:          #f0a32a;
+  --c4:          #a09070;
+}
+html[data-theme="dark"] .stApp,
+html[data-theme="dark"] [data-testid="stAppViewContainer"],
+html[data-theme="dark"] [data-testid="stMain"],
+html[data-theme="dark"] [data-testid="stMainBlockContainer"],
+html[data-theme="dark"] .stIFrame,
+html[data-theme="dark"] iframe {
+  background-color: #0a0c10 !important;
+}
+html[data-theme="dark"] .block-container {
+  background-color: #0a0c10 !important;
+}
+html[data-theme="dark"] .stButton > button {
+  background: #1a1e26 !important;
+  border-color: #2a2e38 !important;
+  color: #e2e8f0 !important;
+}
+html[data-theme="dark"] .stButton > button:hover {
+  background: #111318 !important;
+  border-color: #f0a32a !important;
+}
+html[data-theme="dark"] [data-testid="stExpander"] {
+  background: #111318 !important;
+  border-color: #2a2e38 !important;
+}
+html[data-theme="dark"] [data-testid="stExpander"] summary {
+  background: #111318 !important;
+  color: #8892a4 !important;
+}
+html[data-theme="dark"] [data-testid="stExpanderDetails"] {
+  background: #111318 !important;
+}
+html[data-theme="dark"] [data-testid="stAlert"],
+html[data-theme="dark"] div[data-baseweb="notification"] {
+  background: #111318 !important;
+  border-color: #2a2e38 !important;
+  color: #8892a4 !important;
+}
+html[data-theme="dark"] [data-baseweb="popover"] [data-baseweb="menu"] {
+  background: #111318 !important;
+  border-color: #2a2e38 !important;
+}
+html[data-theme="dark"] [data-baseweb="popover"] [role="option"] {
+  color: #e2e8f0 !important;
+  background: transparent !important;
+}
+html[data-theme="dark"] [data-baseweb="popover"] [role="option"]:hover,
+html[data-theme="dark"] [data-baseweb="popover"] [aria-selected="true"] {
+  background: #1a1e26 !important;
+}
+html[data-theme="dark"] [data-testid="metric-container"] {
+  border-top-color: #2a2e38 !important;
+}
+html[data-theme="dark"] [data-testid="stMetricValue"] > div {
+  color: #e2e8f0 !important;
+}
+html[data-theme="dark"] hr {
+  border-top-color: #2a2e38 !important;
+}
+
+/* Sidebar stays dark regardless of theme */
+section[data-testid="stSidebar"] {
+  background: #1C160E !important;
+}
+
+/* ── Dark Mode Toggle Button ─────────────────────────────────────────────── */
+.rh { position: relative; }
+.theme-toggle {
+  position: absolute;
+  top: 1rem;
+  right: 1.4rem;
+  background: rgba(255,255,255,0.08);
+  border: 1px solid rgba(255,255,255,0.18);
+  border-radius: 20px;
+  padding: 5px 12px 5px 9px;
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  font-family: 'Inter', sans-serif;
+  font-size: 0.62rem;
+  font-weight: 600;
+  color: rgba(250,246,239,0.72);
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  transition: background 150ms, border-color 150ms, color 150ms;
+  line-height: 1;
+}
+.theme-toggle:hover {
+  background: rgba(255,255,255,0.14);
+  border-color: rgba(255,255,255,0.32);
+  color: rgba(250,246,239,0.95);
+}
+.theme-toggle-icon { font-size: 0.88rem; line-height: 1; }
+
+/* ── Live Last-Updated in header ─────────────────────────────────────────── */
+.rh-last-updated {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 0.6rem;
+  color: rgba(250,246,239,0.38);
+  margin-top: 0.35rem;
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  letter-spacing: 0.04em;
+}
+.lu-dot {
+  display: inline-block;
+  width: 5px;
+  height: 5px;
+  border-radius: 50%;
+  background: #22c55e;
+  flex-shrink: 0;
+  animation: pulse 2s ease-in-out infinite;
+}
+
+/* ── Sector filter bar ────────────────────────────────────────────────────── */
+.sector-filter-wrap {
+  margin: 1rem 0 0.6rem;
+}
+.sector-filter-wrap [data-testid="stRadio"] {
+  margin: 0 !important;
+  padding: 0 !important;
+}
+.sector-filter-wrap [data-testid="stRadio"] > div[role="radiogroup"] {
+  display: flex !important;
+  flex-wrap: wrap !important;
+  gap: 4px !important;
+  align-items: center !important;
+}
+/* Hide the radio dot */
+.sector-filter-wrap [data-baseweb="radio"] > div:first-child {
+  display: none !important;
+}
+/* Style label as a tab chip */
+.sector-filter-wrap [data-baseweb="radio"] label {
+  background: var(--surface) !important;
+  border: 1px solid var(--border) !important;
+  border-radius: 2px !important;
+  padding: 4px 10px !important;
+  font-size: 0.62rem !important;
+  font-weight: 600 !important;
+  text-transform: uppercase !important;
+  letter-spacing: 0.06em !important;
+  color: var(--muted) !important;
+  cursor: pointer !important;
+  transition: all 120ms !important;
+  white-space: nowrap !important;
+  margin: 0 !important;
+}
+.sector-filter-wrap [data-baseweb="radio"] label:hover {
+  border-color: var(--accent) !important;
+  color: var(--accent) !important;
+}
+.sector-filter-wrap [data-baseweb="radio"][data-checked="true"] label,
+.sector-filter-wrap [aria-checked="true"] label {
+  background: var(--dark-header) !important;
+  border-color: var(--accent) !important;
+  color: var(--accent) !important;
+}
+
+/* ── Table search bar ─────────────────────────────────────────────────────── */
+.tbl-ctrl-row {
+  display: flex;
+  align-items: flex-end;
+  gap: 12px;
+  margin-bottom: 0.8rem;
+  flex-wrap: wrap;
+}
+.tbl-search-wrap {
+  flex: 0 0 220px;
+}
+.tbl-search-wrap [data-testid="stTextInput"] > div {
+  background: var(--surface) !important;
+  border-color: var(--border) !important;
+  border-radius: 2px !important;
+}
+.tbl-search-wrap [data-testid="stTextInput"] input {
+  font-family: 'Inter', sans-serif !important;
+  font-size: 0.82rem !important;
+  color: var(--text) !important;
+  background: transparent !important;
+}
+.tbl-search-wrap [data-testid="stTextInput"] input::placeholder {
+  color: var(--muted) !important;
+  font-style: italic !important;
+}
+
+/* ── Watchlist star in table ─────────────────────────────────────────────── */
+.star-btn {
+  display: inline-block;
+  font-size: 0.95rem;
+  text-decoration: none;
+  color: var(--border);
+  transition: color 120ms, transform 100ms;
+  line-height: 1;
+}
+.star-btn:hover { color: #f0a32a; transform: scale(1.25); text-decoration: none; }
+.star-btn.starred { color: #f0a32a; }
+
+/* ── Sortable table column headers ────────────────────────────────────────── */
+.data-tbl-th.sortable {
+  cursor: pointer;
+  user-select: none;
+}
+.data-tbl-th.sortable:hover { color: #f0a32a; }
+.sort-icon {
+  margin-left: 4px;
+  font-size: 0.55rem;
+  opacity: 0.45;
+  vertical-align: middle;
+  display: inline-block;
+}
+.data-tbl-th.sort-asc  .sort-icon { opacity: 1; }
+.data-tbl-th.sort-desc .sort-icon { opacity: 1; }
+
+/* ── Sparkline in summary table ───────────────────────────────────────────── */
+.tbl-spark { line-height: 0; }
+.tbl-spark svg {
+  width: 80px;
+  height: 22px;
+  display: block;
+  overflow: visible;
+}
+
+/* ── Fullscreen chart button overlay ─────────────────────────────────────── */
+[data-testid="stPlotlyChart"] { position: relative; }
+.chart-fs-btn {
+  position: absolute;
+  top: 6px;
+  right: 6px;
+  background: rgba(44,36,22,0.65);
+  border: 1px solid rgba(200,184,154,0.28);
+  color: rgba(250,246,239,0.85);
+  font-size: 0.78rem;
+  width: 26px;
+  height: 26px;
+  border-radius: 3px;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 20;
+  opacity: 0;
+  transition: opacity 150ms;
+  line-height: 1;
+  padding: 0;
+}
+[data-testid="stPlotlyChart"]:hover .chart-fs-btn,
+[data-testid="stPlotlyChart"]:focus-within .chart-fs-btn {
+  opacity: 1;
+}
+html[data-theme="dark"] .chart-fs-btn {
+  background: rgba(10,12,16,0.8);
+  border-color: rgba(42,46,56,0.8);
+}
+.chart-fullscreen {
+  position: fixed !important;
+  inset: 0 !important;
+  z-index: 2000 !important;
+  background: var(--bg) !important;
+  padding: 2rem !important;
+  overflow: auto !important;
+  display: flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+}
+.chart-fullscreen .chart-fs-btn {
+  opacity: 1;
+  top: 10px;
+  right: 10px;
+}
+
+/* ── Date range selector (detail view) ────────────────────────────────────── */
+.detail-date-wrap {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 2px;
+  padding: 10px 16px;
+  margin: 0.6rem 0 1rem;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  flex-wrap: wrap;
+}
+.detail-date-label {
+  font-family: 'Inter', sans-serif;
+  font-size: 0.62rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.09em;
+  color: var(--muted);
+  white-space: nowrap;
+}
+
+/* ── Watchlist pinned row highlight ──────────────────────────────────────── */
+.data-tbl tbody tr.watchlisted {
+  border-left: 3px solid #f0a32a;
+}
+
+/* ── Mobile additional improvements ───────────────────────────────────────── */
+@media (max-width: 768px) {
+  .theme-toggle {
+    top: 0.65rem;
+    right: 0.8rem;
+    font-size: 0;         /* hide label, keep icon */
+    padding: 5px 7px;
+    border-radius: 50%;
+    width: 28px;
+    height: 28px;
+    justify-content: center;
+  }
+  .theme-toggle-icon { font-size: 0.92rem; }
+  .sector-filter-wrap [data-baseweb="radio"] label {
+    font-size: 0.58rem !important;
+    padding: 3px 7px !important;
+  }
+  .tbl-ctrl-row { flex-direction: column; gap: 6px; }
+  .tbl-search-wrap { flex: 1 1 100%; }
+  .detail-date-wrap { flex-direction: column; align-items: flex-start; gap: 6px; }
+  .rh-last-updated { display: none; }
+}
