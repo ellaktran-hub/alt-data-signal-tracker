@@ -520,12 +520,11 @@ def build_market_chips_html(rows):
   <div class="chip">
     <div class="chip-label">Signal Distribution <span class="chip-tip"><button class="chip-info-btn" aria-label="About Signal Distribution">ⓘ</button><div class="chip-info-popup">{_sig_tip}</div></span></div>
     <div class="chip-dist">
-      <span class="dist-b" data-countup-int="{bullish}">{bullish}</span>
-      <span class="dist-sep"> Bullish · </span>
-      <span class="dist-r" data-countup-int="{bearish}">{bearish}</span>
-      <span class="dist-sep"> Bearish · </span>
-      <span class="dist-n" data-countup-int="{neutral}">{neutral}</span>
-      <span class="dist-sep"> Neutral</span>
+      <span class="dist-item"><span class="dist-b" data-countup-int="{bullish}">{bullish}</span> Bullish</span>
+      <span class="dist-dot">·</span>
+      <span class="dist-item"><span class="dist-r" data-countup-int="{bearish}">{bearish}</span> Bearish</span>
+      <span class="dist-dot">·</span>
+      <span class="dist-item"><span class="dist-n" data-countup-int="{neutral}">{neutral}</span> Neutral</span>
     </div>
   </div>
   <div class="chip">
@@ -882,25 +881,57 @@ def build_animations_js():
     });
   })();
 
-  /* ── Chip info toggles (click for mobile, hover via CSS for desktop) ─── */
+  /* ── Chip info toggles — JS-positioned (fixed) for mobile + desktop ─── */
   function initChipInfo() {
     var pd = window.parent.document;
+
+    function closeAll() {
+      pd.querySelectorAll('.chip-tip.open').forEach(function(t) { t.classList.remove('open'); });
+    }
+
+    function openTip(btn) {
+      var tip = btn.closest('.chip-tip');
+      if (!tip) return;
+      var popup = tip.querySelector('.chip-info-popup');
+      if (!popup) return;
+      closeAll();
+      // Position as fixed so it escapes any overflow/stacking-context parent
+      var rect = btn.getBoundingClientRect();
+      var pw = window.parent.innerWidth || 320;
+      var left = Math.max(8, rect.left - 10);
+      if (left + 270 > pw) left = Math.max(8, pw - 278);
+      popup.style.top  = (rect.bottom + 8) + 'px';
+      popup.style.left = left + 'px';
+      tip.classList.add('open');
+    }
+
     pd.querySelectorAll('.chip-info-btn').forEach(function(btn) {
       if (btn._ci) return; btn._ci = true;
+
       btn.addEventListener('click', function(e) {
-        e.stopPropagation();
+        e.preventDefault(); e.stopPropagation();
         var tip = btn.closest('.chip-tip');
-        if (!tip) return;
-        var open = tip.classList.contains('open');
-        pd.querySelectorAll('.chip-tip.open').forEach(function(t){ t.classList.remove('open'); });
-        if (!open) tip.classList.add('open');
+        var isOpen = tip && tip.classList.contains('open');
+        closeAll();
+        if (!isOpen) openTip(btn);
       });
+
+      // Desktop hover via JS (popup is fixed so CSS hover positioning won't work)
+      btn.addEventListener('mouseenter', function() { openTip(btn); });
+      var tip = btn.closest('.chip-tip');
+      if (tip) {
+        tip.addEventListener('mouseleave', function() { closeAll(); });
+      }
     });
+
     if (!pd._chipClose) {
       pd._chipClose = true;
-      pd.addEventListener('click', function() {
-        pd.querySelectorAll('.chip-tip.open').forEach(function(t){ t.classList.remove('open'); });
+      pd.addEventListener('click', function(e) {
+        if (!e.target.closest('.chip-tip')) closeAll();
       });
+      pd.addEventListener('touchend', function(e) {
+        if (!e.target.closest('.chip-tip')) closeAll();
+      }, {passive: true});
     }
   }
 
@@ -926,27 +957,23 @@ def build_animations_js():
   /* ── Zoom-reset text: reposition to bottom + match site style ───────── */
   function initZoomText() {
     var pd = window.parent.document;
-    function _attach(chart) {
-      if (chart._zto) return; chart._zto = true;
-      new MutationObserver(function() {
-        chart.querySelectorAll('g.zoomlayer text, g.drag text').forEach(function(t) {
-          if (t._zs) return; t._zs = true;
-          t.setAttribute('fill', '#7A6A52');
-          t.style.fontFamily = 'JetBrains Mono, monospace';
-          t.style.fontSize   = '9px';
-          var svg = t.closest('svg');
-          if (svg) {
-            var h = parseFloat(svg.getAttribute('height') || svg.getBoundingClientRect().height || 200);
-            t.setAttribute('y', String(Math.max(h - 12, 20)));
-            t.setAttribute('text-anchor', 'middle');
-          }
-        });
-      }).observe(chart, {childList: true, subtree: true, attributes: true});
-    }
-    function _scan() {
-      pd.querySelectorAll('.js-plotly-plot').forEach(_attach);
-    }
-    _scan(); setTimeout(_scan, 1500); setTimeout(_scan, 4000);
+    setInterval(function() {
+      pd.querySelectorAll('.js-plotly-plot svg text').forEach(function(t) {
+        if (t._zs) return;
+        var txt = (t.textContent || '').toLowerCase();
+        if (txt.indexOf('double') === -1 && txt.indexOf('reset') === -1) return;
+        t._zs = true;
+        t.setAttribute('fill', '#7A6A52');
+        t.style.fontFamily = 'JetBrains Mono, monospace';
+        t.style.fontSize   = '9px';
+        var svg = t.closest('svg');
+        if (svg) {
+          var h = parseFloat(svg.getAttribute('height') || '200');
+          t.setAttribute('y', String(Math.max(h - 10, 20)));
+          t.setAttribute('text-anchor', 'middle');
+        }
+      });
+    }, 600);
   }
 
   setTimeout(initTableSort, 600);
@@ -1013,7 +1040,7 @@ def chart_stocktwits(ticker, date_from=None, date_to=None):
     if pn is not None:
         fig.add_trace(go.Scatter(
             x=pn.index, y=pn, mode="lines",
-            line=dict(color="#2C2416", width=1.5, dash="dot"),
+            line=dict(color="#2C2416", width=1.8, dash="dash"),
             name="Price (norm)", hovertemplate="%{y:.1f}<extra>Price (norm)</extra>",
         ))
     fig.add_trace(go.Scatter(
@@ -1053,7 +1080,7 @@ def chart_trends(ticker, date_from=None, date_to=None):
     if pn is not None:
         fig.add_trace(go.Scatter(
             x=pn.index, y=pn, mode="lines",
-            line=dict(color="#2C2416", width=1.5, dash="dot"),
+            line=dict(color="#2C2416", width=1.8, dash="dash"),
             name="Price (norm)", hovertemplate="%{y:.1f}<extra>Price (norm)</extra>",
         ))
     fig.add_trace(go.Scatter(
@@ -1108,7 +1135,7 @@ def chart_news(ticker, date_from=None, date_to=None):
     if pn is not None:
         fig.add_trace(go.Scatter(
             x=pn.index, y=pn, mode="lines",
-            line=dict(color="#2C2416", width=1.5, dash="dot"),
+            line=dict(color="#2C2416", width=1.8, dash="dash"),
             name="Price (norm)", hovertemplate="%{y:.1f}<extra>Price (norm)</extra>",
         ))
     fig.add_trace(go.Bar(
@@ -1158,7 +1185,7 @@ def chart_wikipedia(ticker, date_from=None, date_to=None):
             fig.add_trace(go.Scatter(
                 x=norm_0_100(p).index, y=norm_0_100(p),
                 mode="lines", name="Price (norm)",
-                line=dict(color=C3, width=1.5, dash="dot"),
+                line=dict(color=C3, width=1.8, dash="dash"),
                 hovertemplate="%{y:.1f}<extra>Price</extra>",
             ))
 
@@ -1180,34 +1207,26 @@ def chart_overlay(ticker, date_from=None, date_to=None):
     wiki_df   = _apply_date_range(load_wikipedia(ticker),   date_from, date_to)
     fig       = go.Figure()
 
-    if not price_df.empty:
-        p = price_df["close_price"].dropna()
-        if len(p) >= 2:
-            pn = norm_0_100(p)
-            fig.add_trace(go.Scatter(
-                x=pn.index, y=pn, mode="lines",
-                name="Price (norm)", line=dict(color=C3, width=1.5, dash="dot"),
-                hovertemplate="%{y:.1f}<extra>Price</extra>",
-            ))
+    # Signals first — price drawn last so it sits on top
     if not trends_df.empty:
         n = norm_0_100(trends_df["interest"])
         fig.add_trace(go.Scatter(
             x=n.index, y=n, mode="lines", name="Trends",
-            line=dict(color=C2, width=2.5),
+            line=dict(color=C2, width=2),
             hovertemplate="%{y:.1f}<extra>Trends</extra>",
         ))
     if not st_df.empty and "net_sentiment" in st_df.columns:
         n = norm_0_100(st_df["net_sentiment"])
         fig.add_trace(go.Scatter(
             x=n.index, y=n, mode="lines+markers", name="StockTwits",
-            line=dict(color=GREEN, width=2.5), marker=dict(size=6),
+            line=dict(color=GREEN, width=2), marker=dict(size=5),
             hovertemplate="%{y:.1f}<extra>StockTwits</extra>",
         ))
     if not news_df.empty and "avg_sentiment" in news_df.columns:
         n = norm_0_100(news_df["avg_sentiment"])
         fig.add_trace(go.Scatter(
             x=n.index, y=n, mode="lines+markers", name="News",
-            line=dict(color=C4, width=2.5), marker=dict(size=6),
+            line=dict(color=C4, width=2), marker=dict(size=5),
             hovertemplate="%{y:.1f}<extra>News Sent.</extra>",
         ))
     if not wiki_df.empty and "page_views" in wiki_df.columns:
@@ -1218,6 +1237,16 @@ def chart_overlay(ticker, date_from=None, date_to=None):
                 x=n.index, y=n, mode="lines", name="Wikipedia",
                 line=dict(color=C5, width=2, dash="dashdot"),
                 hovertemplate="%{y:.1f}<extra>Wikipedia Views</extra>",
+            ))
+    # Price LAST — most prominent, drawn on top of all signals
+    if not price_df.empty:
+        p = price_df["close_price"].dropna()
+        if len(p) >= 2:
+            pn = norm_0_100(p)
+            fig.add_trace(go.Scatter(
+                x=pn.index, y=pn, mode="lines",
+                name="Price (norm)", line=dict(color=C1, width=3),
+                hovertemplate="%{y:.1f}<extra>Price</extra>",
             ))
 
     layout = chart_layout(f"{ticker}  ·  All Signals Overlaid (normalized 0–100)", height=320)
@@ -2440,6 +2469,20 @@ def show_summary():
     ])
 
     with tab_fg:
+        _fg_tip = (
+            "Score 0–100 built from four signals across all tracked tickers: "
+            "Signal Breadth (% BULLISH), Price Momentum (% of tickers up today), "
+            "average News Sentiment, and Google Trends interest. "
+            "Extreme Fear < 25 · Fear 25–45 · Neutral 45–55 · Greed 55–75 · Extreme Greed > 75."
+        )
+        st.markdown(
+            f'<div class="sec-label">Market Fear &amp; Greed Index'
+            f'<span class="chip-tip sec-tip">'
+            f'<button class="chip-info-btn" aria-label="About Fear and Greed">ⓘ</button>'
+            f'<div class="chip-info-popup">{_fg_tip}</div>'
+            f'</span></div>',
+            unsafe_allow_html=True,
+        )
         fg_col_gauge, fg_col_comp = st.columns([1, 2])
         with fg_col_gauge:
             st.plotly_chart(
@@ -2559,6 +2602,17 @@ def show_summary():
 
 
 # ── Detail view ────────────────────────────────────────────────────────────────
+def _info_label(title, tip):
+    """Return a .sec-label div with an inline ⓘ info button."""
+    return (
+        f'<div class="sec-label">{title}'
+        f'<span class="chip-tip sec-tip">'
+        f'<button class="chip-info-btn" aria-label="About {title}">ⓘ</button>'
+        f'<div class="chip-info-popup">{tip}</div>'
+        f'</span></div>'
+    )
+
+
 def show_detail(ticker):
     rows           = build_summary()
     rows_by_ticker = {r["ticker"]: r for r in rows}
@@ -2657,7 +2711,11 @@ def show_detail(ticker):
     }
 
     # All signals overlaid — first
-    st.markdown('<div class="sec-label">All Signals Overlaid (Normalized 0–100)</div>', unsafe_allow_html=True)
+    st.markdown(_info_label(
+        "All Signals Overlaid (Normalized 0–100)",
+        "All four signals (StockTwits, Trends, Wikipedia, News) normalized to a 0–100 scale and "
+        "overlaid with price. Reveals which signals lead or lag price — the core question of this project."
+    ), unsafe_allow_html=True)
     fig5 = chart_overlay(ticker, date_from=date_from, date_to=date_to)
     st.plotly_chart(fig5, use_container_width=True, config=_chart_cfg)
     note(
@@ -2666,7 +2724,11 @@ def show_detail(ticker):
         "price movements — the core empirical question of this project."
     )
 
-    st.markdown('<div class="sec-label">Price History</div>', unsafe_allow_html=True)
+    st.markdown(_info_label(
+        "Price History",
+        "Daily closing price from Yahoo Finance. This is the baseline — all alt-data signals are "
+        "tested against future price moves to evaluate their predictive value."
+    ), unsafe_allow_html=True)
     fig1 = chart_price(ticker, date_from=date_from, date_to=date_to)
     if fig1:
         st.plotly_chart(fig1, use_container_width=True, config=_chart_cfg)
@@ -2678,7 +2740,11 @@ def show_detail(ticker):
         f"price moves to test predictive information."
     )
 
-    st.markdown('<div class="sec-label">StockTwits Community Sentiment</div>', unsafe_allow_html=True)
+    st.markdown(_info_label(
+        "StockTwits Community Sentiment",
+        "StockTwits users voluntarily tag posts as Bullish or Bearish — providing direct sentiment "
+        "labels. The chart shows % Bullish and % Bearish each day, both normalized to 0–100 alongside price."
+    ), unsafe_allow_html=True)
     result2 = chart_stocktwits(ticker, date_from=date_from, date_to=date_to)
     if result2[0] is not None:
         fig2, sparse2 = result2
@@ -2695,7 +2761,11 @@ def show_detail(ticker):
         "next-day abnormal returns for high-attention stocks."
     )
 
-    st.markdown('<div class="sec-label">Google Trends Search Interest</div>', unsafe_allow_html=True)
+    st.markdown(_info_label(
+        "Google Trends Search Interest",
+        "Relative search volume for this ticker on Google, scored 0–100. Rising retail search "
+        "attention can signal growing interest before it shows up in price."
+    ), unsafe_allow_html=True)
     fig3 = chart_trends(ticker, date_from=date_from, date_to=date_to)
     if fig3:
         st.plotly_chart(fig3, use_container_width=True, config=_chart_cfg)
@@ -2707,7 +2777,12 @@ def show_detail(ticker):
         "linked retail search attention to short-term price pressure in <em>In Search of Attention</em>."
     )
 
-    st.markdown('<div class="sec-label">Wikipedia Page Views</div>', unsafe_allow_html=True)
+    st.markdown(_info_label(
+        "Wikipedia Page Views",
+        "Daily Wikipedia article views, log-scaled and normalized to 0–100. Spikes reflect sudden "
+        "public attention — earnings surprises, news events. Research links Wikipedia views to "
+        "market moves up to 6 days ahead."
+    ), unsafe_allow_html=True)
     fig_wiki = chart_wikipedia(ticker, date_from=date_from, date_to=date_to)
     if fig_wiki is not None:
         st.plotly_chart(fig_wiki, use_container_width=True, config=_chart_cfg)
@@ -2724,7 +2799,11 @@ def show_detail(ticker):
         else:
             st.info("Wikipedia page-view data not yet collected. Run the pipeline to fetch it.")
 
-    st.markdown('<div class="sec-label">News Headline Sentiment</div>', unsafe_allow_html=True)
+    st.markdown(_info_label(
+        "News Headline Sentiment",
+        "VADER sentiment scores for Yahoo Finance headlines, normalized to 0–100. The neutral line "
+        "is at raw score 0. Bars above = net-positive news days; below = net-negative days."
+    ), unsafe_allow_html=True)
     result4 = chart_news(ticker, date_from=date_from, date_to=date_to)
     if result4[0] is not None:
         fig4, sparse4 = result4
