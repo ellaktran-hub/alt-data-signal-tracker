@@ -84,12 +84,17 @@ if __name__ == "__main__":
     log(f"========== Pipeline run started | tickers: {', '.join(config.TICKERS)} ==========")
 
     steps = [
-        ("Stock prices (Yahoo Finance)",    "fetch_price",       "fetch_price"),
-        ("Sentiment (StockTwits)",          "fetch_stocktwits",  "fetch_stocktwits"),
-        ("Search interest (Google Trends)", "fetch_trends",      "fetch_trends"),
-        ("News headlines (Yahoo Finance)",  "fetch_news",        "fetch_news"),
-        ("Wikipedia page views",            "fetch_wikipedia",   "fetch_wikipedia"),
-        ("Lead/lag correlations",           "correlations",      "compute_correlations"),
+        ("Stock prices + volume anomaly (Yahoo Finance)", "fetch_price",         "fetch_price"),
+        ("Sentiment (StockTwits)",                        "fetch_stocktwits",    "fetch_stocktwits"),
+        ("Search interest (Google Trends)",               "fetch_trends",        "fetch_trends"),
+        ("News headlines (Yahoo Finance)",                "fetch_news",          "fetch_news"),
+        ("Wikipedia page views",                          "fetch_wikipedia",     "fetch_wikipedia"),
+        ("Options put/call ratio (Yahoo Finance)",        "fetch_options",       "fetch_options"),
+        ("Short interest (Yahoo Finance)",                "fetch_shortinterest", "fetch_shortinterest"),
+        ("Insider transactions (SEC EDGAR Form 4)",       "fetch_insider",       "fetch_insider"),
+        ("Earnings calendar (Yahoo Finance)",             "fetch_earnings",      "fetch_earnings"),
+        ("Macro events (Fed + BLS)",                      "fetch_macro_events",  "fetch_macro_events"),
+        ("Lead/lag correlations",                         "correlations",        "compute_correlations"),
     ]
 
     results = {}
