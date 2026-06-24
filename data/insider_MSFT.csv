@@ -1,0 +1,14 @@
+filed_date,period_date,insider_name,title,transaction_code,transaction_type,shares,price_per_share,total_value
+2026-06-16,2026-06-15,Jolla Alice L.,Chief Accounting Officer,A,Award,5004.0,0.0,
+2026-06-15,2026-06-15,Coleman Amy,"EVP, Chief Human Resources Off",F,Tax withholding (sale),35.944,390.74,14044.76
+2026-06-12,2026-06-10,Numoto Takeshi,"EVP, Chief Marketing Officer",S,Sale,4500.0,402.84,1812780.0
+2026-06-10,2026-06-08,Numoto Takeshi,"EVP, Chief Marketing Officer",S,Sale,2500.0,412.45,1031125.0
+2026-06-09,2026-06-05,SCHARF CHARLES W,Director,A,Award,149.0,0.0,
+2026-06-09,2026-06-05,STANTON JOHN W,Director,A,Award,149.0,0.0,
+2026-06-09,2026-06-05,Di Sibio Carmine,Director,A,Award,15.0,0.0,
+2026-06-02,2026-06-01,Althoff Judson,CEO Microsoft Commercial,S,Sale,15500.0,460.988,7145314.0
+2026-06-01,2026-06-01,Jolla Alice L.,Chief Accounting Officer,F,Tax withholding (sale),412.578,450.24,185759.12
+2026-06-01,2026-06-01,Coleman Amy,"EVP, Chief Human Resources Off",F,Tax withholding (sale),433.827,450.24,195326.27
+2026-05-18,2026-05-14,Coleman Amy,"EVP, Chief Human Resources Off",S,Sale,1262.312,411.342,519241.94
+2026-05-18,2026-05-14,Coleman Amy,"EVP, Chief Human Resources Off",F,Tax withholding (sale),88.645,409.43,36293.92
+2026-04-15,2026-04-15,Coleman Amy,"EVP, Chief Human Resources Off",F,Tax withholding (sale),1363.733,393.11,536097.08

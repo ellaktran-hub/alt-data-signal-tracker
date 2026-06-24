@@ -1,0 +1,30 @@
+event_date,event_type,description,days_until
+2025-12-18,CPI Release,BLS CPI release for November 2025,-188
+2026-01-13,CPI Release,BLS CPI release for December 2025,-162
+2026-01-28,FOMC Meeting,Fed FOMC meeting decision day (January 2026),-147
+2026-02-13,CPI Release,BLS CPI release for January 2026,-131
+2026-03-11,CPI Release,BLS CPI release for February 2026,-105
+2026-03-18,FOMC Meeting,Fed FOMC meeting decision day (March 2026),-98
+2026-04-10,CPI Release,BLS CPI release for March 2026,-75
+2026-04-29,FOMC Meeting,Fed FOMC meeting decision day (April 2026),-56
+2026-05-12,CPI Release,BLS CPI release for April 2026,-43
+2026-06-10,CPI Release,BLS CPI release for May 2026,-14
+2026-06-17,FOMC Meeting,Fed FOMC meeting decision day (June 2026),-7
+2026-07-14,CPI Release,BLS CPI release for June 2026,20
+2026-07-29,FOMC Meeting,Fed FOMC meeting decision day (July 2026),35
+2026-08-12,CPI Release,BLS CPI release for July 2026,49
+2026-09-11,CPI Release,BLS CPI release for August 2026,79
+2026-09-16,FOMC Meeting,Fed FOMC meeting decision day (September 2026),84
+2026-10-14,CPI Release,BLS CPI release for September 2026,112
+2026-10-28,FOMC Meeting,Fed FOMC meeting decision day (October 2026),126
+2026-11-10,CPI Release,BLS CPI release for October 2026,139
+2026-12-09,FOMC Meeting,Fed FOMC meeting decision day (December 2026),168
+2026-12-10,CPI Release,BLS CPI release for November 2026,169
+2027-01-27,FOMC Meeting,Fed FOMC meeting decision day (January 2027),217
+2027-03-17,FOMC Meeting,Fed FOMC meeting decision day (March 2027),266
+2027-04-28,FOMC Meeting,Fed FOMC meeting decision day (April 2027),308
+2027-06-09,FOMC Meeting,Fed FOMC meeting decision day (June 2027),350
+2027-07-28,FOMC Meeting,Fed FOMC meeting decision day (July 2027),399
+2027-09-15,FOMC Meeting,Fed FOMC meeting decision day (September 2027),448
+2027-10-27,FOMC Meeting,Fed FOMC meeting decision day (October 2027),490
+2027-12-08,FOMC Meeting,Fed FOMC meeting decision day (December 2027),532

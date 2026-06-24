@@ -1,0 +1,43 @@
+filed_date,period_date,insider_name,title,transaction_code,transaction_type,shares,price_per_share,total_value
+2026-06-17,2026-06-16,Musk Elon,CEO,M,Option exercise,303960630.0,23.34,7094441104.2
+2026-06-17,2026-06-16,Musk Elon,CEO,F,Tax withholding (sale),17531857.0,404.66,7094441253.62
+2026-06-09,2026-06-05,Taneja Vaibhav,Chief Financial Officer,M,Option exercise,6538.0,0.0,
+2026-06-09,2026-06-05,Taneja Vaibhav,Chief Financial Officer,S,Sale,2605.5,402.197,1047924.28
+2026-05-15,2026-05-13,Taneja Vaibhav,Chief Financial Officer,M,Option exercise,1000.0,18.44,18440.0
+2026-05-15,2026-05-13,Taneja Vaibhav,Chief Financial Officer,M,Option exercise,2000.0,18.22,36440.0
+2026-05-15,2026-05-13,Taneja Vaibhav,Chief Financial Officer,S,Sale,3000.0,450.0,1350000.0
+2026-05-04,2026-04-30,Wilson-Thompson Kathleen,Director,S,Sale,1081.0,376.689,407200.81
+2026-05-04,2026-04-30,Wilson-Thompson Kathleen,Director,S,Sale,440.0,384.284,169084.96
+2026-05-04,2026-04-30,Wilson-Thompson Kathleen,Director,S,Sale,1240.0,383.612,475678.88
+2026-05-04,2026-04-30,Wilson-Thompson Kathleen,Director,S,Sale,6896.0,381.607,2631561.87
+2026-05-04,2026-04-30,Wilson-Thompson Kathleen,Director,S,Sale,1755.0,380.756,668226.78
+2026-05-04,2026-04-30,Wilson-Thompson Kathleen,Director,S,Sale,1760.0,379.427,667791.52
+2026-05-04,2026-04-30,Wilson-Thompson Kathleen,Director,S,Sale,3480.0,378.573,1317434.04
+2026-05-04,2026-04-30,Wilson-Thompson Kathleen,Director,S,Sale,3003.0,377.487,1133593.46
+2026-05-04,2026-04-30,Wilson-Thompson Kathleen,Director,S,Sale,680.0,382.414,260041.52
+2026-05-04,2026-04-30,Wilson-Thompson Kathleen,Director,S,Sale,280.0,375.149,105041.72
+2026-05-04,2026-04-30,Wilson-Thompson Kathleen,Director,S,Sale,520.0,374.402,194689.04
+2026-05-04,2026-04-30,Wilson-Thompson Kathleen,Director,S,Sale,619.0,372.819,230774.96
+2026-05-04,2026-04-30,Wilson-Thompson Kathleen,Director,S,Sale,1020.0,371.881,379318.62
+2026-05-04,2026-04-30,Wilson-Thompson Kathleen,Director,S,Sale,1275.0,370.929,472934.47
+2026-05-04,2026-04-30,Wilson-Thompson Kathleen,Director,S,Sale,1520.0,369.769,562048.88
+2026-05-04,2026-04-30,Wilson-Thompson Kathleen,Director,S,Sale,840.0,369.01,309968.4
+2026-05-04,2026-04-30,Wilson-Thompson Kathleen,Director,M,Option exercise,40948.0,14.99,613810.52
+2026-04-23,2026-04-21,Musk Elon,CEO,D,Return to issuer,96000000.0,0.0,
+2026-04-02,2026-03-31,Zhu Xiaotong,SVP,M,Option exercise,20000.0,20.57,411400.0
+2026-04-01,2026-03-30,Wilson-Thompson Kathleen,Director,S,Sale,120.0,365.897,43907.64
+2026-04-01,2026-03-30,Wilson-Thompson Kathleen,Director,S,Sale,560.0,364.888,204337.28
+2026-04-01,2026-03-30,Wilson-Thompson Kathleen,Director,S,Sale,3927.0,363.947,1429219.87
+2026-04-01,2026-03-30,Wilson-Thompson Kathleen,Director,S,Sale,1880.0,360.181,677140.28
+2026-04-01,2026-03-30,Wilson-Thompson Kathleen,Director,S,Sale,4001.0,363.083,1452695.08
+2026-04-01,2026-03-30,Wilson-Thompson Kathleen,Director,S,Sale,2320.0,362.142,840169.44
+2026-04-01,2026-03-30,Wilson-Thompson Kathleen,Director,S,Sale,1000.0,361.035,361035.0
+2026-04-01,2026-03-30,Wilson-Thompson Kathleen,Director,S,Sale,1800.0,354.802,638643.6
+2026-04-01,2026-03-30,Wilson-Thompson Kathleen,Director,S,Sale,520.0,358.77,186560.4
+2026-04-01,2026-03-30,Wilson-Thompson Kathleen,Director,S,Sale,1120.0,357.839,400779.68
+2026-04-01,2026-03-30,Wilson-Thompson Kathleen,Director,S,Sale,2360.0,356.794,842033.84
+2026-04-01,2026-03-30,Wilson-Thompson Kathleen,Director,S,Sale,2481.0,355.644,882352.76
+2026-04-01,2026-03-30,Wilson-Thompson Kathleen,Director,S,Sale,1640.0,353.658,579999.12
+2026-04-01,2026-03-30,Wilson-Thompson Kathleen,Director,S,Sale,2000.0,352.833,705666.0
+2026-04-01,2026-03-30,Wilson-Thompson Kathleen,Director,M,Option exercise,40000.0,14.99,599600.0
+2026-04-01,2026-03-30,Wilson-Thompson Kathleen,Director,S,Sale,80.0,366.855,29348.4

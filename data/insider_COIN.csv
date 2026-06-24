@@ -1,0 +1,60 @@
+filed_date,period_date,insider_name,title,transaction_code,transaction_type,shares,price_per_share,total_value
+2026-06-18,2026-06-16,Lutke Tobias,Director,M,Option exercise,1100.0,0.0,
+2026-06-18,2026-06-16,Ehrsam Frederick Ernest III,Director,M,Option exercise,1150.0,0.0,
+2026-06-18,2026-06-16,Rajaram Gokul,Director,M,Option exercise,1234.0,0.0,
+2026-06-18,2026-06-16,Kramer Kelly A.,Director,M,Option exercise,1268.0,0.0,
+2026-06-18,2026-06-16,Davies Christa,Director,M,Option exercise,1167.0,0.0,
+2026-06-18,2026-06-16,Davies Christa,Director,F,Tax withholding (sale),88.0,169.62,14926.56
+2026-06-18,2026-06-16,Andreessen Marc L,Director,M,Option exercise,1150.0,0.0,
+2026-06-18,2026-06-16,Clement Paul,Director,M,Option exercise,748.0,0.0,
+2026-06-18,2026-06-16,Clement Paul,Director,M,Option exercise,1167.0,0.0,
+2026-06-18,2026-06-16,Lehane Chris,Director,M,Option exercise,1100.0,0.0,
+2026-06-09,2026-06-05,Jones Jennifer N.,Chief Accounting Officer,S,Sale,2051.0,158.15,324365.65
+2026-06-03,2026-06-01,WILSON FREDERICK R,Director,S,Sale,2309.0,182.22,420745.98
+2026-06-03,2026-06-01,WILSON FREDERICK R,Director,S,Sale,200.0,186.17,37234.0
+2026-06-03,2026-06-01,WILSON FREDERICK R,Director,S,Sale,900.0,185.46,166914.0
+2026-06-03,2026-06-01,WILSON FREDERICK R,Director,S,Sale,1200.0,184.22,221064.0
+2026-06-03,2026-06-01,WILSON FREDERICK R,Director,S,Sale,500.0,183.05,91525.0
+2026-06-03,2026-06-01,WILSON FREDERICK R,Director,S,Sale,1491.0,181.17,270124.47
+2026-06-03,2026-06-01,WILSON FREDERICK R,Director,S,Sale,600.0,180.19,108114.0
+2026-06-03,2026-06-01,WILSON FREDERICK R,Director,S,Sale,1200.0,179.32,215184.0
+2026-06-03,2026-06-01,WILSON FREDERICK R,Director,S,Sale,1000.0,178.182,178182.0
+2026-06-03,2026-06-01,WILSON FREDERICK R,Director,S,Sale,600.0,177.1283,106276.98
+2026-05-29,2026-05-27,Grewal Paul,Chief Legal Officer,S,Sale,321.0,174.9887,56171.37
+2026-05-29,2026-05-27,Grewal Paul,Chief Legal Officer,S,Sale,589.0,175.7928,103541.96
+2026-05-29,2026-05-27,Grewal Paul,Chief Legal Officer,S,Sale,183.0,176.9335,32378.83
+2026-05-29,2026-05-27,Grewal Paul,Chief Legal Officer,S,Sale,454.0,177.7213,80685.47
+2026-05-29,2026-05-27,Grewal Paul,Chief Legal Officer,S,Sale,388.0,178.9089,69416.65
+2026-05-29,2026-05-27,Grewal Paul,Chief Legal Officer,S,Sale,25.0,179.5376,4488.44
+2026-05-27,2026-05-22,Brock Lawrence J,Chief People Officer,S,Sale,300.0,191.47,57441.0
+2026-05-27,2026-05-22,Brock Lawrence J,Chief People Officer,S,Sale,300.0,194.57,58371.0
+2026-05-27,2026-05-22,Brock Lawrence J,Chief People Officer,S,Sale,400.0,193.63,77452.0
+2026-05-27,2026-05-22,Brock Lawrence J,Chief People Officer,S,Sale,500.0,192.71,96355.0
+2026-05-27,2026-05-22,Brock Lawrence J,Chief People Officer,S,Sale,600.0,187.98,112788.0
+2026-05-27,2026-05-22,Brock Lawrence J,Chief People Officer,S,Sale,783.0,189.47,148355.01
+2026-05-27,2026-05-22,Brock Lawrence J,Chief People Officer,S,Sale,500.0,186.27,93135.0
+2026-05-27,2026-05-22,Brock Lawrence J,Chief People Officer,S,Sale,1033.0,185.16,191270.28
+2026-05-27,2026-05-22,Brock Lawrence J,Chief People Officer,S,Sale,2200.0,188.78,415316.0
+2026-05-22,2026-05-20,Choi Emilie,President & COO,F,Tax withholding (sale),13862.0,193.45,2681603.9
+2026-05-22,2026-05-20,HAAS ALESIA J,Chief Financial Officer,F,Tax withholding (sale),8339.0,193.45,1613179.55
+2026-05-22,2026-05-20,HAAS ALESIA J,Chief Financial Officer,M,Option exercise,6846.0,0.0,
+2026-05-22,2026-05-20,HAAS ALESIA J,Chief Financial Officer,M,Option exercise,4101.0,0.0,
+2026-05-22,2026-05-20,HAAS ALESIA J,Chief Financial Officer,M,Option exercise,5869.0,0.0,
+2026-05-22,2026-05-20,Grewal Paul,Chief Legal Officer,F,Tax withholding (sale),7712.0,193.45,1491886.4
+2026-05-22,2026-05-20,Grewal Paul,Chief Legal Officer,M,Option exercise,5071.0,0.0,
+2026-05-22,2026-05-20,Grewal Paul,Chief Legal Officer,M,Option exercise,3038.0,0.0,
+2026-05-22,2026-05-20,Grewal Paul,Chief Legal Officer,M,Option exercise,3038.0,0.0,
+2026-05-22,2026-05-20,Grewal Paul,Chief Legal Officer,M,Option exercise,4402.0,0.0,
+2026-05-22,2026-05-20,Choi Emilie,President & COO,M,Option exercise,6076.0,0.0,
+2026-05-22,2026-05-20,Choi Emilie,President & COO,M,Option exercise,10143.0,0.0,
+2026-05-22,2026-05-20,Choi Emilie,President & COO,M,Option exercise,11737.0,0.0,
+2026-05-22,2026-05-20,Brock Lawrence J,Chief People Officer,F,Tax withholding (sale),5084.0,193.45,983499.8
+2026-05-22,2026-05-20,Brock Lawrence J,Chief People Officer,M,Option exercise,4564.0,0.0,
+2026-05-22,2026-05-20,Brock Lawrence J,Chief People Officer,M,Option exercise,2734.0,0.0,
+2026-05-22,2026-05-20,Brock Lawrence J,Chief People Officer,M,Option exercise,4402.0,0.0,
+2026-05-22,2026-05-20,Jones Jennifer N.,Chief Accounting Officer,F,Tax withholding (sale),2513.0,193.45,486139.85
+2026-05-22,2026-05-20,Jones Jennifer N.,Chief Accounting Officer,M,Option exercise,2028.0,0.0,
+2026-05-22,2026-05-20,Jones Jennifer N.,Chief Accounting Officer,M,Option exercise,1216.0,0.0,
+2026-05-22,2026-05-20,Jones Jennifer N.,Chief Accounting Officer,M,Option exercise,1320.0,0.0,
+2026-05-19,2026-05-15,HAAS ALESIA J,Chief Financial Officer,S,Sale,9750.0,205.64,2004990.0
+2026-04-20,2026-04-16,HAAS ALESIA J,Chief Financial Officer,S,Sale,10020.0,200.0,2004000.0

@@ -1,0 +1,58 @@
+filed_date,period_date,insider_name,title,transaction_code,transaction_type,shares,price_per_share,total_value
+2026-06-03,2026-06-01,Herrington Douglas J,CEO Worldwide Amazon Stores,S,Sale,1000.0,266.19,266190.0
+2026-05-26,2026-05-21,Jassy Andrew R,President and CEO,M,Option exercise,50000.0,0.0,
+2026-05-26,2026-05-21,Herrington Douglas J,CEO Worldwide Amazon Stores,S,Sale,800.0,263.8538,211083.04
+2026-05-26,2026-05-21,Zapolsky David,Senior Vice President,M,Option exercise,9920.0,0.0,
+2026-05-26,2026-05-21,Zapolsky David,Senior Vice President,M,Option exercise,5530.0,0.0,
+2026-05-26,2026-05-21,Zapolsky David,Senior Vice President,S,Sale,1600.0,261.9554,419128.64
+2026-05-26,2026-05-21,Zapolsky David,Senior Vice President,S,Sale,1921.0,263.1658,505541.5
+2026-05-26,2026-05-21,Zapolsky David,Senior Vice President,S,Sale,1644.0,264.1187,434211.14
+2026-05-26,2026-05-21,Zapolsky David,Senior Vice President,S,Sale,1014.0,265.12,268831.68
+2026-05-26,2026-05-21,Zapolsky David,Senior Vice President,S,Sale,9270.0,268.53,2489273.1
+2026-05-26,2026-05-21,Herrington Douglas J,CEO Worldwide Amazon Stores,S,Sale,4200.0,261.8781,1099888.02
+2026-05-26,2026-05-21,Olsavsky Brian T,Senior Vice President and CFO,M,Option exercise,9920.0,0.0,
+2026-05-26,2026-05-21,Olsavsky Brian T,Senior Vice President and CFO,M,Option exercise,5530.0,0.0,
+2026-05-26,2026-05-21,Reynolds Shelley,Vice President,M,Option exercise,1820.0,0.0,
+2026-05-26,2026-05-21,Reynolds Shelley,Vice President,M,Option exercise,543.0,0.0,
+2026-05-26,2026-05-21,Reynolds Shelley,Vice President,S,Sale,1600.0,261.8269,418923.04
+2026-05-26,2026-05-21,Reynolds Shelley,Vice President,S,Sale,463.0,263.2466,121883.18
+2026-05-26,2026-05-21,Reynolds Shelley,Vice President,S,Sale,300.0,263.99,79197.0
+2026-05-26,2026-05-21,Herrington Douglas J,CEO Worldwide Amazon Stores,S,Sale,1370.0,263.1154,360468.1
+2026-05-26,2026-05-21,Zapolsky David,Senior Vice President,S,Sale,1.0,265.72,265.72
+2026-05-26,2026-05-21,Herrington Douglas J,CEO Worldwide Amazon Stores,M,Option exercise,5565.0,0.0,
+2026-05-26,2026-05-21,Garman Matthew S,CEO Amazon Web Services,M,Option exercise,4000.0,0.0,
+2026-05-26,2026-05-21,Herrington Douglas J,CEO Worldwide Amazon Stores,M,Option exercise,2860.0,0.0,
+2026-05-26,2026-05-21,Jassy Andrew R,President and CEO,S,Sale,5206.0,261.9528,1363726.28
+2026-05-26,2026-05-21,Jassy Andrew R,President and CEO,S,Sale,5227.0,263.1028,1375238.34
+2026-05-26,2026-05-21,Jassy Andrew R,President and CEO,S,Sale,5667.0,263.9465,1495784.82
+2026-05-26,2026-05-21,Jassy Andrew R,President and CEO,S,Sale,3600.0,264.9745,953908.2
+2026-05-26,2026-05-21,Jassy Andrew R,President and CEO,S,Sale,300.0,265.6148,79684.44
+2026-05-26,2026-05-21,Garman Matthew S,CEO Amazon Web Services,M,Option exercise,1500.0,0.0,
+2026-05-26,2026-05-21,Garman Matthew S,CEO Amazon Web Services,M,Option exercise,4860.0,0.0,
+2026-05-26,2026-05-21,Garman Matthew S,CEO Amazon Web Services,M,Option exercise,7836.0,0.0,
+2026-05-26,2026-05-21,Garman Matthew S,CEO Amazon Web Services,S,Sale,4257.0,261.9279,1115027.07
+2026-05-26,2026-05-21,Garman Matthew S,CEO Amazon Web Services,S,Sale,4554.0,263.1801,1198522.18
+2026-05-26,2026-05-21,Garman Matthew S,CEO Amazon Web Services,S,Sale,3689.0,264.0309,974009.99
+2026-05-26,2026-05-21,Garman Matthew S,CEO Amazon Web Services,S,Sale,2534.0,264.9465,671374.43
+2026-05-26,2026-05-21,Garman Matthew S,CEO Amazon Web Services,S,Sale,433.0,265.6412,115022.64
+2026-05-26,2026-05-21,Herrington Douglas J,CEO Worldwide Amazon Stores,M,Option exercise,7500.0,0.0,
+2026-05-19,2026-05-15,Herrington Douglas J,CEO Worldwide Amazon Stores,S,Sale,1044.0,261.7441,273260.84
+2026-05-19,2026-05-15,NOOYI INDRA K,Director,M,Option exercise,1602.0,0.0,
+2026-05-19,2026-05-15,Ng Andrew Y.,Director,M,Option exercise,1984.0,0.0,
+2026-05-19,2026-05-15,Herrington Douglas J,CEO Worldwide Amazon Stores,S,Sale,600.0,263.5733,158143.98
+2026-05-19,2026-05-15,Herrington Douglas J,CEO Worldwide Amazon Stores,S,Sale,2098.0,262.725,551197.05
+2026-05-19,2026-05-15,Garman Matthew S,CEO Amazon Web Services,S,Sale,3389.0,261.7887,887201.9
+2026-05-19,2026-05-15,Herrington Douglas J,CEO Worldwide Amazon Stores,M,Option exercise,9353.0,0.0,
+2026-05-19,2026-05-15,Garman Matthew S,CEO Amazon Web Services,S,Sale,1935.0,263.5705,510008.92
+2026-05-19,2026-05-15,Garman Matthew S,CEO Amazon Web Services,S,Sale,6151.0,262.8454,1616762.06
+2026-05-19,2026-05-15,Garman Matthew S,CEO Amazon Web Services,M,Option exercise,13500.0,0.0,
+2026-05-06,2026-05-04,Jassy Andrew R,President and CEO,S,Sale,31352.0,275.0,8621800.0
+2026-05-05,2026-05-01,Herrington Douglas J,CEO Worldwide Amazon Stores,S,Sale,1000.0,265.65,265650.0
+2026-05-05,2026-05-01,Herrington Douglas J,CEO Worldwide Amazon Stores,S,Sale,27500.0,275.0,7562500.0
+2026-05-05,2026-05-01,BEZOS JEFFREY P,Executive Chair,G,Gift,1033597.0,0.0,
+2026-05-05,2026-05-01,BEZOS JEFFREY P,Executive Chair,G,Gift,220200.0,0.0,
+2026-05-04,2026-04-30,RUBINSTEIN JONATHAN,Director,S,Sale,3706.0,273.02,1011812.12
+2026-04-28,2026-04-24,RUBINSTEIN JONATHAN,Director,S,Sale,3849.0,260.0,1000740.0
+2026-04-21,2026-04-17,Jassy Andrew R,President and CEO,S,Sale,31000.0,255.0,7905000.0
+2026-04-16,2026-04-14,Herrington Douglas J,CEO Worldwide Amazon Stores,S,Sale,20500.0,245.0,5022500.0
+2026-04-03,2026-04-01,Herrington Douglas J,CEO Worldwide Amazon Stores,S,Sale,1000.0,210.5,210500.0

@@ -55,6 +55,13 @@ GME,google_trends,0,-0.2926,60
 GME,google_trends,1,0.0197,59
 GME,google_trends,2,-0.0016,58
 GME,google_trends,3,-0.1103,57
+AMC,wikipedia_views,-3,0.0663,57
+AMC,wikipedia_views,-2,0.0008,58
+AMC,wikipedia_views,-1,0.0075,59
+AMC,wikipedia_views,0,-0.0162,60
+AMC,wikipedia_views,1,-0.168,59
+AMC,wikipedia_views,2,-0.1029,58
+AMC,wikipedia_views,3,-0.0856,57
 AMC,google_trends,-3,0.1601,57
 AMC,google_trends,-2,-0.001,58
 AMC,google_trends,-1,-0.0325,59
