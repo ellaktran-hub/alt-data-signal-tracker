@@ -2656,9 +2656,10 @@ def show_predictions():
       <div class="about-hero-eyebrow">Live Research · Daily Updates</div>
       <div class="about-hero-title">Price Predictions</div>
       <div class="about-hero-sub">
-        Each day the model records a directional prediction (UP / DOWN / NEUTRAL) for
-        every ticker based on the composite alt-data signal. As days pass, the actual
-        price returns are filled in automatically and prediction accuracy is tracked.
+        Each day the model forecasts specific dollar prices at 1-day, 3-day, and 7-day
+        horizons for all 50 tickers, combining a linear price trend with the composite
+        alt-data signal score. As days pass, actual returns are filled in automatically
+        and prediction accuracy is tracked.
       </div>
     </div>
     """, unsafe_allow_html=True)
@@ -2672,9 +2673,112 @@ def show_predictions():
     today_preds = pred_df[pred_df["date"] == pred_df["date"].max()].copy()
     past_preds  = pred_df[pred_df["date"] < pred_df["date"].max()].copy()
 
-    # ── Section 1: Today's Forecast ───────────────────────────────────────────
+    # ── Forecast Chart ────────────────────────────────────────────────────────
+    has_price_cols = "pred_price_1d" in today_preds.columns
+
     st.markdown(
-        f'<div class="about-section-title" style="margin-top:1.5rem">'
+        '<div class="about-section-title" style="margin-top:1.5rem">Price Forecast Chart</div>',
+        unsafe_allow_html=True,
+    )
+
+    chart_tickers = sorted(today_preds["ticker"].tolist())
+    chart_default = chart_tickers.index("AAPL") if "AAPL" in chart_tickers else 0
+    sel_tkr_fc = st.selectbox(
+        "Select ticker", chart_tickers, index=chart_default, key="pred_chart_tkr"
+    )
+    sel_row_fc = today_preds[today_preds["ticker"] == sel_tkr_fc].iloc[0]
+
+    if has_price_cols and pd.notna(sel_row_fc.get("pred_price_1d")):
+        price_df_fc = load_prices(sel_tkr_fc)
+        if not price_df_fc.empty:
+            hist_s = price_df_fc["close_price"].dropna().sort_index().tail(21)
+            last_date     = hist_s.index[-1]
+            current_price_fc = float(hist_s.iloc[-1])
+            vol_fc        = float(sel_row_fc.get("vol") or 0.015)
+
+            pred_dates = [
+                last_date + pd.offsets.BDay(1),
+                last_date + pd.offsets.BDay(3),
+                last_date + pd.offsets.BDay(7),
+            ]
+            pred_prices_fc = [
+                float(sel_row_fc["pred_price_1d"]),
+                float(sel_row_fc["pred_price_3d"]),
+                float(sel_row_fc["pred_price_7d"]),
+            ]
+            pred_ci_fc = [
+                vol_fc * (n ** 0.5) * current_price_fc
+                for n in [1, 3, 7]
+            ]
+
+            sig_fc = sel_row_fc["signal"]
+            cone_color = C1 if sig_fc == "BULLISH" else (RED if sig_fc == "BEARISH" else C4)
+
+            upper_fc = [p + ci for p, ci in zip(pred_prices_fc, pred_ci_fc)]
+            lower_fc = [p - ci for p, ci in zip(pred_prices_fc, pred_ci_fc)]
+
+            fig_fc = go.Figure()
+            fig_fc.add_trace(go.Scatter(
+                x=hist_s.index.tolist(), y=hist_s.tolist(),
+                mode="lines", name="Price History",
+                line=dict(color=TEXT, width=2),
+                hovertemplate="%{x|%b %d}: $%{y:,.2f}<extra>History</extra>",
+            ))
+            # Confidence band (±1σ)
+            fig_fc.add_trace(go.Scatter(
+                x=pred_dates + pred_dates[::-1],
+                y=upper_fc + lower_fc[::-1],
+                fill="toself",
+                fillcolor="rgba(139,111,71,0.12)",
+                line=dict(color="rgba(0,0,0,0)"),
+                name="±1σ CI",
+                hoverinfo="skip",
+            ))
+            # Forecast line from today's price to predicted points
+            fig_fc.add_trace(go.Scatter(
+                x=[last_date] + pred_dates,
+                y=[current_price_fc] + pred_prices_fc,
+                mode="lines+markers",
+                name=f"Forecast ({sig_fc})",
+                line=dict(color=cone_color, width=2, dash="dot"),
+                marker=dict(color=cone_color, size=8, symbol="circle"),
+                hovertemplate="%{x|%b %d}: $%{y:,.2f}<extra>Forecast</extra>",
+            ))
+
+            layout_fc = chart_layout(
+                f"{sel_tkr_fc}  ·  21-Day Price History + 7-Day Forecast", height=320
+            )
+            fig_fc.update_layout(**layout_fc)
+            st.plotly_chart(fig_fc, use_container_width=True, config={"displayModeBar": False})
+
+            # Three forecast metrics under the chart
+            m1, m2, m3 = st.columns(3)
+            with m1:
+                ret1 = float(sel_row_fc["pred_ret_1d"])
+                st.metric("1-Day Forecast", f"${pred_prices_fc[0]:,.2f}",
+                          f"{ret1:+.2f}% vs today")
+            with m2:
+                ret3 = float(sel_row_fc["pred_ret_3d"])
+                st.metric("3-Day Forecast", f"${pred_prices_fc[1]:,.2f}",
+                          f"{ret3:+.2f}% vs today")
+            with m3:
+                ret7 = float(sel_row_fc["pred_ret_7d"])
+                st.metric("7-Day Forecast", f"${pred_prices_fc[2]:,.2f}",
+                          f"{ret7:+.2f}% vs today")
+
+            note(
+                f"Forecast uses a linear price trend over the last 21 days plus a signal adjustment "
+                f"(score × daily volatility × 0.25, decayed at longer horizons). "
+                f"Shaded band = ±1σ confidence interval (volatility × √days). "
+                f"This is a model estimate, not a guarantee."
+            )
+    else:
+        st.info("Price forecasts not yet computed — re-run the pipeline to add price predictions.")
+
+    # ── Section 1: Today's Forecast ───────────────────────────────────────────
+    st.markdown("---")
+    st.markdown(
+        f'<div class="about-section-title">'
         f'Today\'s Forecast — {today_str}</div>',
         unsafe_allow_html=True,
     )
@@ -2719,13 +2823,24 @@ def show_predictions():
             f'</div>'
         )
 
+    def _pred_price_cell(val, ret_val):
+        if not pd.notna(val):
+            return "—"
+        color = GREEN if (pd.notna(ret_val) and ret_val > 0) else (RED if (pd.notna(ret_val) and ret_val < 0) else TEXT)
+        ret_str = f" ({ret_val:+.1f}%)" if pd.notna(ret_val) else ""
+        return (
+            f'<span style="font-family:JetBrains Mono,monospace;color:{color}">'
+            f'${val:,.2f}{ret_str}</span>'
+        )
+
+    tbl_cols = ["TICKER", "COMPANY", "PRICE", "SCORE", "SIGNAL", "1d FORECAST", "3d FORECAST", "7d FORECAST", "TRENDS", "STOCKTWITS", "NEWS"]
     tbl = '<div class="data-tbl-wrap"><table class="data-tbl"><thead><tr>'
-    for col in ["TICKER", "COMPANY", "PRICE", "SCORE", "PREDICTION", "TRENDS", "STOCKTWITS", "NEWS SENT"]:
+    for col in tbl_cols:
         tbl += f'<th class="data-tbl-th">{col}</th>'
     tbl += '</tr></thead><tbody>'
 
     for i, r in today_preds.iterrows():
-        cls  = "even" if i % 2 == 0 else "odd"
+        cls    = "even" if i % 2 == 0 else "odd"
         ticker = r["ticker"]
         comp   = config.COMPANIES.get(ticker, ticker)
         price  = f"${r['price']:,.2f}" if pd.notna(r.get("price")) else "—"
@@ -2733,13 +2848,19 @@ def show_predictions():
         st_pct = f"{r['bullish_pct']:.0f}%" if pd.notna(r.get("bullish_pct")) else "—"
         news   = (f"{int(round(r['news_sent']*100)):+d}"
                   if pd.notna(r.get("news_sent")) else "—")
+        p1d = _pred_price_cell(r.get("pred_price_1d"), r.get("pred_ret_1d")) if has_price_cols else "—"
+        p3d = _pred_price_cell(r.get("pred_price_3d"), r.get("pred_ret_3d")) if has_price_cols else "—"
+        p7d = _pred_price_cell(r.get("pred_price_7d"), r.get("pred_ret_7d")) if has_price_cols else "—"
         tbl += (
             f'<tr class="{cls}">'
             f'<td class="data-tbl-td tkr">{ticker}</td>'
             f'<td class="data-tbl-td left">{comp}</td>'
-            f'<td class="data-tbl-td num">{price}</td>'
+            f'<td class="data-tbl-td num">${float(r["price"]):,.2f}</td>'
             f'<td class="data-tbl-td">{_score_bar(int(r["score"]))}</td>'
             f'<td class="data-tbl-td num">{_dir_badge(r["signal"])}</td>'
+            f'<td class="data-tbl-td num">{p1d}</td>'
+            f'<td class="data-tbl-td num">{p3d}</td>'
+            f'<td class="data-tbl-td num">{p7d}</td>'
             f'<td class="data-tbl-td num">{trends}</td>'
             f'<td class="data-tbl-td num">{st_pct}</td>'
             f'<td class="data-tbl-td num">{news}</td>'
@@ -2751,7 +2872,7 @@ def show_predictions():
     note(
         "Score ranges from −4 (all signals bearish) to +4 (all signals bullish). "
         "≥ +2 = UP · ≤ −2 = DOWN · −1 to +1 = NEUTRAL. "
-        "Score bar shows position on that scale. "
+        "Price forecasts show the model's predicted closing price at each horizon (% change from today). "
         "Actual returns will be filled in automatically each morning as prices come in."
     )
 
@@ -2900,17 +3021,20 @@ def show_predictions():
                 key="pred_ticker_filter",
             )
 
-        col_ret  = {"1 day": "actual_1d", "3 days": "actual_3d", "7 days": "actual_7d"}[horizon_view]
-        col_hit  = {"1 day": "hit_1d",    "3 days": "hit_3d",    "7 days": "hit_7d"}[horizon_view]
+        col_ret  = {"1 day": "actual_1d",   "3 days": "actual_3d",   "7 days": "actual_7d"}[horizon_view]
+        col_hit  = {"1 day": "hit_1d",      "3 days": "hit_3d",      "7 days": "hit_7d"}[horizon_view]
+        col_pred = {"1 day": "pred_price_1d","3 days": "pred_price_3d","7 days": "pred_price_7d"}[horizon_view]
 
         view = past_preds[past_preds["signal"].isin(sig_filter)].copy()
         if ticker_filter != "All":
             view = view[view["ticker"] == ticker_filter]
         view = view.sort_values("date", ascending=False)
 
+        has_hist_pred_col = col_pred in view.columns
+
         def _ret_cell(val):
             if pd.isna(val):
-                return '<span style="color:{MUTED}">—</span>'
+                return f'<span style="color:{MUTED}">—</span>'
             color = GREEN if val > 0 else RED
             arrow = "▲" if val > 0 else "▼"
             return f'<span style="color:{color};font-family:JetBrains Mono,monospace">{arrow} {abs(val):.2f}%</span>'
@@ -2920,8 +3044,27 @@ def show_predictions():
                 return "—"
             return f'<span style="color:{GREEN}">✓</span>' if val else f'<span style="color:{RED}">✗</span>'
 
+        def _pred_vs_actual_cell(pred_price, base_price, actual_ret):
+            if not has_hist_pred_col or not pd.notna(pred_price):
+                return "—"
+            # If actual is available, show predicted price + error
+            if pd.notna(actual_ret) and pd.notna(base_price):
+                actual_price = float(base_price) * (1 + float(actual_ret) / 100)
+                err_pct = (float(pred_price) - actual_price) / actual_price * 100
+                err_color = MUTED
+                return (
+                    f'<span style="font-family:JetBrains Mono,monospace">'
+                    f'${float(pred_price):,.2f} '
+                    f'<span style="color:{err_color};font-size:0.78rem">({err_pct:+.1f}% err)</span>'
+                    f'</span>'
+                )
+            return f'<span style="font-family:JetBrains Mono,monospace">${float(pred_price):,.2f}</span>'
+
+        hist_headers = ["DATE", "TICKER", "SIGNAL", "SCORE", "PRICE AT PRED",
+                        f"PREDICTED ({horizon_view.upper()})",
+                        f"ACTUAL ({horizon_view.upper()})", "CORRECT"]
         hist_tbl = '<div class="data-tbl-wrap"><table class="data-tbl"><thead><tr>'
-        for h in ["DATE", "TICKER", "SIGNAL", "SCORE", "PRICE AT PRED", f"ACTUAL ({horizon_view.upper()})", "CORRECT"]:
+        for h in hist_headers:
             hist_tbl += f'<th class="data-tbl-th">{h}</th>'
         hist_tbl += '</tr></thead><tbody>'
 
@@ -2938,6 +3081,7 @@ def show_predictions():
                 f'<td class="data-tbl-td num" style="font-family:JetBrains Mono,monospace">'
                 f'{int(r["score"]):+d}</td>'
                 f'<td class="data-tbl-td num">${float(r["price"]):,.2f}</td>'
+                f'<td class="data-tbl-td num">{_pred_vs_actual_cell(r.get(col_pred), r.get("price"), r.get(col_ret))}</td>'
                 f'<td class="data-tbl-td num">{_ret_cell(r.get(col_ret))}</td>'
                 f'<td class="data-tbl-td num">{_hit_cell(r.get(col_hit), sig)}</td>'
                 f'</tr>'
@@ -2947,8 +3091,8 @@ def show_predictions():
 
         note(
             "Returns are calculated from the closing price on the prediction date to the closing price "
-            f"{horizon_view} later. ✓ = prediction was correct direction. "
-            "NEUTRAL predictions have no directional bet so no ✓/✗."
+            f"{horizon_view} later. Predicted price is the model's forecast; error % shows how far off it was. "
+            "✓ = prediction was correct direction. NEUTRAL predictions have no ✓/✗."
         )
 
     # ── Section 4: Per-Ticker Track Record ────────────────────────────────────

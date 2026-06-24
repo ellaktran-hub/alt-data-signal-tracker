@@ -4,18 +4,26 @@ Records daily composite-signal predictions for all 50 tickers and fills
 in actual price returns as they become available.
 
 Columns in predictions.csv:
-  date          — date the prediction was made
+  date               — date the prediction was made
   ticker
-  signal        — BULLISH / BEARISH / NEUTRAL
-  score         — raw vote total (-4 to +4)
-  price         — closing price on prediction date
-  bullish_pct   — StockTwits bullish % (if available)
-  news_sent     — VADER avg sentiment (if available)
-  trends_score  — Google Trends score (if available)
-  actual_1d     — % price change 1 trading day later (filled in next run)
-  actual_3d     — % price change 3 trading days later
-  actual_7d     — % price change 7 trading days later
-  hit_1d        — True/False: BULLISH→actual>0, BEARISH→actual<0 (NaN for NEUTRAL)
+  signal             — BULLISH / BEARISH / NEUTRAL
+  score              — raw vote total (-4 to +4)
+  price              — closing price on prediction date
+  bullish_pct        — StockTwits bullish % (if available)
+  news_sent          — VADER avg sentiment (if available)
+  trends_score       — Google Trends score (if available)
+  vol                — daily volatility (std of daily returns, last 21 days)
+  trend_pct_per_day  — linear trend slope as % of price per day
+  pred_ret_1d        — predicted % return at 1 trading day
+  pred_ret_3d        — predicted % return at 3 trading days
+  pred_ret_7d        — predicted % return at 7 trading days
+  pred_price_1d      — predicted closing price in 1 trading day
+  pred_price_3d      — predicted closing price in 3 trading days
+  pred_price_7d      — predicted closing price in 7 trading days
+  actual_1d          — % price change 1 trading day later (filled in next run)
+  actual_3d          — % price change 3 trading days later
+  actual_7d          — % price change 7 trading days later
+  hit_1d             — True/False: BULLISH→actual>0, BEARISH→actual<0 (NaN for NEUTRAL)
   hit_3d
   hit_7d
 """
@@ -34,6 +42,9 @@ PRED_FILE = DATA_DIR / "predictions.csv"
 HORIZONS = [(1, "actual_1d", "hit_1d"),
             (3, "actual_3d", "hit_3d"),
             (7, "actual_7d", "hit_7d")]
+
+# Signal effect decays at longer horizons (1d=full, 3d=60%, 7d=30%)
+DECAY = {1: 1.0, 3: 0.6, 7: 0.3}
 
 
 # ── loaders ───────────────────────────────────────────────────────────────────
@@ -83,6 +94,37 @@ def _news_latest(ticker):
     return float(vs.iloc[-1]) if len(vs) > 0 else None
 
 
+# ── price prediction model ────────────────────────────────────────────────────
+def _compute_price_predictions(price_s, score):
+    """Linear trend + signal-adjusted price forecasts with 1σ CI metadata."""
+    if len(price_s) < 5:
+        return {}
+
+    current_price = float(price_s.iloc[-1])
+    recent = price_s.iloc[-21:] if len(price_s) >= 21 else price_s
+
+    # Daily volatility
+    daily_rets = recent.pct_change().dropna()
+    vol = float(daily_rets.std()) if len(daily_rets) >= 5 else 0.01
+
+    # Linear trend slope in $/day → convert to pct/day
+    x = np.arange(len(recent))
+    slope, _ = np.polyfit(x, recent.values, 1)
+    trend_pct_per_day = slope / current_price
+
+    result = {
+        "vol":               round(vol, 6),
+        "trend_pct_per_day": round(trend_pct_per_day, 6),
+    }
+    for days in [1, 3, 7]:
+        trend_ret  = trend_pct_per_day * days
+        signal_adj = score * vol * 0.25 * DECAY[days]
+        total_ret  = trend_ret + signal_adj
+        result[f"pred_ret_{days}d"]   = round(total_ret * 100, 4)
+        result[f"pred_price_{days}d"] = round(current_price * (1 + total_ret), 4)
+    return result
+
+
 # ── signal computation ────────────────────────────────────────────────────────
 def _compute_row(ticker, today_str):
     price_s = _price_series(ticker)
@@ -116,21 +158,31 @@ def _compute_row(ticker, today_str):
     score  = sum(votes)
     signal = "BULLISH" if score >= 2 else ("BEARISH" if score <= -2 else "NEUTRAL")
 
+    price_preds = _compute_price_predictions(price_s, score)
+
     return {
-        "date":         today_str,
-        "ticker":       ticker,
-        "signal":       signal,
-        "score":        score,
-        "price":        round(latest_price, 4),
-        "bullish_pct":  round(bull_pct, 1)    if bull_pct      is not None else None,
-        "news_sent":    round(news, 4)         if news          is not None else None,
-        "trends_score": round(trends_score, 1) if trends_score  is not None else None,
-        "actual_1d":    None,
-        "actual_3d":    None,
-        "actual_7d":    None,
-        "hit_1d":       None,
-        "hit_3d":       None,
-        "hit_7d":       None,
+        "date":              today_str,
+        "ticker":            ticker,
+        "signal":            signal,
+        "score":             score,
+        "price":             round(latest_price, 4),
+        "bullish_pct":       round(bull_pct, 1)    if bull_pct      is not None else None,
+        "news_sent":         round(news, 4)         if news          is not None else None,
+        "trends_score":      round(trends_score, 1) if trends_score  is not None else None,
+        "vol":               price_preds.get("vol"),
+        "trend_pct_per_day": price_preds.get("trend_pct_per_day"),
+        "pred_ret_1d":       price_preds.get("pred_ret_1d"),
+        "pred_ret_3d":       price_preds.get("pred_ret_3d"),
+        "pred_ret_7d":       price_preds.get("pred_ret_7d"),
+        "pred_price_1d":     price_preds.get("pred_price_1d"),
+        "pred_price_3d":     price_preds.get("pred_price_3d"),
+        "pred_price_7d":     price_preds.get("pred_price_7d"),
+        "actual_1d":         None,
+        "actual_3d":         None,
+        "actual_7d":         None,
+        "hit_1d":            None,
+        "hit_3d":            None,
+        "hit_7d":            None,
     }
 
 
@@ -180,8 +232,14 @@ def fetch_predictions(today_str=None):
     else:
         existing = pd.DataFrame()
 
-    # Add today's predictions if not already present
+    # Add today's predictions; regenerate if price forecast columns are missing
     already = (not existing.empty and (existing["date"] == today_str).any())
+    if already and ("pred_price_1d" not in existing.columns
+                    or existing.loc[existing["date"] == today_str, "pred_price_1d"].isna().all()):
+        print(f"  Backfilling price predictions for {today_str}…")
+        existing = existing[existing["date"] != today_str].copy()
+        already  = False
+
     new_rows = []
     if not already:
         print(f"  Generating predictions for {today_str}…")
