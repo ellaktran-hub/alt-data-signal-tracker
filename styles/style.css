@@ -1802,4 +1802,72 @@ html[data-theme="dark"] .chart-fs-btn {
   .tbl-search-wrap { flex: 1 1 100%; }
   .detail-date-wrap { flex-direction: column; align-items: flex-start; gap: 6px; }
   .rh-last-updated { display: none; }
+
+  /* Hide long status bar — eyebrow + title are enough on mobile */
+  .rh-status { display: none !important; }
+
+  /* Analysis tabs: horizontal scroll instead of overflow/wrap */
+  [data-testid="stTabs"] [role="tablist"] {
+    flex-wrap: nowrap !important;
+    overflow-x: auto !important;
+    -webkit-overflow-scrolling: touch !important;
+    scrollbar-width: none !important;
+    -ms-overflow-style: none !important;
+    padding-bottom: 2px !important;
+  }
+  [data-testid="stTabs"] [role="tablist"]::-webkit-scrollbar { display: none !important; }
+  [data-testid="stTabs"] button[role="tab"] {
+    white-space: nowrap !important;
+    flex-shrink: 0 !important;
+    font-size: 0.68rem !important;
+    padding: 6px 10px !important;
+    min-width: unset !important;
+  }
+
+  /* Sector filter chips: scroll horizontally instead of wrapping */
+  .sector-filter-wrap [data-testid="stRadio"] > div[role="radiogroup"] {
+    flex-wrap: nowrap !important;
+    overflow-x: auto !important;
+    -webkit-overflow-scrolling: touch !important;
+    scrollbar-width: none !important;
+    -ms-overflow-style: none !important;
+    padding-bottom: 4px !important;
+  }
+  .sector-filter-wrap [data-testid="stRadio"] > div[role="radiogroup"]::-webkit-scrollbar {
+    display: none !important;
+  }
+  .sector-filter-wrap [data-baseweb="radio"] { flex-shrink: 0 !important; }
+
+  /* About page signal table: horizontal scroll */
+  .about-signal-table {
+    display: block !important;
+    overflow-x: auto !important;
+    -webkit-overflow-scrolling: touch !important;
+  }
+}
+
+/* ── Extra-small screens (≤ 480px) ────────────────────────────────────────── */
+@media (max-width: 480px) {
+
+  /* Signal table: hide secondary columns so it fits without much scrolling.
+     Visible: ★(1) TICKER(2) PRICE(4) CHG%(5) SIGNAL(9) VIEW(11) */
+  .data-tbl th:nth-child(3), .data-tbl td:nth-child(3),   /* COMPANY   */
+  .data-tbl th:nth-child(6), .data-tbl td:nth-child(6),   /* BULLISH % */
+  .data-tbl th:nth-child(7), .data-tbl td:nth-child(7),   /* TRENDS    */
+  .data-tbl th:nth-child(8), .data-tbl td:nth-child(8),   /* NEWS SENT */
+  .data-tbl th:nth-child(10),.data-tbl td:nth-child(10) { /* 30D TREND */
+    display: none !important;
+  }
+  .data-tbl { min-width: 340px !important; }
+
+  /* Chip value: tighter on tiny screens */
+  .chip { padding: 10px 12px !important; }
+  .chip-value { font-size: 1.15rem !important; }
+  .chip-time  { font-size: 0.82rem !important; }
+
+  /* Metric value: slightly smaller */
+  [data-testid="stMetricValue"] > div { font-size: 1.45rem !important; }
+
+  /* About page hero: smaller title */
+  .about-hero-title { font-size: 1.5rem !important; }
 }
