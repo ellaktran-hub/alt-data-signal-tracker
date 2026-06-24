@@ -712,8 +712,7 @@ def build_table_html(rows, watchlist=None):
         body += (
             f'<tr class="{row_cls}" style="animation-delay:{delay_ms}ms">'
             f'<td class="data-tbl-td" style="text-align:center">'
-            f'<span class="{star_cls}" title="{star_title} {ticker}" role="button"'
-            f' onclick="window.location.href=\'?star={ticker}\'">{star_icon}</span>'
+            f'<span class="{star_cls}" data-star="{ticker}" title="{star_title} {ticker}" role="button">{star_icon}</span>'
             f'</td>'
             f'<td class="data-tbl-td tkr" data-sort="{ticker}">{ticker}</td>'
             f'<td class="data-tbl-td left" data-sort="{r["company"]}">{r["company"]}</td>'
@@ -854,6 +853,20 @@ def build_animations_js():
       el.appendChild(btn);
     });
   }
+
+  /* ── Star / watchlist clicks ─────────────────────────────────── */
+  (function initStars() {
+    var pd = window.parent.document;
+    if (pd._starListenerDone) return;
+    pd._starListenerDone = true;
+    pd.addEventListener('click', function(e) {
+      var star = e.target.closest('[data-star]');
+      if (!star) return;
+      e.preventDefault();
+      e.stopPropagation();
+      window.parent.location.href = '?star=' + encodeURIComponent(star.dataset.star);
+    });
+  })();
 
   setTimeout(initTableSort, 600);
   setTimeout(initTableSort, 1500);
