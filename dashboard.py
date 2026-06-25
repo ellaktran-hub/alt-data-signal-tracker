@@ -2744,8 +2744,6 @@ def show_summary():
         '</div>',
         unsafe_allow_html=True,
     )
-    show_glossary()
-
     # Search bar + sector filter controls
     ctrl_left, ctrl_right = st.columns([3, 2])
     with ctrl_left:
@@ -2803,6 +2801,8 @@ def show_summary():
       otherwise <span style="color:{MUTED};font-weight:600">NEUTRAL</span>
     </div>
     """, unsafe_allow_html=True)
+
+    show_glossary()
 
     st.markdown(build_animations_js(), unsafe_allow_html=True)
 
