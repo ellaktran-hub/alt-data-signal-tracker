@@ -809,24 +809,9 @@ section[data-testid="stSidebar"] > div {
   min-width: 0 !important;
   width: calc(100% - 260px) !important;
 }
+[data-testid="collapsedControl"],
 button[kind="header"] {
   display: none !important;
-}
-/* Reopen button — shown by Streamlit when sidebar is collapsed */
-[data-testid="collapsedControl"] {
-  position: fixed !important;
-  left: 0 !important;
-  top: 50vh !important;
-  transform: translateY(-50%) !important;
-  z-index: 1001 !important;
-  background: var(--dark-header) !important;
-  border: 1px solid rgba(200,184,154,0.25) !important;
-  border-left: none !important;
-  border-radius: 0 6px 6px 0 !important;
-  padding: 8px 5px !important;
-  color: rgba(183,156,116,0.8) !important;
-  font-size: 0.7rem !important;
-  cursor: pointer !important;
 }
 section[data-testid="stSidebar"] [data-testid="stVerticalBlock"] {
   gap: 0 !important;
@@ -1786,31 +1771,6 @@ html[data-theme="dark"] .chart-fs-btn {
   top: 10px;
   right: 10px;
 }
-
-/* ── Zoom reset button ────────────────────────────────────────────────────── */
-.zoom-reset-btn {
-  display: none;
-  text-align: right;
-  width: 100%;
-  margin: -2px 0 4px;
-  padding: 0;
-  background: transparent;
-  border: none;
-  color: rgba(139,111,71,0.5);
-  font-family: 'JetBrains Mono', monospace;
-  font-size: 0.62rem;
-  letter-spacing: 0.04em;
-  cursor: pointer;
-  transition: color 120ms;
-  line-height: 1.8;
-}
-.zoom-reset-btn:hover { color: rgba(139,111,71,0.9); }
-html[data-theme="dark"] .zoom-reset-btn       { color: rgba(183,156,116,0.45); }
-html[data-theme="dark"] .zoom-reset-btn:hover { color: rgba(183,156,116,0.85); }
-
-/* ── Plotly SVG transparent background (fixes sector heatmap gaps) ────────── */
-.js-plotly-plot .main-svg       { background: transparent !important; }
-.js-plotly-plot .main-svg .bg   { fill: transparent !important; }
 
 /* ── Date range selector (detail view) ────────────────────────────────────── */
 .detail-date-wrap {
