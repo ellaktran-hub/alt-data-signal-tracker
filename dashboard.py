@@ -2222,47 +2222,50 @@ def tab_sector_heatmap(rows):
              n_bear=("signal", lambda x: (x == "BEARISH").sum()), count=("ticker", "count"))
         .reset_index()
     )
-    agg["label"] = agg.apply(
-        lambda r: f"{r['sector']}<br><sup>{r['n_bull']}B · {r['n_bear']}Be · {int(r['count'] - r['n_bull'] - r['n_bear'])}N</sup>",
-        axis=1
-    )
 
-    # Grid layout: 4 columns
-    n_sectors = len(agg)
-    ncols = 4
-    nrows = math.ceil(n_sectors / ncols)
+    # Preserve dict insertion order for grid layout
+    sector_order = list(sectors_map.keys())
+    agg["_ord"] = agg["sector"].map({s: i for i, s in enumerate(sector_order)})
+    agg = agg.sort_values("_ord").drop(columns="_ord")
 
-    fig = go.Figure()
-    for i, row in agg.iterrows():
-        c = i % ncols
-        r_idx = i // ncols
-        color = (GREEN if row["avg_sig"] > 0.2 else RED if row["avg_sig"] < -0.2 else ACCENT)
-        fig.add_annotation(
-            x=c, y=nrows - 1 - r_idx,
-            text=row["label"],
-            showarrow=False,
-            font=dict(size=11, color="white", family="Inter"),
-            bgcolor=color, bordercolor="rgba(0,0,0,0.2)", borderwidth=1,
-            borderpad=10, width=200, align="center",
-            xanchor="center", yanchor="middle",
+    cells = []
+    for _, row in agg.iterrows():
+        s = row["avg_sig"]
+        if s >= 0.6:
+            cls = "sh-strong-bull"
+        elif s >= 0.2:
+            cls = "sh-bull"
+        elif s <= -0.6:
+            cls = "sh-strong-bear"
+        elif s <= -0.2:
+            cls = "sh-bear"
+        else:
+            cls = "sh-neut"
+        n_tot = int(row["count"])
+        n_b   = int(row["n_bull"])
+        n_be  = int(row["n_bear"])
+        n_n   = n_tot - n_b - n_be
+        bull_w = int(round(n_b  / n_tot * 100)) if n_tot else 0
+        bear_w = int(round(n_be / n_tot * 100)) if n_tot else 0
+        cells.append(
+            f'<div class="sh-cell {cls}">'
+            f'<div class="sh-name">{row["sector"]}</div>'
+            f'<div class="sh-tally">{n_b}B &nbsp;·&nbsp; {n_be}Be &nbsp;·&nbsp; {n_n}N</div>'
+            f'<div class="sh-bar"><div class="sh-fill-b" style="width:{bull_w}%"></div>'
+            f'<div class="sh-fill-be" style="width:{bear_w}%"></div></div>'
+            f'</div>'
         )
 
-    fig.update_layout(
-        paper_bgcolor="rgba(0,0,0,0)",
-        plot_bgcolor="rgba(0,0,0,0)",
-        height=nrows * 90 + 60,
-        margin=dict(l=20, r=20, t=40, b=20),
-        title=dict(text="SECTOR SENTIMENT HEATMAP — COMPOSITE SIGNAL TODAY",
-                   font=dict(size=10, color=MUTED, family="Inter"), x=0),
-        xaxis=dict(visible=False, range=[-0.6, ncols - 0.4]),
-        yaxis=dict(visible=False, range=[-0.6, nrows - 0.4]),
+    st.markdown(
+        f'<p class="sh-title">SECTOR SENTIMENT HEATMAP — COMPOSITE SIGNAL TODAY</p>'
+        f'<div class="sh-grid">{"".join(cells)}</div>',
+        unsafe_allow_html=True,
     )
-    st.plotly_chart(fig, use_container_width=True, config={"displayModeBar": False})
 
     note(
-        "Each box shows the sector's average composite signal direction right now. "
-        "B = Bullish count · Be = Bearish count · N = Neutral count within that sector. "
-        "Green = majority bullish; red = majority bearish."
+        "Each card shows the sector's average composite signal. "
+        "B = Bullish count · Be = Bearish count · N = Neutral count. "
+        "Bar = bullish % (green) vs bearish % (red)."
     )
 
 

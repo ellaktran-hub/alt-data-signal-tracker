@@ -789,6 +789,7 @@ div[data-baseweb="notification"] {
 /* ── Sidebar ──────────────────────────────────────────────────────────────── */
 section[data-testid="stSidebar"] {
   background: var(--dark-header) !important;
+  display: block !important;
   position: fixed !important;
   top: 0 !important;
   left: 0 !important;
@@ -809,14 +810,7 @@ section[data-testid="stSidebar"] > div {
   min-width: 0 !important;
   width: calc(100% - 260px) !important;
 }
-/* If Streamlit collapses sidebar, expand main to fill */
-[data-testid="stAppViewContainer"]:has([data-testid="stSidebar"][aria-expanded="false"]) [data-testid="stMain"] {
-  margin-left: 0 !important;
-  width: 100% !important;
-}
-button[kind="header"] {
-  display: none !important;
-}
+button[kind="header"],
 [data-testid="collapsedControl"] {
   display: none !important;
 }
@@ -1565,10 +1559,7 @@ html[data-theme="dark"] hr {
   border-top-color: #2a2e38 !important;
 }
 
-/* Sidebar stays dark regardless of theme */
-section[data-testid="stSidebar"] {
-  background: #1C160E !important;
-}
+/* Sidebar stays dark regardless of theme — handled by var(--dark-header) above */
 
 /* ── Dark Mode Toggle Button ─────────────────────────────────────────────── */
 .rh { position: relative; }
@@ -1983,6 +1974,61 @@ html[data-theme="dark"] .note-truncated::after {
   .dist-item { gap: 2px !important; }
 }
 
+
+/* ── Sector heatmap (HTML/CSS cards) ─────────────────────────────────────── */
+.sh-title {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 0.62rem;
+  color: var(--muted);
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  margin: 0 0 10px;
+}
+.sh-grid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 10px;
+  margin-bottom: 1rem;
+}
+.sh-cell {
+  border-radius: 8px;
+  padding: 13px 15px 11px;
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
+  border: 1px solid rgba(0,0,0,0.12);
+}
+.sh-strong-bull { background: linear-gradient(145deg, #1e4d1a, #2d6b27); }
+.sh-bull        { background: linear-gradient(145deg, #2a5226, #3a6b35); }
+.sh-neut        { background: linear-gradient(145deg, #3e3326, #574839); }
+.sh-bear        { background: linear-gradient(145deg, #5a2420, #7a3025); }
+.sh-strong-bear { background: linear-gradient(145deg, #6a1a16, #8a2018); }
+.sh-name {
+  font-family: 'Inter', sans-serif;
+  font-size: 0.78rem;
+  font-weight: 600;
+  color: rgba(255,255,255,0.95);
+  line-height: 1.2;
+}
+.sh-tally {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 0.58rem;
+  color: rgba(255,255,255,0.55);
+  letter-spacing: 0.02em;
+}
+.sh-bar {
+  height: 3px;
+  background: rgba(255,255,255,0.12);
+  border-radius: 2px;
+  display: flex;
+  overflow: hidden;
+  margin-top: 3px;
+}
+.sh-fill-b  { background: rgba(110,220,110,0.7); height: 100%; }
+.sh-fill-be { background: rgba(220,90,80,0.65);  height: 100%; }
+@media (max-width: 768px) {
+  .sh-grid { grid-template-columns: repeat(2, 1fr); }
+}
 
 /* ── Hide Plotly zoom notification toast ─────────────────────────────────── */
 .plotly-notifier { display: none !important; }
