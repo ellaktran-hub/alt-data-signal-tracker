@@ -931,6 +931,9 @@ section[data-testid="stSidebar"] .stButton > button:hover {
   box-shadow: none !important;
 }
 /* Basket remove (×) button — inline, no border, vertically centered */
+section[data-testid="stSidebar"] [data-testid="stHorizontalBlock"] {
+  align-items: center !important;
+}
 section[data-testid="stSidebar"] [data-testid="stHorizontalBlock"] > [data-testid="stColumn"]:last-child {
   display: flex !important;
   align-items: center !important;
@@ -1223,6 +1226,21 @@ section[data-testid="stSidebar"] hr {
   [data-testid="stHorizontalBlock"] > div {
     width: 100% !important;
     min-width: 0 !important;
+  }
+  /* Keep sidebar basket rows horizontal on mobile */
+  section[data-testid="stSidebar"] [data-testid="stHorizontalBlock"] {
+    flex-direction: row !important;
+    align-items: center !important;
+  }
+  section[data-testid="stSidebar"] [data-testid="stHorizontalBlock"] > [data-testid="stColumn"]:first-child {
+    flex: 1 1 0 !important;
+    width: auto !important;
+    min-width: 0 !important;
+  }
+  section[data-testid="stSidebar"] [data-testid="stHorizontalBlock"] > [data-testid="stColumn"]:last-child {
+    flex: 0 0 auto !important;
+    width: auto !important;
+    min-width: unset !important;
   }
   .chart-note {
     font-size: 0.75rem !important;
@@ -2008,6 +2026,10 @@ html[data-theme="dark"] .note-truncated::after {
 }
 .sh-cell:hover {
   box-shadow: 0 2px 10px rgba(44,36,22,0.1);
+}
+.sh-cell.sh-active {
+  box-shadow: 0 0 0 2px var(--accent);
+  outline: none;
 }
 .sh-strong-bull, .sh-bull { border-left-color: #3A6B35; }
 .sh-strong-bear, .sh-bear { border-left-color: #9B3A28; }

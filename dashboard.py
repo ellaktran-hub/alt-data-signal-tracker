@@ -1672,6 +1672,41 @@ def show_header():
       setInterval(_initZoom, 2000);
       setTimeout(_initZoom, 800);
 
+      // ── Sector heatmap card → filter + scroll to signal table ────────────
+      // pd is already captured in this closure (= window.parent.document)
+      window.parent.filterBySector = function(card) {
+        // Toggle: click active card again to clear filter
+        var wasActive = card.classList.contains('sh-active');
+        pd.querySelectorAll('.sh-cell').forEach(function(c) {
+          c.classList.remove('sh-active');
+        });
+
+        var tbl = pd.getElementById('signal-tbl');
+        if (!tbl) return;
+        var rows = tbl.querySelectorAll('tbody tr');
+
+        if (wasActive) {
+          // Clear filter — show all rows
+          rows.forEach(function(r) { r.style.display = ''; });
+        } else {
+          card.classList.add('sh-active');
+          var tickers = (card.getAttribute('data-tickers') || '').split(',').map(function(t) { return t.trim(); });
+          rows.forEach(function(r) {
+            var tc = r.querySelector('.tkr');
+            var ticker = tc ? tc.textContent.trim() : '';
+            r.style.display = (tickers.indexOf(ticker) !== -1) ? '' : 'none';
+          });
+        }
+
+        // Scroll to the signal table
+        tbl.scrollIntoView({behavior: 'smooth', block: 'start'});
+        // Fallback: scroll via parent window in case scrollIntoView targets a sub-container
+        try {
+          var rect = tbl.getBoundingClientRect();
+          window.parent.scrollTo({top: window.parent.pageYOffset + rect.top - 80, behavior: 'smooth'});
+        } catch(e) {}
+      };
+
     })();
     </script>""", height=0)
 
@@ -2238,11 +2273,6 @@ def tab_sector_heatmap(rows):
             sector_tickers[sect] = []
         sector_tickers[sect].append((item["ticker"], item["signal"]))
 
-    _scroll_js = (
-        "var t=document.getElementById('signal-tbl');"
-        "if(t){t.scrollIntoView({behavior:'smooth',block:'start'});}"
-    )
-
     cells = []
     for _, row in agg.iterrows():
         s = row["avg_sig"]
@@ -2271,14 +2301,18 @@ def tab_sector_heatmap(rows):
             badge_cls, badge_txt = "sh-badge-neut", "NEUTRAL"
 
         tick_spans = []
+        ticker_list = []
         for t, sig in sector_tickers.get(row["sector"], []):
             tc = ("sh-tick-bull" if sig == "BULLISH"
                   else "sh-tick-bear" if sig == "BEARISH"
                   else "sh-tick-neut")
             tick_spans.append(f'<span class="{tc}">{t}</span>')
+            ticker_list.append(t)
 
+        tickers_attr = ",".join(ticker_list)
         cells.append(
-            f'<a class="sh-cell {cls}" href="javascript:void(0)" onclick="{_scroll_js}">'
+            f'<a class="sh-cell {cls}" href="javascript:void(0)"'
+            f' data-tickers="{tickers_attr}" onclick="if(window.filterBySector)filterBySector(this)">'
             f'<div class="sh-header">'
             f'<span class="sh-name">{row["sector"]}</span>'
             f'<span class="sh-badge {badge_cls}">{badge_txt}</span>'
@@ -2302,7 +2336,7 @@ def tab_sector_heatmap(rows):
         "Each card shows the sector's average composite signal. "
         "Ticker colours: green = BULLISH · red = BEARISH · grey = NEUTRAL. "
         "Bar = bullish share (green) vs bearish share (red). "
-        "Click any card to jump to the signal table above."
+        "Click any card to filter the signal table to that sector — click again to clear."
     )
 
 
