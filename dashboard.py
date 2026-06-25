@@ -606,7 +606,7 @@ _GLOSSARY = [
 ]
 
 def show_glossary():
-    with st.expander("METRIC DEFINITIONS", expanded=False):
+    with st.expander("METRIC DEFINITIONS", expanded=True):
         entries_html = "".join(
             f'<div class="glossary-entry">'
             f'<div class="glossary-term">{term}</div>'
@@ -684,16 +684,7 @@ def build_table_html(rows, watchlist=None):
         base  = "data-tbl-th ctr" if ctr else "data-tbl-th"
         cls   = (base + " sortable") if sortable else base
         sort_attr = f'data-dtype="{dtype}"' if sortable else ""
-        if label in _TOOLTIPS:
-            inner = (
-                f'{label}'
-                f'<span class="th-tip" tabindex="0">'
-                f'<span class="th-tip-icon" aria-label="Definition for {label}">ⓘ</span>'
-                f'<span class="th-tip-box" role="tooltip">{_TOOLTIPS[label]}</span>'
-                f'</span>'
-            )
-        else:
-            inner = label
+        inner = label
         icon = '<span class="sort-icon">⇅</span>' if sortable else ""
         return f'<th class="{cls}" {style} {sort_attr}>{inner}{icon}</th>'
 
@@ -1941,6 +1932,11 @@ def tab_correlation_matrix():
     show_all   = st.session_state.get("cm_show_all", False)
     pivot_disp = pivot if (show_all or n_all <= 10) else pivot.iloc[:10]
 
+    if n_all > 10:
+        btn_lbl = f"Show all {n_all} tickers ↓" if not show_all else "Collapse to 10 ↑"
+        if st.button(btn_lbl, key="cm_expand_btn"):
+            st.session_state["cm_show_all"] = not show_all
+
     zvals = pivot_disp.values.tolist()
     text  = [[f"{v:.3f}" if not math.isnan(v) else "—" for v in row] for row in pivot_disp.values.tolist()]
 
@@ -1969,12 +1965,6 @@ def tab_correlation_matrix():
         f"price return {lag} day(s) later. Green = signal predicts gains; red = signal predicts losses; "
         f"white = no relationship. StockTwits and News columns appear once 30+ days of data accumulate."
     )
-
-    if n_all > 10:
-        btn_lbl = f"Show all {n_all} tickers ↓" if not show_all else "Collapse to 10 ↑"
-        if st.button(btn_lbl, key="cm_expand_btn"):
-            st.session_state["cm_show_all"] = not show_all
-            st.rerun()
 
 
 # ── Tab: Lag Analysis ──────────────────────────────────────────────────────────
@@ -2744,19 +2734,17 @@ def show_summary():
     with tab_rd:
         tab_returns_distribution()
 
-    # Metric definitions
-    show_glossary()
-
     # ── Signal table with search, sector filter, and watchlist ───────────────
     st.markdown('<div class="sec-label">Market Intelligence Overview</div>', unsafe_allow_html=True)
     st.markdown(
         '<div class="tab-desc" style="margin-bottom:0.6rem">'
         'Today\'s alt-data readings for all 50 tracked stocks. Click any column header to sort. '
-        'Hover the ⓘ icon on a column name to see what it measures. '
+        'See <strong>Metric Definitions</strong> below for what each column measures. '
         'Click <strong>VIEW →</strong> on any row to open that stock\'s full signal breakdown.'
         '</div>',
         unsafe_allow_html=True,
     )
+    show_glossary()
 
     # Search bar + sector filter controls
     ctrl_left, ctrl_right = st.columns([3, 2])
