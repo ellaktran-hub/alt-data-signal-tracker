@@ -1513,6 +1513,8 @@ def show_header():
         }
       });
       _bind();
+      setTimeout(_bind, 400);
+      setTimeout(_bind, 1200);
 
       // ── Dark mode ────────────────────────────────────────────────────────
       function _applyTheme(dark){
