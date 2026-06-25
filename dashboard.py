@@ -2943,6 +2943,14 @@ def show_detail(ticker):
     )
 
     st.markdown(_info_label(
+        "Price Forecast (1 / 3 / 7 Day)",
+        "Model-generated price targets combining the linear price trend with the composite alt-data "
+        "signal score. Past prediction markers are colour-coded once outcomes are known: "
+        "▲ green = correct direction, ▼ red = incorrect, ○ grey = pending."
+    ), unsafe_allow_html=True)
+    _render_pred_chart(ticker, load_predictions())
+
+    st.markdown(_info_label(
         "Price History",
         "Daily closing price from Yahoo Finance. This is the baseline — all alt-data signals are "
         "tested against future price moves to evaluate their predictive value."
@@ -2957,14 +2965,6 @@ def show_detail(ticker):
         f"Price is the baseline signal — all sentiment and search signals are compared against subsequent "
         f"price moves to test predictive information."
     )
-
-    st.markdown(_info_label(
-        "Price Forecast (1 / 3 / 7 Day)",
-        "Model-generated price targets combining the linear price trend with the composite alt-data "
-        "signal score. Past prediction markers are colour-coded once outcomes are known: "
-        "▲ green = correct direction, ▼ red = incorrect, ○ grey = pending."
-    ), unsafe_allow_html=True)
-    _render_pred_chart(ticker, load_predictions())
 
     st.markdown(_info_label(
         "StockTwits Community Sentiment",
