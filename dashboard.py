@@ -1673,39 +1673,42 @@ def show_header():
       setTimeout(_initZoom, 800);
 
       // ── Sector heatmap card → filter + scroll to signal table ────────────
-      // pd is already captured in this closure (= window.parent.document)
-      window.parent.filterBySector = function(card) {
-        // Toggle: click active card again to clear filter
-        var wasActive = card.classList.contains('sh-active');
-        pd.querySelectorAll('.sh-cell').forEach(function(c) {
-          c.classList.remove('sh-active');
-        });
+      // Uses event delegation on pd (same reliable pattern as stars + chip info).
+      // No inline onclick needed — avoids React/CSP restrictions in st.markdown.
+      if (!pd._shFilterDone) {
+        pd._shFilterDone = true;
+        pd.addEventListener('click', function(e) {
+          var card = e.target.closest('.sh-cell');
+          if (!card) return;
+          e.preventDefault();
 
-        var tbl = pd.getElementById('signal-tbl');
-        if (!tbl) return;
-        var rows = tbl.querySelectorAll('tbody tr');
-
-        if (wasActive) {
-          // Clear filter — show all rows
-          rows.forEach(function(r) { r.style.display = ''; });
-        } else {
-          card.classList.add('sh-active');
-          var tickers = (card.getAttribute('data-tickers') || '').split(',').map(function(t) { return t.trim(); });
-          rows.forEach(function(r) {
-            var tc = r.querySelector('.tkr');
-            var ticker = tc ? tc.textContent.trim() : '';
-            r.style.display = (tickers.indexOf(ticker) !== -1) ? '' : 'none';
+          var wasActive = card.classList.contains('sh-active');
+          pd.querySelectorAll('.sh-cell').forEach(function(c) {
+            c.classList.remove('sh-active');
           });
-        }
 
-        // Scroll to the signal table
-        tbl.scrollIntoView({behavior: 'smooth', block: 'start'});
-        // Fallback: scroll via parent window in case scrollIntoView targets a sub-container
-        try {
-          var rect = tbl.getBoundingClientRect();
-          window.parent.scrollTo({top: window.parent.pageYOffset + rect.top - 80, behavior: 'smooth'});
-        } catch(e) {}
-      };
+          var tbl = pd.getElementById('signal-tbl');
+          if (!tbl) return;
+          var rows = tbl.querySelectorAll('tbody tr');
+
+          if (wasActive) {
+            rows.forEach(function(r) { r.style.display = ''; });
+          } else {
+            card.classList.add('sh-active');
+            var tickers = (card.getAttribute('data-tickers') || '').split(',').map(function(t) { return t.trim(); });
+            rows.forEach(function(r) {
+              var tc = r.querySelector('.tkr');
+              var ticker = tc ? tc.textContent.trim() : '';
+              r.style.display = (tickers.indexOf(ticker) !== -1) ? '' : 'none';
+            });
+          }
+
+          try {
+            var rect = tbl.getBoundingClientRect();
+            window.parent.scrollTo({top: window.parent.pageYOffset + rect.top - 80, behavior: 'smooth'});
+          } catch(ex) {}
+        });
+      }
 
     })();
     </script>""", height=0)
@@ -2311,8 +2314,7 @@ def tab_sector_heatmap(rows):
 
         tickers_attr = ",".join(ticker_list)
         cells.append(
-            f'<a class="sh-cell {cls}" href="javascript:void(0)"'
-            f' data-tickers="{tickers_attr}" onclick="if(window.filterBySector)filterBySector(this)">'
+            f'<a class="sh-cell {cls}" href="javascript:void(0)" data-tickers="{tickers_attr}">'
             f'<div class="sh-header">'
             f'<span class="sh-name">{row["sector"]}</span>'
             f'<span class="sh-badge {badge_cls}">{badge_txt}</span>'

@@ -833,25 +833,25 @@ section[data-testid="stSidebar"] [data-testid="stVerticalBlock"] {
   margin-bottom: 10px;
 }
 .sb-item {
-  padding: 8px 1rem 6px;
+  padding: 10px 1rem 8px;
   border-bottom: 1px solid rgba(200,184,154,0.1);
 }
 .sb-item-top {
   display: flex;
   justify-content: space-between;
   align-items: baseline;
-  margin-bottom: 2px;
+  margin-bottom: 3px;
 }
 .sb-ticker {
   font-family: 'JetBrains Mono', monospace;
-  font-size: 0.82rem;
-  font-weight: 500;
+  font-size: 1rem;
+  font-weight: 600;
   color: #FAF6EF;
   letter-spacing: 0.03em;
 }
 .sb-sig {
   font-family: 'Inter', sans-serif;
-  font-size: 0.62rem;
+  font-size: 0.68rem;
   font-weight: 700;
   letter-spacing: 0.06em;
   text-transform: uppercase;
@@ -863,12 +863,12 @@ section[data-testid="stSidebar"] [data-testid="stVerticalBlock"] {
 }
 .sb-price {
   font-family: 'JetBrains Mono', monospace;
-  font-size: 0.78rem;
+  font-size: 0.88rem;
   color: rgba(250,246,239,0.7);
 }
 .sb-chg {
   font-family: 'JetBrains Mono', monospace;
-  font-size: 0.72rem;
+  font-size: 0.82rem;
 }
 .sb-rm-btn {
   font-family: 'Inter', sans-serif;
