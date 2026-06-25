@@ -1667,9 +1667,8 @@ def show_header():
           });
         });
       }
-      var _zc = 0;
-      function _zPoll(){ _initZoom(); if(++_zc < 20) setTimeout(_zPoll, 700); }
-      setTimeout(_zPoll, 1200);
+      setInterval(_initZoom, 2000);
+      setTimeout(_initZoom, 800);
 
     })();
     </script>""", height=0)
