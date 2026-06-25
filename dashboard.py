@@ -1010,7 +1010,7 @@ def chart_price(ticker, date_from=None, date_to=None):
     fig = go.Figure()
     fig.add_trace(go.Scatter(
         x=df.index, y=df["close_price"], mode="lines",
-        line=dict(color=C1, width=2.5),
+        line=dict(color=C1, width=3),
         fill="tozeroy", fillcolor="rgba(107,66,38,0.07)",
         name="Close", hovertemplate="$%{y:,.2f}<extra></extra>",
     ))
@@ -1040,7 +1040,7 @@ def chart_stocktwits(ticker, date_from=None, date_to=None):
     if pn is not None:
         fig.add_trace(go.Scatter(
             x=pn.index, y=pn, mode="lines",
-            line=dict(color="#2C2416", width=1.8, dash="dash"),
+            line=dict(color=C2, width=2.5),
             name="Price (norm)", hovertemplate="%{y:.1f}<extra>Price (norm)</extra>",
         ))
     fig.add_trace(go.Scatter(
@@ -1080,7 +1080,7 @@ def chart_trends(ticker, date_from=None, date_to=None):
     if pn is not None:
         fig.add_trace(go.Scatter(
             x=pn.index, y=pn, mode="lines",
-            line=dict(color="#2C2416", width=1.8, dash="dash"),
+            line=dict(color=C2, width=2.5),
             name="Price (norm)", hovertemplate="%{y:.1f}<extra>Price (norm)</extra>",
         ))
     fig.add_trace(go.Scatter(
@@ -1135,7 +1135,7 @@ def chart_news(ticker, date_from=None, date_to=None):
     if pn is not None:
         fig.add_trace(go.Scatter(
             x=pn.index, y=pn, mode="lines",
-            line=dict(color="#2C2416", width=1.8, dash="dash"),
+            line=dict(color=C2, width=2.5),
             name="Price (norm)", hovertemplate="%{y:.1f}<extra>Price (norm)</extra>",
         ))
     fig.add_trace(go.Bar(
@@ -1185,7 +1185,7 @@ def chart_wikipedia(ticker, date_from=None, date_to=None):
             fig.add_trace(go.Scatter(
                 x=norm_0_100(p).index, y=norm_0_100(p),
                 mode="lines", name="Price (norm)",
-                line=dict(color=C3, width=1.8, dash="dash"),
+                line=dict(color=C2, width=2.5),
                 hovertemplate="%{y:.1f}<extra>Price</extra>",
             ))
 
@@ -3516,7 +3516,7 @@ def show_predictions():
             fig_fc.add_trace(go.Scatter(
                 x=hist_s.index.tolist(), y=hist_s.tolist(),
                 mode="lines", name="Price History",
-                line=dict(color=TEXT, width=1.5),
+                line=dict(color=C2, width=2.5),
                 hovertemplate="%{x|%b %d}: $%{y:,.2f}<extra>History</extra>",
             ))
 
