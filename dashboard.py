@@ -2239,7 +2239,7 @@ def tab_sector_heatmap(rows):
         sector_tickers[sect].append((item["ticker"], item["signal"]))
 
     _scroll_js = (
-        "var t=window.parent.document.getElementById('signal-tbl');"
+        "var t=document.getElementById('signal-tbl');"
         "if(t){t.scrollIntoView({behavior:'smooth',block:'start'});}"
     )
 
