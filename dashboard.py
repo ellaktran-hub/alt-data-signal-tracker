@@ -2959,6 +2959,14 @@ def show_detail(ticker):
     )
 
     st.markdown(_info_label(
+        "Price Forecast (1 / 3 / 7 Day)",
+        "Model-generated price targets combining the linear price trend with the composite alt-data "
+        "signal score. Past prediction markers are colour-coded once outcomes are known: "
+        "▲ green = correct direction, ▼ red = incorrect, ○ grey = pending."
+    ), unsafe_allow_html=True)
+    _render_pred_chart(ticker, load_predictions())
+
+    st.markdown(_info_label(
         "StockTwits Community Sentiment",
         "StockTwits users voluntarily tag posts as Bullish or Bearish — providing direct sentiment "
         "labels. The chart shows % Bullish and % Bearish each day, both normalized to 0–100 alongside price."
@@ -3485,6 +3493,137 @@ def load_predictions():
     return df
 
 
+def _render_pred_chart(ticker, pred_df):
+    """Render price history + forecast chart, metrics row, and note for one ticker."""
+    if pred_df.empty:
+        st.info("No prediction data yet — run the pipeline to generate predictions.")
+        return
+    today_preds = pred_df[pred_df["date"] == pred_df["date"].max()]
+    ticker_row  = today_preds[today_preds["ticker"] == ticker]
+    if ticker_row.empty:
+        st.info(f"No forecast available for {ticker} yet.")
+        return
+    sel_row = ticker_row.iloc[0]
+
+    if "pred_price_1d" not in sel_row.index or not pd.notna(sel_row.get("pred_price_1d")):
+        st.info("Price forecasts not yet computed — re-run the pipeline to add price predictions.")
+        return
+
+    price_df = load_prices(ticker)
+    if price_df.empty:
+        return
+
+    hist_s        = price_df["close_price"].dropna().sort_index()
+    last_date     = hist_s.index[-1]
+    current_price = float(hist_s.iloc[-1])
+    vol           = float(sel_row.get("vol") or 0.015)
+
+    pred_dates  = [last_date + pd.offsets.BDay(n) for n in [1, 3, 7]]
+    pred_prices = [float(sel_row["pred_price_1d"]),
+                   float(sel_row["pred_price_3d"]),
+                   float(sel_row["pred_price_7d"])]
+    pred_ci     = [vol * (n ** 0.5) * current_price for n in [1, 3, 7]]
+
+    sig        = sel_row["signal"]
+    cone_color = C1 if sig == "BULLISH" else (RED if sig == "BEARISH" else C4)
+    upper      = [p + ci for p, ci in zip(pred_prices, pred_ci)]
+    lower      = [p - ci for p, ci in zip(pred_prices, pred_ci)]
+
+    fig = go.Figure()
+    fig.add_trace(go.Scatter(
+        x=hist_s.index.tolist(), y=hist_s.tolist(),
+        mode="lines", name="Price History",
+        line=dict(color=C2, width=2.5),
+        hovertemplate="%{x|%b %d}: $%{y:,.2f}<extra>History</extra>",
+    ))
+
+    past_tkr = pred_df[(pred_df["ticker"] == ticker) &
+                       (pred_df["date"] < pred_df["date"].max())].copy()
+    _hz_cfg = [
+        (1, "pred_price_1d", "actual_1d", "hit_1d", "1d Pred"),
+        (3, "pred_price_3d", "actual_3d", "hit_3d", "3d Pred"),
+        (7, "pred_price_7d", "actual_7d", "hit_7d", "7d Pred"),
+    ]
+    for days, pcol, acol, hcol, lbl in _hz_cfg:
+        px_list, py_list, pcolors, psyms, ptexts = [], [], [], [], []
+        ax_list, ay_list = [], []
+        for _, pr in past_tkr.iterrows():
+            pp = pr.get(pcol)
+            if not pd.notna(pp):
+                continue
+            target = pr["date"] + pd.offsets.BDay(days)
+            hit    = pr.get(hcol)
+            px_list.append(target)
+            py_list.append(float(pp))
+            ptexts.append(f"Predicted on {pr['date'].strftime('%b %d')}")
+            if pd.notna(hit):
+                pcolors.append(GREEN if hit else RED)
+                psyms.append("triangle-up" if hit else "triangle-down")
+            else:
+                pcolors.append(MUTED)
+                psyms.append("circle-open")
+            ap = pr.get(acol)
+            if pd.notna(ap):
+                ax_list.append(target)
+                ay_list.append(float(ap))
+        if px_list:
+            fig.add_trace(go.Scatter(
+                x=px_list, y=py_list, mode="markers", name=lbl,
+                marker=dict(color=pcolors, size=9, symbol=psyms),
+                customdata=ptexts,
+                hovertemplate="%{customdata}<br>Forecast: $%{y:,.2f}<extra>" + lbl + "</extra>",
+            ))
+        if ax_list:
+            fig.add_trace(go.Scatter(
+                x=ax_list, y=ay_list, mode="markers", name=f"{lbl} Actual",
+                marker=dict(color=TEXT, size=7, symbol="x"),
+                hovertemplate="%{x|%b %d} actual: $%{y:,.2f}<extra>" + lbl + " Actual</extra>",
+                showlegend=False,
+            ))
+
+    fig.add_trace(go.Scatter(
+        x=pred_dates + pred_dates[::-1],
+        y=upper + lower[::-1],
+        fill="toself", fillcolor="rgba(139,111,71,0.12)",
+        line=dict(color="rgba(0,0,0,0)"), name="±1σ CI", hoverinfo="skip",
+    ))
+    fig.add_trace(go.Scatter(
+        x=[last_date] + pred_dates, y=[current_price] + pred_prices,
+        mode="lines+markers", name=f"Forecast ({sig})",
+        line=dict(color=cone_color, width=2, dash="dot"),
+        marker=dict(color=cone_color, size=8, symbol="circle"),
+        hovertemplate="%{x|%b %d}: $%{y:,.2f}<extra>Forecast</extra>",
+    ))
+
+    n_pred_days = pred_df["date"].nunique()
+    hist_label  = f"{len(hist_s)}-Day" if len(hist_s) < 90 else "Full"
+    fig.update_layout(**chart_layout(
+        f"{ticker}  ·  {hist_label} Price History + Forecast"
+        + (f"  ·  {n_pred_days} day(s) of predictions" if n_pred_days > 1 else ""),
+        height=360,
+    ))
+    st.plotly_chart(fig, use_container_width=True, config={"displayModeBar": False})
+
+    mc1, mc2, mc3 = st.columns(3)
+    with mc1:
+        st.metric("1-Day Forecast", f"${pred_prices[0]:,.2f}",
+                  f"{float(sel_row['pred_ret_1d']):+.2f}% vs today")
+    with mc2:
+        st.metric("3-Day Forecast", f"${pred_prices[1]:,.2f}",
+                  f"{float(sel_row['pred_ret_3d']):+.2f}% vs today")
+    with mc3:
+        st.metric("7-Day Forecast", f"${pred_prices[2]:,.2f}",
+                  f"{float(sel_row['pred_ret_7d']):+.2f}% vs today")
+
+    note(
+        "Price history shown in full. "
+        "Coloured markers = past predictions at their target date: "
+        "▲ green = correct direction · ▼ red = wrong direction · ○ grey = outcome pending. "
+        "× marks the actual closing price on that date. "
+        "Shaded band = ±1σ confidence interval (volatility × √days)."
+    )
+
+
 def show_predictions():
     rows           = build_summary()
     rows_by_ticker = {r["ticker"]: r for r in rows}
@@ -3532,157 +3671,7 @@ def show_predictions():
     )
     sel_row_fc = today_preds[today_preds["ticker"] == sel_tkr_fc].iloc[0]
 
-    if has_price_cols and pd.notna(sel_row_fc.get("pred_price_1d")):
-        price_df_fc = load_prices(sel_tkr_fc)
-        if not price_df_fc.empty:
-            # Full history so past predictions can be compared to actual outcomes
-            hist_s = price_df_fc["close_price"].dropna().sort_index()
-            last_date        = hist_s.index[-1]
-            current_price_fc = float(hist_s.iloc[-1])
-            vol_fc           = float(sel_row_fc.get("vol") or 0.015)
-
-            pred_dates = [
-                last_date + pd.offsets.BDay(1),
-                last_date + pd.offsets.BDay(3),
-                last_date + pd.offsets.BDay(7),
-            ]
-            pred_prices_fc = [
-                float(sel_row_fc["pred_price_1d"]),
-                float(sel_row_fc["pred_price_3d"]),
-                float(sel_row_fc["pred_price_7d"]),
-            ]
-            pred_ci_fc = [
-                vol_fc * (n ** 0.5) * current_price_fc
-                for n in [1, 3, 7]
-            ]
-
-            sig_fc     = sel_row_fc["signal"]
-            cone_color = C1 if sig_fc == "BULLISH" else (RED if sig_fc == "BEARISH" else C4)
-
-            upper_fc = [p + ci for p, ci in zip(pred_prices_fc, pred_ci_fc)]
-            lower_fc = [p - ci for p, ci in zip(pred_prices_fc, pred_ci_fc)]
-
-            fig_fc = go.Figure()
-
-            # Full price history
-            fig_fc.add_trace(go.Scatter(
-                x=hist_s.index.tolist(), y=hist_s.tolist(),
-                mode="lines", name="Price History",
-                line=dict(color=C2, width=2.5),
-                hovertemplate="%{x|%b %d}: $%{y:,.2f}<extra>History</extra>",
-            ))
-
-            # Past prediction overlays — one scatter per horizon
-            past_tkr = pred_df[
-                (pred_df["ticker"] == sel_tkr_fc) &
-                (pred_df["date"] < pred_df["date"].max())
-            ].copy()
-
-            _hz_cfg = [
-                (1, "pred_price_1d", "actual_1d", "hit_1d", "1d Pred"),
-                (3, "pred_price_3d", "actual_3d", "hit_3d", "3d Pred"),
-                (7, "pred_price_7d", "actual_7d", "hit_7d", "7d Pred"),
-            ]
-            for days, pcol, acol, hcol, lbl in _hz_cfg:
-                px_list, py_list, pcolors, psyms, ptexts = [], [], [], [], []
-                ax_list, ay_list = [], []
-                for _, pr in past_tkr.iterrows():
-                    pp = pr.get(pcol)
-                    if not pd.notna(pp):
-                        continue
-                    target = pr["date"] + pd.offsets.BDay(days)
-                    hit    = pr.get(hcol)
-                    px_list.append(target)
-                    py_list.append(float(pp))
-                    ptexts.append(
-                        f"Predicted on {pr['date'].strftime('%b %d')}"
-                    )
-                    if pd.notna(hit):
-                        pcolors.append(GREEN if hit else RED)
-                        psyms.append("triangle-up" if hit else "triangle-down")
-                    else:
-                        pcolors.append(MUTED)
-                        psyms.append("circle-open")
-                    # Actual outcome marker
-                    ap = pr.get(acol)
-                    if pd.notna(ap):
-                        ax_list.append(target)
-                        ay_list.append(float(ap))
-
-                if px_list:
-                    fig_fc.add_trace(go.Scatter(
-                        x=px_list, y=py_list,
-                        mode="markers",
-                        name=lbl,
-                        marker=dict(color=pcolors, size=9, symbol=psyms),
-                        customdata=ptexts,
-                        hovertemplate="%{customdata}<br>Forecast: $%{y:,.2f}<extra>" + lbl + "</extra>",
-                    ))
-                if ax_list:
-                    fig_fc.add_trace(go.Scatter(
-                        x=ax_list, y=ay_list,
-                        mode="markers",
-                        name=f"{lbl} Actual",
-                        marker=dict(color=TEXT, size=7, symbol="x"),
-                        hovertemplate="%{x|%b %d} actual: $%{y:,.2f}<extra>" + lbl + " Actual</extra>",
-                        showlegend=False,
-                    ))
-
-            # Confidence band (±1σ)
-            fig_fc.add_trace(go.Scatter(
-                x=pred_dates + pred_dates[::-1],
-                y=upper_fc + lower_fc[::-1],
-                fill="toself",
-                fillcolor="rgba(139,111,71,0.12)",
-                line=dict(color="rgba(0,0,0,0)"),
-                name="±1σ CI",
-                hoverinfo="skip",
-            ))
-            # Today's forecast line
-            fig_fc.add_trace(go.Scatter(
-                x=[last_date] + pred_dates,
-                y=[current_price_fc] + pred_prices_fc,
-                mode="lines+markers",
-                name=f"Forecast ({sig_fc})",
-                line=dict(color=cone_color, width=2, dash="dot"),
-                marker=dict(color=cone_color, size=8, symbol="circle"),
-                hovertemplate="%{x|%b %d}: $%{y:,.2f}<extra>Forecast</extra>",
-            ))
-
-            n_pred_days = pred_df["date"].nunique()
-            hist_label  = f"{len(hist_s)}-Day" if len(hist_s) < 90 else "Full"
-            layout_fc = chart_layout(
-                f"{sel_tkr_fc}  ·  {hist_label} Price History + Forecast"
-                + (f"  ·  {n_pred_days} day(s) of predictions" if n_pred_days > 1 else ""),
-                height=360,
-            )
-            fig_fc.update_layout(**layout_fc)
-            st.plotly_chart(fig_fc, use_container_width=True, config={"displayModeBar": False})
-
-            # Three forecast metrics under the chart
-            m1, m2, m3 = st.columns(3)
-            with m1:
-                ret1 = float(sel_row_fc["pred_ret_1d"])
-                st.metric("1-Day Forecast", f"${pred_prices_fc[0]:,.2f}",
-                          f"{ret1:+.2f}% vs today")
-            with m2:
-                ret3 = float(sel_row_fc["pred_ret_3d"])
-                st.metric("3-Day Forecast", f"${pred_prices_fc[1]:,.2f}",
-                          f"{ret3:+.2f}% vs today")
-            with m3:
-                ret7 = float(sel_row_fc["pred_ret_7d"])
-                st.metric("7-Day Forecast", f"${pred_prices_fc[2]:,.2f}",
-                          f"{ret7:+.2f}% vs today")
-
-            note(
-                f"Price history shown in full from first available data point. "
-                f"Coloured markers = past predictions at their target date: "
-                f"▲ green = correct direction · ▼ red = wrong direction · ○ grey = outcome pending. "
-                f"× marks the actual closing price on that date. "
-                f"Shaded band = ±1σ confidence interval (volatility × √days)."
-            )
-    else:
-        st.info("Price forecasts not yet computed — re-run the pipeline to add price predictions.")
+    _render_pred_chart(sel_tkr_fc, pred_df)
 
     # ── Section 1: Today's Forecast ───────────────────────────────────────────
     st.markdown("---")
