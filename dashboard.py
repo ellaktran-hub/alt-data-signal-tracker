@@ -1598,13 +1598,86 @@ def show_header():
       setTimeout(_wlApply, 400);
       setTimeout(_wlApply, 1000);
 
+      // ── Info button tooltips (event delegation — survives rerenders) ──────
+      // chip-fade-in animation ends with transform:none so position:fixed
+      // popups are now viewport-relative, not market-chips-relative.
+      if (!pd._ciDone) {
+        pd._ciDone = true;
+        function _ciClose() {
+          pd.querySelectorAll('.chip-tip.open').forEach(function(t){ t.classList.remove('open'); });
+        }
+        function _ciOpen(btn, clientX, clientY) {
+          var tip = btn.closest('.chip-tip');
+          if (!tip) return;
+          var pop = tip.querySelector('.chip-info-popup');
+          if (!pop) return;
+          _ciClose();
+          var pw = window.parent.innerWidth || 320;
+          var left = Math.max(8, clientX - 8);
+          if (left + 300 > pw) left = Math.max(8, pw - 308);
+          pop.style.top  = (clientY + 12) + 'px';
+          pop.style.left = left + 'px';
+          tip.classList.add('open');
+        }
+        pd.addEventListener('click', function(e) {
+          var btn = e.target.closest('.chip-info-btn');
+          if (btn) {
+            e.preventDefault();
+            var tip = btn.closest('.chip-tip');
+            var wasOpen = tip && tip.classList.contains('open');
+            _ciClose();
+            if (!wasOpen) _ciOpen(btn, e.clientX, e.clientY);
+            return;
+          }
+          if (!e.target.closest('.chip-tip')) _ciClose();
+        });
+        pd.addEventListener('mouseover', function(e) {
+          var btn = e.target.closest('.chip-info-btn');
+          if (btn) _ciOpen(btn, e.clientX, e.clientY);
+        });
+        pd.addEventListener('mouseout', function(e) {
+          var from = e.target.closest && e.target.closest('.chip-tip');
+          var to   = e.relatedTarget && e.relatedTarget.closest && e.relatedTarget.closest('.chip-tip');
+          if (from && !to) _ciClose();
+        });
+      }
+
+      // ── Zoom reset button (shown only when chart is zoomed) ───────────────
+      function _initZoom() {
+        pd.querySelectorAll('.js-plotly-plot').forEach(function(plot) {
+          if (plot._zrDone) return;
+          plot._zrDone = true;
+          var container = plot.closest('[data-testid="stPlotlyChart"]');
+          if (!container || !container.parentNode) return;
+          var btn = pd.createElement('button');
+          btn.className = 'zoom-reset-btn';
+          btn.textContent = '↺ reset zoom';
+          container.parentNode.insertBefore(btn, container.nextSibling);
+          plot.on('plotly_relayout', function(ev) {
+            if (!ev) return;
+            var zoomed = 'xaxis.range[0]' in ev || 'xaxis.range' in ev;
+            var reset  = ev['xaxis.autorange'] === true;
+            if (zoomed) btn.classList.add('visible');
+            if (reset)  btn.classList.remove('visible');
+          });
+          btn.addEventListener('click', function() {
+            var Plt = window.parent.Plotly || window.Plotly;
+            if (Plt) try { Plt.relayout(plot, {'xaxis.autorange':true,'yaxis.autorange':true}); } catch(e){}
+            btn.classList.remove('visible');
+          });
+        });
+      }
+      var _zc = 0;
+      function _zPoll(){ _initZoom(); if(++_zc < 20) setTimeout(_zPoll, 700); }
+      setTimeout(_zPoll, 1200);
+
     })();
     </script>""", height=0)
 
 
 # ── Sector mapping ─────────────────────────────────────────────────────────────
 SECTORS = {
-    "Mega-Cap Tech":     ["AAPL", "NVDA", "AMZN", "MSFT", "GOOGL"],
+    "Mega-Cap Tech":     ["AAPL", "NVDA", "AMZN", "MSFT", "GOOGL", "PLTR"],
     "Social / Media":    ["META", "SNAP", "PINS", "RDDT", "SPOT", "NFLX", "DIS", "UBER"],
     "Fintech / Finance": ["JPM", "GS", "HOOD", "PYPL", "SQ", "SOFI"],
     "Crypto":            ["COIN", "MSTR"],
@@ -1616,6 +1689,18 @@ SECTORS = {
     "Energy":            ["XOM", "CVX", "FSLR"],
     "Meme / Gaming":     ["GME", "AMC"],
     "ETF":               ["SPCX"],
+}
+
+SECTORS_GICS = {
+    "Technology":             ["AAPL", "NVDA", "MSFT", "PLTR", "MSTR", "IONQ", "QBTS", "RGTI"],
+    "Comm. Services":         ["GOOGL", "META", "SNAP", "PINS", "RDDT", "SPOT", "NFLX", "DIS"],
+    "Consumer Discretionary": ["AMZN", "TSLA", "SBUX", "GME", "AMC", "CHWY", "NKE", "ABNB", "UBER", "RIVN", "LCID", "F", "GM"],
+    "Consumer Staples":       ["WMT", "TGT", "MCD"],
+    "Financials":             ["JPM", "GS", "HOOD", "PYPL", "SQ", "SOFI", "COIN"],
+    "Healthcare":             ["PFE", "MRNA", "NVAX"],
+    "Industrials & Defense":  ["LMT", "RTX", "BA", "RKLB"],
+    "Energy":                 ["XOM", "CVX", "FSLR"],
+    "Other":                  ["SPCX"],
 }
 
 # ── Analysis helpers ───────────────────────────────────────────────────────────
@@ -2105,8 +2190,14 @@ def tab_signal_accuracy():
 def tab_sector_heatmap(rows):
     rows_by_ticker = {r["ticker"]: r for r in rows}
 
+    grouping = st.radio(
+        "Group by", ["Custom Themes", "GICS / Classic"],
+        horizontal=True, key="sh_grouping", label_visibility="collapsed",
+    )
+    sectors_map = SECTORS if grouping == "Custom Themes" else SECTORS_GICS
+
     sector_data = []
-    for sector, tickers in SECTORS.items():
+    for sector, tickers in sectors_map.items():
         for ticker in tickers:
             r = rows_by_ticker.get(ticker)
             if r is None:
@@ -2704,8 +2795,8 @@ def show_detail(ticker):
     st.markdown("---")
 
     _chart_cfg = {
-        "displayModeBar": True,
-        "modeBarButtonsToRemove": ["lasso2d", "select2d", "toImage"],
+        "displayModeBar": False,
+        "doubleClick": "reset",
         "displaylogo": False,
         "responsive": True,
     }
