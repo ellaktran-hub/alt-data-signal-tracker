@@ -718,6 +718,8 @@ div[data-baseweb="notification"] {
   grid-template-columns: repeat(3, 1fr);
   gap: 20px 24px;
   align-items: start;
+  margin-bottom: 1.5rem;
+  overflow: visible;
 }
 @media (max-width: 900px) {
   .glossary-grid { grid-template-columns: repeat(2, 1fr); }
