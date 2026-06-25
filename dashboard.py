@@ -243,6 +243,9 @@ def _price_norm(ticker):
 def note(text):
     st.markdown(f'<div class="chart-note">{text}</div>', unsafe_allow_html=True)
 
+def tab_intro(text):
+    st.markdown(f'<div class="tab-desc">{text}</div>', unsafe_allow_html=True)
+
 def sparse_note():
     st.markdown(
         '<div class="sparse-note">⚠ Fewer than 3 days collected. '
@@ -253,7 +256,7 @@ def sparse_note():
 
 _NORM_SUBTITLE = (
     "<br><sup style='font-style:italic;font-size:9px;color:#7A6A52'>"
-    "Price shown as dotted line, normalized to same 0–100 scale for comparison</sup>"
+    "Price shown as amber line, normalized to same 0–100 scale for comparison</sup>"
 )
 
 
@@ -1904,6 +1907,12 @@ _SIG_LABELS = {
 }
 
 def tab_correlation_matrix():
+    tab_intro(
+        "Does today's social buzz predict tomorrow's stock price? Each cell shows how strongly "
+        "a signal (rows) correlates with a stock's price return 1–3 days later (columns). "
+        "Darker green = the signal tends to lead price higher. Darker red = it tends to lead price lower. "
+        "Use the dropdown to change how many days ahead you're looking."
+    )
     corr_df = load_correlations_all()
     if corr_df.empty:
         st.info("No correlation data yet — run the pipeline to generate correlations_all.csv.")
@@ -1970,6 +1979,11 @@ def tab_correlation_matrix():
 
 # ── Tab: Lag Analysis ──────────────────────────────────────────────────────────
 def tab_lag_analysis():
+    tab_intro(
+        "Pick a stock to see whether its alt-data signals tend to move before or after the price. "
+        "A bar to the right means that signal led the price move — it fired first. "
+        "Taller bars = stronger predictive relationship. This helps identify which signals are most useful as early warnings for a given stock."
+    )
     corr_df = load_correlations_all()
     if corr_df.empty:
         st.info("No lag data yet — run the pipeline first.")
@@ -2053,6 +2067,12 @@ def tab_lag_analysis():
 
 # ── Tab: Backtesting ────────────────────────────────────────────────────────────
 def tab_backtesting():
+    tab_intro(
+        "Tests a simple rule on historical data: go long when the composite signal is BULLISH, "
+        "sit in cash when BEARISH, and hold when NEUTRAL. "
+        "The chart compares that strategy's growth against simply holding the stock the whole time. "
+        "This is not investment advice — it shows whether the signals would have been useful in the past."
+    )
     ticker = st.selectbox("Select ticker to backtest", config.TICKERS, index=0, key="bt_ticker")
 
     df = build_historical_signals(ticker)
@@ -2135,6 +2155,12 @@ def tab_backtesting():
 
 # ── Tab: Signal Accuracy Scorecard ─────────────────────────────────────────────
 def tab_signal_accuracy():
+    tab_intro(
+        "A report card for each signal source. For every BULLISH or BEARISH call made historically, "
+        "this checks whether the stock's price actually moved in that direction 7 days later. "
+        "A hit rate above 50% means the signal was right more often than wrong. "
+        "Higher = more reliable. Results improve as more data accumulates over time."
+    )
     _NOTE_DAYS = 7
 
     rows_out = []
@@ -2344,6 +2370,12 @@ def tab_sector_heatmap(rows):
 
 # ── Tab: Signal Divergence Detector ───────────────────────────────────────────
 def tab_divergence_detector(rows):
+    tab_intro(
+        "Spots stocks where social media sentiment and news headlines are pointing in opposite directions. "
+        "When people on StockTwits are bullish but news coverage is negative (or vice versa), "
+        "it can signal a potential turning point or a crowd reaction that may not be justified. "
+        "These mismatches are worth watching closely."
+    )
     rows_by_ticker = {r["ticker"]: r for r in rows}
 
     divergences = []
@@ -2429,6 +2461,12 @@ def tab_divergence_detector(rows):
 
 # ── Tab: Rolling Correlation ────────────────────────────────────────────────────
 def tab_rolling_correlation():
+    tab_intro(
+        "Shows whether a signal's link to price is getting stronger or weaker over time. "
+        "Instead of one fixed number, this recalculates the correlation every N days so you can "
+        "see if a signal that worked six months ago is still working today. "
+        "A line trending toward zero means the signal is losing its edge for that stock."
+    )
     ticker  = st.selectbox("Select ticker", config.TICKERS, index=0, key="rc_ticker")
     window  = st.slider("Rolling window (days)", min_value=7, max_value=30, value=14, step=1, key="rc_window")
 
@@ -2503,6 +2541,12 @@ def tab_rolling_correlation():
 
 # ── Tab: Returns Distribution ───────────────────────────────────────────────────
 def tab_returns_distribution():
+    tab_intro(
+        "Compares what happened to stock prices 7 days after a BULLISH, NEUTRAL, or BEARISH signal — "
+        "across all 50 tracked stocks. If the signals are working, the green (BULLISH) curve should "
+        "sit to the right of the red (BEARISH) curve, meaning bullish calls tended to be followed "
+        "by higher returns. The wider the separation, the more meaningful the signal."
+    )
     _FWD = 7
 
     all_bull, all_bear, all_neut = [], [], []
@@ -2705,6 +2749,14 @@ def show_summary():
 
     # ── Signal table with search, sector filter, and watchlist ───────────────
     st.markdown('<div class="sec-label">Market Intelligence Overview</div>', unsafe_allow_html=True)
+    st.markdown(
+        '<div class="tab-desc" style="margin-bottom:0.6rem">'
+        'Today\'s alt-data readings for all 50 tracked stocks. Click any column header to sort. '
+        'Hover the ⓘ icon on a column name to see what it measures. '
+        'Click <strong>VIEW →</strong> on any row to open that stock\'s full signal breakdown.'
+        '</div>',
+        unsafe_allow_html=True,
+    )
 
     # Search bar + sector filter controls
     ctrl_left, ctrl_right = st.columns([3, 2])

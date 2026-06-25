@@ -638,6 +638,15 @@ div[data-baseweb="notification"] {
 }
 .chart-note strong { color: var(--text); font-weight: 600; }
 .chart-note em { font-style: italic; }
+.tab-desc {
+  font-family: 'Inter', sans-serif;
+  font-size: 0.85rem;
+  color: var(--muted);
+  line-height: 1.6;
+  margin: 0 0 1.1rem 0;
+  max-width: 700px;
+}
+.tab-desc strong { color: var(--text); font-weight: 600; }
 
 /* ── Sparse-data warning ──────────────────────────────────────────────────── */
 .sparse-note {
