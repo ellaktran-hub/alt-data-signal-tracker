@@ -1598,13 +1598,114 @@ def show_header():
       setTimeout(_wlApply, 400);
       setTimeout(_wlApply, 1000);
 
+      // ── Info button tooltips — event delegation (survives rerenders) ─────
+      if (!pd._ciDelegated) {
+        pd._ciDelegated = true;
+        function _ciCloseAll() {
+          pd.querySelectorAll('.chip-tip.open').forEach(function(t) { t.classList.remove('open'); });
+        }
+        function _ciOpen(btn) {
+          var tip = btn.closest('.chip-tip');
+          if (!tip) return;
+          var popup = tip.querySelector('.chip-info-popup');
+          if (!popup) return;
+          _ciCloseAll();
+          var rect = btn.getBoundingClientRect();
+          var pw = window.parent.innerWidth || 320;
+          var left = Math.max(8, rect.left - 8);
+          if (left + 300 > pw) left = Math.max(8, pw - 308);
+          popup.style.top  = (rect.bottom + 8) + 'px';
+          popup.style.left = left + 'px';
+          tip.classList.add('open');
+        }
+        pd.addEventListener('click', function(e) {
+          var btn = e.target.closest('.chip-info-btn');
+          if (btn) {
+            e.preventDefault(); e.stopPropagation();
+            var tip = btn.closest('.chip-tip');
+            var isOpen = tip && tip.classList.contains('open');
+            _ciCloseAll();
+            if (!isOpen) _ciOpen(btn);
+            return;
+          }
+          if (!e.target.closest('.chip-tip')) _ciCloseAll();
+        }, true);
+        pd.addEventListener('touchend', function(e) {
+          if (!e.target.closest('.chip-tip')) _ciCloseAll();
+        }, {passive: true});
+        pd.addEventListener('mouseover', function(e) {
+          var btn = e.target.closest('.chip-info-btn');
+          if (btn) _ciOpen(btn);
+        });
+        pd.addEventListener('mouseout', function(e) {
+          var from = e.target.closest && e.target.closest('.chip-tip');
+          var to   = e.relatedTarget && e.relatedTarget.closest && e.relatedTarget.closest('.chip-tip');
+          if (from && !to) _ciCloseAll();
+        });
+      }
+
+      // ── Zoom reset — always-visible small button below each chart ────────
+      function initZoomReset() {
+        pd.querySelectorAll('.js-plotly-plot').forEach(function(plot) {
+          if (plot._zrDone) return;
+          plot._zrDone = true;
+          var container = plot.closest('[data-testid="stPlotlyChart"]');
+          if (!container || !container.parentNode) return;
+          var btn = pd.createElement('button');
+          btn.className = 'zoom-reset-btn';
+          btn.textContent = '↺ reset zoom';
+          container.parentNode.insertBefore(btn, container.nextSibling);
+          btn.addEventListener('click', function() {
+            try {
+              var Plt = window.parent.Plotly || window.Plotly;
+              if (Plt) Plt.relayout(plot, {'xaxis.autorange': true, 'yaxis.autorange': true});
+            } catch(err) {}
+          });
+        });
+      }
+      var _zrCount = 0;
+      function _zrPoll() {
+        initZoomReset();
+        _zrCount++;
+        if (_zrCount < 20) setTimeout(_zrPoll, 700);
+      }
+      setTimeout(_zrPoll, 1200);
+
+      // ── Desktop sidebar toggle ────────────────────────────────────────────
+      if (!pd._sbToggleDone) {
+        pd._sbToggleDone = true;
+        var _sbt = pd.createElement('button');
+        _sbt.id = 'sb-desktop-toggle';
+        _sbt.className = 'sb-desktop-toggle';
+        _sbt.setAttribute('aria-label', 'Toggle sidebar');
+        _sbt.textContent = '◀';
+        pd.body.appendChild(_sbt);
+        function _sbtApply(collapsed) {
+          if (collapsed) {
+            pd.body.classList.add('sidebar-collapsed');
+            _sbt.textContent = '▶';
+          } else {
+            pd.body.classList.remove('sidebar-collapsed');
+            _sbt.textContent = '◀';
+          }
+          try { window.parent.localStorage.setItem('altdata_sb', collapsed ? '0' : '1'); } catch(e){}
+        }
+        _sbt.addEventListener('click', function() {
+          _sbtApply(!pd.body.classList.contains('sidebar-collapsed'));
+        });
+        try {
+          var _sbSaved = window.parent.localStorage.getItem('altdata_sb');
+          if (_sbSaved === '0') _sbtApply(true);
+        } catch(e) {}
+      }
+
     })();
     </script>""", height=0)
 
 
 # ── Sector mapping ─────────────────────────────────────────────────────────────
 SECTORS = {
-    "Mega-Cap Tech":     ["AAPL", "NVDA", "AMZN", "MSFT", "GOOGL"],
+    "Mega-Cap Tech":     ["AAPL", "NVDA", "AMZN", "MSFT", "GOOGL", "PLTR"],
     "Social / Media":    ["META", "SNAP", "PINS", "RDDT", "SPOT", "NFLX", "DIS", "UBER"],
     "Fintech / Finance": ["JPM", "GS", "HOOD", "PYPL", "SQ", "SOFI"],
     "Crypto":            ["COIN", "MSTR"],
@@ -1616,6 +1717,18 @@ SECTORS = {
     "Energy":            ["XOM", "CVX", "FSLR"],
     "Meme / Gaming":     ["GME", "AMC"],
     "ETF":               ["SPCX"],
+}
+
+SECTORS_GICS = {
+    "Technology":           ["AAPL", "NVDA", "MSFT", "PLTR", "MSTR", "IONQ", "QBTS", "RGTI"],
+    "Comm. Services":       ["GOOGL", "META", "SNAP", "PINS", "RDDT", "SPOT", "NFLX", "DIS"],
+    "Consumer Discr.":      ["AMZN", "TSLA", "SBUX", "GME", "AMC", "CHWY", "NKE", "ABNB", "UBER"],
+    "Consumer Staples":     ["WMT", "TGT", "MCD"],
+    "Financials":           ["JPM", "GS", "HOOD", "PYPL", "SQ", "SOFI", "COIN"],
+    "Healthcare":           ["PFE", "MRNA", "NVAX"],
+    "Industrials / Defense":["LMT", "RTX", "BA", "RKLB", "F", "GM"],
+    "Energy":               ["XOM", "CVX", "FSLR"],
+    "Other":                ["RIVN", "LCID", "SPCX"],
 }
 
 # ── Analysis helpers ───────────────────────────────────────────────────────────
@@ -2105,8 +2218,17 @@ def tab_signal_accuracy():
 def tab_sector_heatmap(rows):
     rows_by_ticker = {r["ticker"]: r for r in rows}
 
+    grouping = st.radio(
+        "Group by",
+        ["Custom Themes", "GICS / Classic"],
+        horizontal=True,
+        key="sh_grouping",
+        label_visibility="collapsed",
+    )
+    sectors_map = SECTORS if grouping == "Custom Themes" else SECTORS_GICS
+
     sector_data = []
-    for sector, tickers in SECTORS.items():
+    for sector, tickers in sectors_map.items():
         for ticker in tickers:
             r = rows_by_ticker.get(ticker)
             if r is None:
@@ -2704,8 +2826,7 @@ def show_detail(ticker):
     st.markdown("---")
 
     _chart_cfg = {
-        "displayModeBar": True,
-        "modeBarButtonsToRemove": ["lasso2d", "select2d", "toImage"],
+        "displayModeBar": False,
         "displaylogo": False,
         "responsive": True,
     }

@@ -606,19 +606,21 @@ div[data-baseweb="notification"] {
   position: absolute;
   top: calc(100% + 8px);
   left: 0;
-  background: #1C160E;
-  color: #FAF6EF;
+  background: #1a1d2e;
+  color: rgba(226,232,240,0.92);
   font-family: 'Inter', sans-serif;
   font-size: 0.78rem;
   font-weight: 400;
-  line-height: 1.6;
-  padding: 8px 12px;
-  border-radius: 2px;
-  max-width: 240px;
+  line-height: 1.7;
+  padding: 9px 13px;
+  border-radius: 6px;
+  border: 1px solid rgba(94,140,170,0.35);
+  max-width: 260px;
   white-space: normal;
-  z-index: 1000;
+  z-index: 9000;
   pointer-events: none;
-  transition: opacity 120ms ease;
+  box-shadow: 0 4px 18px rgba(10,12,24,0.55);
+  transition: opacity 150ms ease;
 }
 .th-tip:hover .th-tip-box,
 .th-tip:focus-within .th-tip-box {
@@ -799,6 +801,7 @@ section[data-testid="stSidebar"] {
   min-width: 260px !important;
   max-width: 260px !important;
   z-index: 999 !important;
+  transition: left 250ms ease !important;
 }
 section[data-testid="stSidebar"] > div {
   background: var(--dark-header) !important;
@@ -808,10 +811,49 @@ section[data-testid="stSidebar"] > div {
   margin-left: 260px !important;
   min-width: 0 !important;
   width: calc(100% - 260px) !important;
+  transition: margin-left 250ms ease, width 250ms ease;
 }
 [data-testid="collapsedControl"],
 button[kind="header"] {
   display: none !important;
+}
+
+/* Desktop sidebar toggle button */
+.sb-desktop-toggle {
+  display: none;
+  position: fixed;
+  top: 50vh;
+  left: 260px;
+  transform: translate(-50%, -50%);
+  z-index: 1001;
+  background: var(--dark-header);
+  border: 1px solid rgba(200,184,154,0.25);
+  border-radius: 50%;
+  width: 22px;
+  height: 22px;
+  cursor: pointer;
+  align-items: center;
+  justify-content: center;
+  font-size: 0.55rem;
+  color: rgba(183,156,116,0.7);
+  padding: 0;
+  line-height: 1;
+  transition: left 250ms ease, color 120ms, border-color 120ms;
+}
+.sb-desktop-toggle:hover {
+  color: #B79C74;
+  border-color: rgba(200,184,154,0.55);
+}
+@media (min-width: 769px) {
+  .sb-desktop-toggle { display: flex; }
+}
+@media (min-width: 769px) {
+  body.sidebar-collapsed .sb-desktop-toggle { left: 0px; }
+  body.sidebar-collapsed section[data-testid="stSidebar"] { left: -260px !important; }
+  body.sidebar-collapsed [data-testid="stMain"] {
+    margin-left: 0 !important;
+    width: 100% !important;
+  }
 }
 section[data-testid="stSidebar"] [data-testid="stVerticalBlock"] {
   gap: 0 !important;
@@ -1726,6 +1768,9 @@ section[data-testid="stSidebar"] {
 
 /* ── Fullscreen chart button overlay ─────────────────────────────────────── */
 [data-testid="stPlotlyChart"] { position: relative; }
+/* Ensure Plotly SVG canvas has transparent background (fixes heatmap gaps) */
+.js-plotly-plot .main-svg { background: transparent !important; }
+.js-plotly-plot .main-svg .bg { fill: transparent !important; }
 .chart-fs-btn {
   position: absolute;
   top: 6px;
@@ -1900,39 +1945,69 @@ html[data-theme="dark"] .chart-fs-btn {
   border: none;
   cursor: pointer;
   color: var(--muted);
-  font-size: 0.6rem;
-  padding: 0 3px;
+  font-size: 0.68rem;
+  padding: 0 4px;
   line-height: 1;
   vertical-align: middle;
   font-family: 'Inter', sans-serif;
-  opacity: 0.65;
+  opacity: 0.6;
   transition: opacity 120ms;
   text-transform: none;
   letter-spacing: normal;
 }
 .chip-info-btn:hover { opacity: 1; }
+@keyframes _tipFadeIn {
+  from { opacity: 0; transform: translateY(-4px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
 .chip-info-popup {
   display: none;
   position: fixed;
   top: 0;
   left: 0;
-  background: var(--dark-header);
-  color: rgba(250,246,239,0.85);
+  background: #1a1d2e;
+  color: rgba(226,232,240,0.92);
   font-family: 'Inter', sans-serif;
   font-size: 0.78rem;
   font-weight: 400;
-  line-height: 1.65;
+  line-height: 1.7;
   text-transform: none;
   letter-spacing: normal;
   padding: 10px 14px;
-  border-radius: 4px;
-  min-width: 200px;
-  max-width: 260px;
+  border-radius: 6px;
+  border: 1px solid rgba(94,140,170,0.35);
+  min-width: 210px;
+  max-width: 290px;
   z-index: 99999;
-  box-shadow: 0 4px 20px rgba(28,22,14,0.45);
+  box-shadow: 0 4px 22px rgba(10,12,24,0.6);
   white-space: normal;
 }
-.chip-tip.open .chip-info-popup { display: block; }
+.chip-tip.open .chip-info-popup {
+  display: block;
+  animation: _tipFadeIn 160ms ease forwards;
+}
+
+/* ── Zoom reset button ────────────────────────────────────────────────────── */
+.zoom-reset-btn {
+  display: block;
+  text-align: right;
+  margin: -4px 0 6px;
+  padding: 0;
+  background: transparent;
+  border: none;
+  color: rgba(139,111,71,0.45);
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 0.62rem;
+  font-weight: 400;
+  letter-spacing: 0.04em;
+  cursor: pointer;
+  transition: color 120ms ease;
+  line-height: 1.8;
+  width: 100%;
+}
+.zoom-reset-btn:hover { color: rgba(139,111,71,0.85); }
+html[data-theme="dark"] .zoom-reset-btn { color: rgba(183,156,116,0.4); }
+html[data-theme="dark"] .zoom-reset-btn:hover { color: rgba(183,156,116,0.8); }
 
 /* ── Mobile read-more for chart notes ────────────────────────────────────── */
 .note-truncated {

@@ -13,6 +13,7 @@ __pycache__/
 secrets.py
 credentials.py
 .github_token
+.gmail_password
 
 # Personal Mac scheduler — contains your local file paths
 com.altdata.pipeline.plist
@@ -21,3 +22,7 @@ com.altdata.pipeline.plist
 data/pipeline_log.txt
 data/launchd_out.log
 data/launchd_err.log
+data/previous_signals.json
+
+# Local backups — never push these (can be several hundred MB)
+backups/
