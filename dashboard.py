@@ -2230,6 +2230,19 @@ def tab_sector_heatmap(rows):
     agg["_ord"] = agg["sector"].map({s: i for i, s in enumerate(sector_order)})
     agg = agg.sort_values("_ord").drop(columns="_ord")
 
+    # Build per-sector ticker lists with signal colors
+    sector_tickers = {}
+    for item in sector_data:
+        sect = item["sector"]
+        if sect not in sector_tickers:
+            sector_tickers[sect] = []
+        sector_tickers[sect].append((item["ticker"], item["signal"]))
+
+    _scroll_js = (
+        "var t=window.parent.document.getElementById('signal-tbl');"
+        "if(t){t.scrollIntoView({behavior:'smooth',block:'start'});}"
+    )
+
     cells = []
     for _, row in agg.iterrows():
         s = row["avg_sig"]
@@ -2249,13 +2262,34 @@ def tab_sector_heatmap(rows):
         n_n   = n_tot - n_b - n_be
         bull_w = int(round(n_b  / n_tot * 100)) if n_tot else 0
         bear_w = int(round(n_be / n_tot * 100)) if n_tot else 0
+
+        if s >= 0.2:
+            badge_cls, badge_txt = "sh-badge-bull", "BULLISH"
+        elif s <= -0.2:
+            badge_cls, badge_txt = "sh-badge-bear", "BEARISH"
+        else:
+            badge_cls, badge_txt = "sh-badge-neut", "NEUTRAL"
+
+        tick_spans = []
+        for t, sig in sector_tickers.get(row["sector"], []):
+            tc = ("sh-tick-bull" if sig == "BULLISH"
+                  else "sh-tick-bear" if sig == "BEARISH"
+                  else "sh-tick-neut")
+            tick_spans.append(f'<span class="{tc}">{t}</span>')
+
         cells.append(
-            f'<div class="sh-cell {cls}">'
-            f'<div class="sh-name">{row["sector"]}</div>'
-            f'<div class="sh-tally">{n_b}B &nbsp;·&nbsp; {n_be}Be &nbsp;·&nbsp; {n_n}N</div>'
-            f'<div class="sh-bar"><div class="sh-fill-b" style="width:{bull_w}%"></div>'
-            f'<div class="sh-fill-be" style="width:{bear_w}%"></div></div>'
+            f'<a class="sh-cell {cls}" href="javascript:void(0)" onclick="{_scroll_js}">'
+            f'<div class="sh-header">'
+            f'<span class="sh-name">{row["sector"]}</span>'
+            f'<span class="sh-badge {badge_cls}">{badge_txt}</span>'
             f'</div>'
+            f'<div class="sh-tally">{n_b}B · {n_be}Be · {n_n}N of {n_tot}</div>'
+            f'<div class="sh-tickers">{"".join(tick_spans)}</div>'
+            f'<div class="sh-bar">'
+            f'<div class="sh-fill-b" style="width:{bull_w}%"></div>'
+            f'<div class="sh-fill-be" style="width:{bear_w}%"></div>'
+            f'</div>'
+            f'</a>'
         )
 
     st.markdown(
@@ -2266,8 +2300,9 @@ def tab_sector_heatmap(rows):
 
     note(
         "Each card shows the sector's average composite signal. "
-        "B = Bullish count · Be = Bearish count · N = Neutral count. "
-        "Bar = bullish % (green) vs bearish % (red)."
+        "Ticker colours: green = BULLISH · red = BEARISH · grey = NEUTRAL. "
+        "Bar = bullish share (green) vs bearish share (red). "
+        "Click any card to jump to the signal table above."
     )
 
 
@@ -3412,10 +3447,11 @@ def show_predictions():
     if has_price_cols and pd.notna(sel_row_fc.get("pred_price_1d")):
         price_df_fc = load_prices(sel_tkr_fc)
         if not price_df_fc.empty:
-            hist_s = price_df_fc["close_price"].dropna().sort_index().tail(21)
-            last_date     = hist_s.index[-1]
+            # Full history so past predictions can be compared to actual outcomes
+            hist_s = price_df_fc["close_price"].dropna().sort_index()
+            last_date        = hist_s.index[-1]
             current_price_fc = float(hist_s.iloc[-1])
-            vol_fc        = float(sel_row_fc.get("vol") or 0.015)
+            vol_fc           = float(sel_row_fc.get("vol") or 0.015)
 
             pred_dates = [
                 last_date + pd.offsets.BDay(1),
@@ -3432,19 +3468,78 @@ def show_predictions():
                 for n in [1, 3, 7]
             ]
 
-            sig_fc = sel_row_fc["signal"]
+            sig_fc     = sel_row_fc["signal"]
             cone_color = C1 if sig_fc == "BULLISH" else (RED if sig_fc == "BEARISH" else C4)
 
             upper_fc = [p + ci for p, ci in zip(pred_prices_fc, pred_ci_fc)]
             lower_fc = [p - ci for p, ci in zip(pred_prices_fc, pred_ci_fc)]
 
             fig_fc = go.Figure()
+
+            # Full price history
             fig_fc.add_trace(go.Scatter(
                 x=hist_s.index.tolist(), y=hist_s.tolist(),
                 mode="lines", name="Price History",
-                line=dict(color=TEXT, width=2),
+                line=dict(color=TEXT, width=1.5),
                 hovertemplate="%{x|%b %d}: $%{y:,.2f}<extra>History</extra>",
             ))
+
+            # Past prediction overlays — one scatter per horizon
+            past_tkr = pred_df[
+                (pred_df["ticker"] == sel_tkr_fc) &
+                (pred_df["date"] < pred_df["date"].max())
+            ].copy()
+
+            _hz_cfg = [
+                (1, "pred_price_1d", "actual_1d", "hit_1d", "1d Pred"),
+                (3, "pred_price_3d", "actual_3d", "hit_3d", "3d Pred"),
+                (7, "pred_price_7d", "actual_7d", "hit_7d", "7d Pred"),
+            ]
+            for days, pcol, acol, hcol, lbl in _hz_cfg:
+                px_list, py_list, pcolors, psyms, ptexts = [], [], [], [], []
+                ax_list, ay_list = [], []
+                for _, pr in past_tkr.iterrows():
+                    pp = pr.get(pcol)
+                    if not pd.notna(pp):
+                        continue
+                    target = pr["date"] + pd.offsets.BDay(days)
+                    hit    = pr.get(hcol)
+                    px_list.append(target)
+                    py_list.append(float(pp))
+                    ptexts.append(
+                        f"Predicted on {pr['date'].strftime('%b %d')}"
+                    )
+                    if pd.notna(hit):
+                        pcolors.append(GREEN if hit else RED)
+                        psyms.append("triangle-up" if hit else "triangle-down")
+                    else:
+                        pcolors.append(MUTED)
+                        psyms.append("circle-open")
+                    # Actual outcome marker
+                    ap = pr.get(acol)
+                    if pd.notna(ap):
+                        ax_list.append(target)
+                        ay_list.append(float(ap))
+
+                if px_list:
+                    fig_fc.add_trace(go.Scatter(
+                        x=px_list, y=py_list,
+                        mode="markers",
+                        name=lbl,
+                        marker=dict(color=pcolors, size=9, symbol=psyms),
+                        customdata=ptexts,
+                        hovertemplate="%{customdata}<br>Forecast: $%{y:,.2f}<extra>" + lbl + "</extra>",
+                    ))
+                if ax_list:
+                    fig_fc.add_trace(go.Scatter(
+                        x=ax_list, y=ay_list,
+                        mode="markers",
+                        name=f"{lbl} Actual",
+                        marker=dict(color=TEXT, size=7, symbol="x"),
+                        hovertemplate="%{x|%b %d} actual: $%{y:,.2f}<extra>" + lbl + " Actual</extra>",
+                        showlegend=False,
+                    ))
+
             # Confidence band (±1σ)
             fig_fc.add_trace(go.Scatter(
                 x=pred_dates + pred_dates[::-1],
@@ -3455,7 +3550,7 @@ def show_predictions():
                 name="±1σ CI",
                 hoverinfo="skip",
             ))
-            # Forecast line from today's price to predicted points
+            # Today's forecast line
             fig_fc.add_trace(go.Scatter(
                 x=[last_date] + pred_dates,
                 y=[current_price_fc] + pred_prices_fc,
@@ -3466,8 +3561,12 @@ def show_predictions():
                 hovertemplate="%{x|%b %d}: $%{y:,.2f}<extra>Forecast</extra>",
             ))
 
+            n_pred_days = pred_df["date"].nunique()
+            hist_label  = f"{len(hist_s)}-Day" if len(hist_s) < 90 else "Full"
             layout_fc = chart_layout(
-                f"{sel_tkr_fc}  ·  21-Day Price History + 7-Day Forecast", height=320
+                f"{sel_tkr_fc}  ·  {hist_label} Price History + Forecast"
+                + (f"  ·  {n_pred_days} day(s) of predictions" if n_pred_days > 1 else ""),
+                height=360,
             )
             fig_fc.update_layout(**layout_fc)
             st.plotly_chart(fig_fc, use_container_width=True, config={"displayModeBar": False})
@@ -3488,10 +3587,11 @@ def show_predictions():
                           f"{ret7:+.2f}% vs today")
 
             note(
-                f"Forecast uses a linear price trend over the last 21 days plus a signal adjustment "
-                f"(score × daily volatility × 0.25, decayed at longer horizons). "
-                f"Shaded band = ±1σ confidence interval (volatility × √days). "
-                f"This is a model estimate, not a guarantee."
+                f"Price history shown in full from first available data point. "
+                f"Coloured markers = past predictions at their target date: "
+                f"▲ green = correct direction · ▼ red = wrong direction · ○ grey = outcome pending. "
+                f"× marks the actual closing price on that date. "
+                f"Shaded band = ±1σ confidence interval (volatility × √days)."
             )
     else:
         st.info("Price forecasts not yet computed — re-run the pipeline to add price predictions.")

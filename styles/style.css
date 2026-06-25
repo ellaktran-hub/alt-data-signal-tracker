@@ -1985,52 +1985,95 @@ html[data-theme="dark"] .note-truncated::after {
   color: var(--muted);
   letter-spacing: 0.08em;
   text-transform: uppercase;
-  margin: 0 0 10px;
+  margin: 0 0 12px;
 }
 .sh-grid {
   display: grid;
   grid-template-columns: repeat(4, 1fr);
-  gap: 10px;
-  margin-bottom: 1rem;
+  gap: 8px;
+  margin-bottom: 1.2rem;
 }
 .sh-cell {
-  border-radius: 8px;
-  padding: 13px 15px 11px;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-left: 3px solid var(--muted);
+  border-radius: 4px;
+  padding: 11px 13px 10px;
   display: flex;
   flex-direction: column;
   gap: 5px;
-  border: 1px solid rgba(0,0,0,0.12);
+  cursor: pointer;
+  text-decoration: none;
+  transition: box-shadow 120ms, border-left-color 120ms;
 }
-.sh-strong-bull { background: linear-gradient(145deg, #1e4d1a, #2d6b27); }
-.sh-bull        { background: linear-gradient(145deg, #2a5226, #3a6b35); }
-.sh-neut        { background: linear-gradient(145deg, #3e3326, #574839); }
-.sh-bear        { background: linear-gradient(145deg, #5a2420, #7a3025); }
-.sh-strong-bear { background: linear-gradient(145deg, #6a1a16, #8a2018); }
+.sh-cell:hover {
+  box-shadow: 0 2px 10px rgba(44,36,22,0.1);
+}
+.sh-strong-bull, .sh-bull { border-left-color: #3A6B35; }
+.sh-strong-bear, .sh-bear { border-left-color: #9B3A28; }
+.sh-neut                  { border-left-color: var(--muted); }
+.sh-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  gap: 6px;
+}
 .sh-name {
   font-family: 'Inter', sans-serif;
-  font-size: 0.78rem;
+  font-size: 0.76rem;
   font-weight: 600;
-  color: rgba(255,255,255,0.95);
-  line-height: 1.2;
+  color: var(--text);
+  line-height: 1.25;
 }
+.sh-badge {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 0.49rem;
+  font-weight: 700;
+  letter-spacing: 0.07em;
+  text-transform: uppercase;
+  padding: 2px 5px;
+  border-radius: 2px;
+  white-space: nowrap;
+  flex-shrink: 0;
+}
+.sh-badge-bull { background: rgba(58,107,53,0.14); color: #3A6B35; }
+.sh-badge-bear { background: rgba(155,58,40,0.14); color: #9B3A28; }
+.sh-badge-neut { background: rgba(122,106,82,0.1); color: var(--muted); }
 .sh-tally {
   font-family: 'JetBrains Mono', monospace;
   font-size: 0.58rem;
-  color: rgba(255,255,255,0.55);
-  letter-spacing: 0.02em;
+  color: var(--muted);
 }
+.sh-tickers {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 1px 5px;
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 0.55rem;
+}
+.sh-tick-bull { color: #3A6B35; }
+.sh-tick-bear { color: #9B3A28; }
+.sh-tick-neut { color: var(--muted); opacity: 0.75; }
 .sh-bar {
-  height: 3px;
-  background: rgba(255,255,255,0.12);
-  border-radius: 2px;
+  height: 2px;
+  background: var(--surface2);
+  border-radius: 1px;
   display: flex;
   overflow: hidden;
   margin-top: 3px;
 }
-.sh-fill-b  { background: rgba(110,220,110,0.7); height: 100%; }
-.sh-fill-be { background: rgba(220,90,80,0.65);  height: 100%; }
+.sh-fill-b  { background: #3A6B35; height: 100%; opacity: 0.55; }
+.sh-fill-be { background: #9B3A28; height: 100%; opacity: 0.55; }
+html[data-theme="dark"] .sh-cell       { background: var(--dark-header); border-color: rgba(200,184,154,0.2); }
+html[data-theme="dark"] .sh-name       { color: rgba(250,246,239,0.9); }
+html[data-theme="dark"] .sh-tally      { color: rgba(250,246,239,0.5); }
+html[data-theme="dark"] .sh-tick-neut  { color: rgba(250,246,239,0.35); opacity:1; }
+html[data-theme="dark"] .sh-bar        { background: rgba(255,255,255,0.1); }
+html[data-theme="dark"] .sh-badge-bull { background: rgba(58,107,53,0.25); }
+html[data-theme="dark"] .sh-badge-bear { background: rgba(155,58,40,0.25); }
+html[data-theme="dark"] .sh-badge-neut { background: rgba(122,106,82,0.18); }
 @media (max-width: 768px) {
-  .sh-grid { grid-template-columns: repeat(2, 1fr); }
+  .sh-grid { grid-template-columns: repeat(2, 1fr); gap: 6px; }
 }
 
 /* ── Hide Plotly zoom notification toast ─────────────────────────────────── */
