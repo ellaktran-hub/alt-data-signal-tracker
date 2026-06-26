@@ -1,0 +1,60 @@
+filed_date,period_date,insider_name,title,transaction_code,transaction_type,shares,price_per_share,total_value
+2026-06-18,2026-06-17,SMITH BRADFORD L,Director,M,Option exercise,6460.0,9.667,62448.82
+2026-06-18,2026-06-17,SMITH BRADFORD L,Director,M,Option exercise,6420.0,9.738,62517.96
+2026-06-18,2026-06-17,SMITH BRADFORD L,Director,M,Option exercise,6090.0,10.263,62501.67
+2026-06-18,2026-06-17,SMITH BRADFORD L,Director,M,Option exercise,5070.0,12.33,62513.1
+2026-06-18,2026-06-17,SMITH BRADFORD L,Director,M,Option exercise,5330.0,11.722,62478.26
+2026-06-18,2026-06-17,SMITH BRADFORD L,Director,S,Sale,22190.0,77.2089,1713265.49
+2026-06-18,2026-06-17,SMITH BRADFORD L,Director,S,Sale,13800.0,78.0097,1076533.86
+2026-06-18,2026-06-17,SMITH BRADFORD L,Director,M,Option exercise,6620.0,9.437,62472.94
+2026-06-02,2026-06-01,HASTINGS REED,Director,S,Sale,332917.0,85.8459,28579559.49
+2026-06-02,2026-06-01,HASTINGS REED,Director,S,Sale,53783.0,86.7277,4664475.89
+2026-06-02,2026-06-01,HASTINGS REED,Director,M,Option exercise,386700.0,10.263,3968702.1
+2026-05-07,2026-05-07,Neumann Spencer Adam,Chief Financial Officer,S,Sale,9253.0,88.9522,823074.71
+2026-05-07,2026-05-06,Peters Gregory K,Co-CEO,G,Gift,1209.0,0.0,
+2026-05-07,2026-05-06,Peters Gregory K,Co-CEO,S,Sale,27312.0,88.6944,2422421.45
+2026-05-05,2026-05-04,Willems Cletus R,Chief Global Affairs Officer,F,Tax withholding (sale),722.0,92.06,66467.32
+2026-05-05,2026-05-04,Peters Gregory K,Co-CEO,F,Tax withholding (sale),7194.0,92.06,662279.64
+2026-05-05,2026-05-04,Peters Gregory K,Co-CEO,F,Tax withholding (sale),6979.0,92.06,642486.74
+2026-05-05,2026-05-04,Willems Cletus R,Chief Global Affairs Officer,M,Option exercise,3160.0,,
+2026-05-05,2026-05-04,Willems Cletus R,Chief Global Affairs Officer,M,Option exercise,1470.0,,
+2026-05-05,2026-05-04,Willems Cletus R,Chief Global Affairs Officer,M,Option exercise,1538.0,,
+2026-05-05,2026-05-04,Willems Cletus R,Chief Global Affairs Officer,F,Tax withholding (sale),1550.0,92.06,142693.0
+2026-05-05,2026-05-04,HYMAN DAVID A,Chief Legal Officer,F,Tax withholding (sale),1464.0,92.06,134775.84
+2026-05-05,2026-05-04,Willems Cletus R,Chief Global Affairs Officer,F,Tax withholding (sale),755.0,92.06,69505.3
+2026-05-05,2026-05-04,HYMAN DAVID A,Chief Legal Officer,M,Option exercise,5430.0,,
+2026-05-05,2026-05-04,HYMAN DAVID A,Chief Legal Officer,M,Option exercise,3030.0,,
+2026-05-05,2026-05-04,HYMAN DAVID A,Chief Legal Officer,M,Option exercise,2939.0,,
+2026-05-05,2026-05-04,HYMAN DAVID A,Chief Legal Officer,F,Tax withholding (sale),2704.0,92.06,248930.24
+2026-05-05,2026-05-04,HYMAN DAVID A,Chief Legal Officer,F,Tax withholding (sale),1509.0,92.06,138918.54
+2026-05-05,2026-05-04,Peters Gregory K,Co-CEO,M,Option exercise,14018.0,,
+2026-05-05,2026-05-04,HYMAN DAVID A,Chief Legal Officer,S,Sale,5722.0,88.0847,504020.65
+2026-05-05,2026-05-04,Peters Gregory K,Co-CEO,F,Tax withholding (sale),12903.0,92.06,1187850.18
+2026-05-05,2026-05-04,Peters Gregory K,Co-CEO,M,Option exercise,25920.0,,
+2026-05-05,2026-05-04,Peters Gregory K,Co-CEO,M,Option exercise,14450.0,,
+2026-05-05,2026-05-04,SARANDOS THEODORE A,Co-CEO,M,Option exercise,25920.0,,
+2026-05-05,2026-05-04,Neumann Spencer Adam,Chief Financial Officer,M,Option exercise,8780.0,,
+2026-05-05,2026-05-04,Neumann Spencer Adam,Chief Financial Officer,M,Option exercise,4900.0,,
+2026-05-05,2026-05-04,SARANDOS THEODORE A,Co-CEO,S,Sale,7039.0,87.9754,619258.84
+2026-05-05,2026-05-04,Neumann Spencer Adam,Chief Financial Officer,F,Tax withholding (sale),4371.0,92.06,402394.26
+2026-05-05,2026-05-04,Neumann Spencer Adam,Chief Financial Officer,F,Tax withholding (sale),2440.0,92.06,224626.4
+2026-05-05,2026-05-04,Neumann Spencer Adam,Chief Financial Officer,F,Tax withholding (sale),2364.0,92.06,217629.84
+2026-05-05,2026-05-04,Neumann Spencer Adam,Chief Financial Officer,M,Option exercise,4748.0,,
+2026-05-05,2026-05-04,SARANDOS THEODORE A,Co-CEO,M,Option exercise,14450.0,,
+2026-05-05,2026-05-04,SARANDOS THEODORE A,Co-CEO,M,Option exercise,14018.0,,
+2026-05-05,2026-05-04,SARANDOS THEODORE A,Co-CEO,F,Tax withholding (sale),12903.0,92.06,1187850.18
+2026-05-05,2026-05-04,SARANDOS THEODORE A,Co-CEO,F,Tax withholding (sale),7194.0,92.06,662279.64
+2026-05-05,2026-05-04,SARANDOS THEODORE A,Co-CEO,F,Tax withholding (sale),6979.0,92.06,642486.74
+2026-05-05,2026-05-04,SARANDOS THEODORE A,Co-CEO,S,Sale,13017.0,87.9642,1145029.99
+2026-05-05,2026-05-04,SARANDOS THEODORE A,Co-CEO,S,Sale,7256.0,87.9738,638337.89
+2026-05-04,2026-05-01,HASTINGS REED,Director,S,Sale,113334.0,94.1689,10672538.11
+2026-05-04,2026-05-01,HASTINGS REED,Director,S,Sale,105791.0,93.5427,9895975.78
+2026-05-04,2026-05-01,HASTINGS REED,Director,S,Sale,188425.0,92.283,17388424.27
+2026-05-04,2026-05-01,HASTINGS REED,Director,M,Option exercise,407550.0,9.738,3968721.9
+2026-04-03,2026-04-02,Neumann Spencer Adam,Chief Financial Officer,M,Option exercise,7770.0,38.105,296075.85
+2026-04-03,2026-04-02,Neumann Spencer Adam,Chief Financial Officer,M,Option exercise,20860.0,36.408,759470.88
+2026-04-03,2026-04-02,Neumann Spencer Adam,Chief Financial Officer,S,Sale,28630.0,98.0,2805740.0
+2026-04-02,2026-04-01,HASTINGS REED,Director,M,Option exercise,420550.0,9.437,3968730.35
+2026-04-02,2026-04-01,HASTINGS REED,Director,S,Sale,152047.0,95.015,14446745.71
+2026-04-02,2026-04-01,HASTINGS REED,Director,S,Sale,247923.0,95.6767,23720454.49
+2026-04-02,2026-04-01,HASTINGS REED,Director,S,Sale,20580.0,96.6601,1989264.86

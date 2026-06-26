@@ -1,0 +1,123 @@
+filed_date,period_date,insider_name,title,transaction_code,transaction_type,shares,price_per_share,total_value
+2026-06-26,2026-06-24,Blecharczyk Nathan,Chief Strategy Officer,C,C,88366.0,,
+2026-06-26,2026-06-24,Blecharczyk Nathan,Chief Strategy Officer,S,Sale,24770.0,146.2891,3623581.01
+2026-06-26,2026-06-24,Blecharczyk Nathan,Chief Strategy Officer,S,Sale,2440.0,147.0947,358911.07
+2026-06-26,2026-06-24,Blecharczyk Nathan,Chief Strategy Officer,C,C,2113.0,,
+2026-06-26,2026-06-24,Blecharczyk Nathan,Chief Strategy Officer,S,Sale,2113.0,145.0874,306569.68
+2026-06-26,2026-06-24,Blecharczyk Nathan,Chief Strategy Officer,S,Sale,61156.0,145.5577,8901726.7
+2026-06-17,2026-06-15,Gebbia Joseph,Director,S,Sale,900.0,140.0533,126047.97
+2026-06-17,2026-06-15,Chesky Brian,CEO and Chairman,S,Sale,300.0,140.0733,42021.99
+2026-06-17,2026-06-15,Chesky Brian,CEO and Chairman,S,Sale,4225.0,139.3163,588611.37
+2026-06-17,2026-06-15,Chesky Brian,CEO and Chairman,S,Sale,20638.0,138.535,2859085.33
+2026-06-17,2026-06-15,Chesky Brian,CEO and Chairman,S,Sale,1312.0,135.074,177217.09
+2026-06-17,2026-06-15,Chesky Brian,CEO and Chairman,S,Sale,4268.0,137.7327,587843.16
+2026-06-17,2026-06-15,Gebbia Joseph,Director,S,Sale,38199.0,139.3836,5324314.14
+2026-06-17,2026-06-15,Gebbia Joseph,Director,S,Sale,187190.0,138.5259,25930663.22
+2026-06-17,2026-06-15,Gebbia Joseph,Director,S,Sale,35211.0,137.7271,4849508.92
+2026-06-17,2026-06-15,Gebbia Joseph,Director,S,Sale,600.0,136.965,82179.0
+2026-06-17,2026-06-15,Gebbia Joseph,Director,S,Sale,1425.0,135.2681,192757.04
+2026-06-17,2026-06-15,Gebbia Joseph,Director,S,Sale,1475.0,134.7058,198691.06
+2026-06-10,2026-06-08,Chesky Brian,CEO and Chairman,S,Sale,36117.0,135.3049,4886807.07
+2026-06-10,2026-06-08,Chesky Brian,CEO and Chairman,S,Sale,1587.0,136.1249,216030.22
+2026-06-10,2026-06-08,Chesky Brian,CEO and Chairman,S,Sale,2109.0,135.2152,285168.86
+2026-06-10,2026-06-08,Chesky Brian,CEO and Chairman,S,Sale,2086.0,136.2035,284120.5
+2026-06-08,2026-06-04,Chesky Brian,CEO and Chairman,S,Sale,31240.0,135.7168,4239792.83
+2026-06-08,2026-06-04,Chesky Brian,CEO and Chairman,S,Sale,27533.0,136.4241,3756164.75
+2026-06-08,2026-06-04,Chesky Brian,CEO and Chairman,S,Sale,5560.0,137.0716,762118.1
+2026-06-08,2026-06-04,Chesky Brian,CEO and Chairman,S,Sale,16515.0,135.1655,2232258.23
+2026-06-04,2026-06-02,Chesky Brian,CEO and Chairman,S,Sale,36074.0,134.3942,4848136.37
+2026-06-04,2026-06-02,Mertz Elinor,Chief Financial Officer,S,Sale,7433.0,136.24,1012671.92
+2026-06-04,2026-06-02,Chesky Brian,CEO and Chairman,S,Sale,800.0,135.7144,108571.52
+2026-06-04,2026-06-02,Chesky Brian,CEO and Chairman,S,Sale,6718.0,132.5682,890593.17
+2026-06-04,2026-06-02,Chesky Brian,CEO and Chairman,S,Sale,19172.0,133.6993,2563282.98
+2026-06-03,2026-06-01,Gebbia Joseph,Director,S,Sale,11600.0,132.5186,1537215.76
+2026-06-03,2026-06-01,Gebbia Joseph,Director,S,Sale,49400.0,133.4867,6594242.98
+2026-06-03,2026-06-01,Gebbia Joseph,Director,S,Sale,48600.0,134.5158,6537467.88
+2026-06-03,2026-06-01,Gebbia Joseph,Director,S,Sale,54099.0,135.3717,7323473.6
+2026-06-03,2026-06-01,Gebbia Joseph,Director,S,Sale,25050.0,136.352,3415617.6
+2026-06-03,2026-06-01,Gebbia Joseph,Director,S,Sale,76251.0,137.5119,10485419.89
+2026-06-02,2026-05-29,Chesky Brian,CEO and Chairman,S,Sale,21100.0,134.5415,2838825.65
+2026-06-02,2026-05-29,Chesky Brian,CEO and Chairman,S,Sale,14649.0,136.3258,1997036.64
+2026-06-02,2026-05-29,Chesky Brian,CEO and Chairman,S,Sale,57.0,138.03,7867.71
+2026-06-02,2026-05-29,Chesky Brian,CEO and Chairman,S,Sale,7869.0,137.5966,1082747.65
+2026-06-02,2026-05-29,Chesky Brian,CEO and Chairman,S,Sale,1800.0,136.2783,245300.94
+2026-06-02,2026-05-29,Chesky Brian,CEO and Chairman,S,Sale,5500.0,135.3338,744335.9
+2026-06-02,2026-05-29,Chesky Brian,CEO and Chairman,S,Sale,1223.0,138.0219,168800.78
+2026-06-02,2026-05-29,Chesky Brian,CEO and Chairman,S,Sale,66005.0,137.6102,9082961.25
+2026-06-02,2026-05-29,Chesky Brian,CEO and Chairman,S,Sale,8170.0,132.6277,1083568.31
+2026-06-02,2026-05-29,Chesky Brian,CEO and Chairman,S,Sale,49329.0,135.3721,6677770.32
+2026-06-02,2026-05-29,Chesky Brian,CEO and Chairman,S,Sale,24037.0,133.4707,3208235.22
+2026-06-02,2026-05-29,Chesky Brian,CEO and Chairman,S,Sale,4774.0,135.1611,645259.09
+2026-06-02,2026-05-29,Chesky Brian,CEO and Chairman,S,Sale,37020.0,135.1985,5005048.47
+2026-06-02,2026-05-29,Chesky Brian,CEO and Chairman,S,Sale,34160.0,134.4097,4591435.35
+2026-06-02,2026-05-29,Chesky Brian,CEO and Chairman,S,Sale,32257.0,133.474,4305470.82
+2026-06-02,2026-05-29,Chesky Brian,CEO and Chairman,S,Sale,500.0,132.954,66477.0
+2026-05-29,2026-05-27,Chesky Brian,CEO and Chairman,S,Sale,37696.0,132.6062,4998723.32
+2026-05-29,2026-05-27,Chesky Brian,CEO and Chairman,S,Sale,151214.0,131.5574,19893320.68
+2026-05-29,2026-05-27,Chesky Brian,CEO and Chairman,S,Sale,3134.0,134.1815,420524.82
+2026-05-29,2026-05-27,Chesky Brian,CEO and Chairman,S,Sale,12556.0,133.4792,1675964.84
+2026-05-29,2026-05-27,Chesky Brian,CEO and Chairman,S,Sale,44573.0,134.4372,5992269.32
+2026-05-29,2026-05-27,Chesky Brian,CEO and Chairman,S,Sale,1249.0,129.824,162150.18
+2026-05-29,2026-05-27,Chesky Brian,CEO and Chairman,S,Sale,18458.0,130.8468,2415170.23
+2026-05-29,2026-05-27,Chesky Brian,CEO and Chairman,S,Sale,8833.0,133.3827,1178169.39
+2026-05-29,2026-05-27,Chesky Brian,CEO and Chairman,S,Sale,38881.0,134.2002,5217837.98
+2026-05-29,2026-05-27,Chesky Brian,CEO and Chairman,S,Sale,94832.0,133.3707,12647810.22
+2026-05-29,2026-05-27,Chesky Brian,CEO and Chairman,S,Sale,94050.0,132.5199,12463496.6
+2026-05-29,2026-05-27,Chesky Brian,CEO and Chairman,S,Sale,1787.0,131.9577,235808.41
+2026-05-29,2026-05-27,Chesky Brian,CEO and Chairman,S,Sale,8033.0,132.5436,1064722.74
+2026-05-27,2026-05-25,Gebbia Joseph,Director,C,C,200.0,,
+2026-05-27,2026-05-25,Gebbia Joseph,Director,S,Sale,4.0,136.015,544.06
+2026-05-27,2026-05-25,Gebbia Joseph,Director,S,Sale,336.0,134.5414,45205.91
+2026-05-27,2026-05-25,Gebbia Joseph,Director,S,Sale,1552.0,133.3078,206893.71
+2026-05-27,2026-05-25,Gebbia Joseph,Director,S,Sale,780.0,132.7489,103544.14
+2026-05-27,2026-05-25,Gebbia Joseph,Director,A,Award,2738.0,0.0,
+2026-05-27,2026-05-25,Gebbia Joseph,Director,S,Sale,188.0,135.3729,25450.11
+2026-05-27,2026-05-25,Lin Alfred,Director,A,Award,2890.0,0.0,
+2026-05-27,2026-05-25,AHRENDTS ANGELA J,Director,A,Award,3022.0,0.0,
+2026-05-27,2026-05-25,Manyika James,Director,A,Award,2927.0,0.0,
+2026-05-27,2026-05-25,Ahuja Amrita,Director,A,Award,2946.0,0.0,
+2026-05-27,2026-05-25,JORDAN JEFFREY D,Director,A,Award,3003.0,0.0,
+2026-05-27,2026-05-25,CHENAULT KENNETH I,Director,A,Award,3135.0,0.0,
+2026-05-21,2026-05-19,Blecharczyk Nathan,Chief Strategy Officer,S,Sale,2739.0,131.4,359904.6
+2026-05-21,2026-05-19,Mertz Elinor,Chief Financial Officer,F,Tax withholding (sale),6941.204,134.3,932203.7
+2026-05-21,2026-05-19,Bernstein David C,Chief Accounting Officer,F,Tax withholding (sale),849.939,134.3,114146.81
+2026-05-21,2026-05-19,Blecharczyk Nathan,Chief Strategy Officer,C,C,450.0,,
+2026-05-21,2026-05-19,Blecharczyk Nathan,Chief Strategy Officer,F,Tax withholding (sale),4084.139,134.4,548908.28
+2026-05-20,2026-05-18,Gebbia Joseph,Director,S,Sale,1313.0,132.9114,174512.67
+2026-05-20,2026-05-18,Gebbia Joseph,Director,S,Sale,11215.0,133.6969,1499410.73
+2026-05-20,2026-05-18,Gebbia Joseph,Director,S,Sale,17608.0,134.5982,2370005.11
+2026-05-20,2026-05-18,Gebbia Joseph,Director,S,Sale,15962.0,135.3408,2160309.85
+2026-05-20,2026-05-18,Gebbia Joseph,Director,S,Sale,7481.0,136.4476,1020764.5
+2026-05-20,2026-05-18,Gebbia Joseph,Director,S,Sale,421.0,137.061,57702.68
+2026-05-20,2026-05-18,Gebbia Joseph,Director,C,C,3450000.0,,
+2026-05-12,2026-05-08,Blecharczyk Nathan,Chief Strategy Officer,C,C,627.0,,
+2026-05-12,2026-05-08,Blecharczyk Nathan,Chief Strategy Officer,S,Sale,180.0,146.1722,26311.0
+2026-05-12,2026-05-08,Blecharczyk Nathan,Chief Strategy Officer,S,Sale,447.0,145.4691,65024.69
+2026-05-12,2026-05-08,Blecharczyk Nathan,Chief Strategy Officer,C,C,60136.0,,
+2026-05-12,2026-05-08,Blecharczyk Nathan,Chief Strategy Officer,S,Sale,17481.0,146.2379,2556384.73
+2026-05-12,2026-05-08,Blecharczyk Nathan,Chief Strategy Officer,S,Sale,42655.0,145.4848,6205654.14
+2026-05-06,2026-05-04,Mertz Elinor,Chief Financial Officer,S,Sale,3750.0,143.0,536250.0
+2026-05-06,2026-05-04,Gebbia Joseph,Director,S,Sale,2739.0,138.7461,380025.57
+2026-05-06,2026-05-04,Gebbia Joseph,Director,S,Sale,16598.0,139.3489,2312913.04
+2026-05-06,2026-05-04,Gebbia Joseph,Director,S,Sale,21284.0,140.3449,2987100.85
+2026-05-06,2026-05-04,Gebbia Joseph,Director,S,Sale,14522.0,141.3928,2053306.24
+2026-05-06,2026-05-04,Gebbia Joseph,Director,S,Sale,1342.0,142.4884,191219.43
+2026-05-06,2026-05-04,Gebbia Joseph,Director,S,Sale,1515.0,143.0602,216736.2
+2026-04-27,2026-04-23,Blecharczyk Nathan,Chief Strategy Officer,A,Award,39204.0,0.0,
+2026-04-27,2026-04-23,Bernstein David C,Chief Accounting Officer,A,Award,11201.0,0.0,
+2026-04-27,2026-04-23,Mertz Elinor,Chief Financial Officer,A,Award,72806.0,0.0,
+2026-04-23,2026-04-21,Blecharczyk Nathan,Chief Strategy Officer,S,Sale,13352.0,145.3713,1940997.6
+2026-04-23,2026-04-21,Blecharczyk Nathan,Chief Strategy Officer,S,Sale,200.0,147.0,29400.0
+2026-04-23,2026-04-21,Blecharczyk Nathan,Chief Strategy Officer,S,Sale,11236.0,146.4205,1645180.74
+2026-04-23,2026-04-21,Blecharczyk Nathan,Chief Strategy Officer,S,Sale,10777.0,145.2507,1565366.79
+2026-04-23,2026-04-21,Blecharczyk Nathan,Chief Strategy Officer,C,C,24788.0,,
+2026-04-23,2026-04-21,Blecharczyk Nathan,Chief Strategy Officer,C,C,10777.0,,
+2026-04-22,2026-04-20,Gebbia Joseph,Director,S,Sale,3279.0,140.7728,461594.01
+2026-04-22,2026-04-20,Gebbia Joseph,Director,S,Sale,7673.0,141.5838,1086372.5
+2026-04-22,2026-04-20,Gebbia Joseph,Director,S,Sale,25838.0,142.4883,3681612.7
+2026-04-22,2026-04-20,Gebbia Joseph,Director,S,Sale,21210.0,143.3597,3040659.24
+2026-04-10,2026-04-08,Mertz Elinor,Chief Financial Officer,S,Sale,3750.0,130.99,491212.5
+2026-04-08,2026-04-06,Gebbia Joseph,Director,S,Sale,1324.0,124.7498,165168.74
+2026-04-08,2026-04-06,Gebbia Joseph,Director,S,Sale,19666.0,125.6653,2471333.79
+2026-04-08,2026-04-06,Gebbia Joseph,Director,S,Sale,36910.0,126.4766,4668251.31
+2026-04-08,2026-04-06,Gebbia Joseph,Director,S,Sale,100.0,127.02,12702.0

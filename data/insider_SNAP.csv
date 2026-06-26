@@ -1,0 +1,20 @@
+filed_date,period_date,insider_name,title,transaction_code,transaction_type,shares,price_per_share,total_value
+2026-06-22,2026-06-17,Wood Luke,Director,A,Award,13186.0,0.0,
+2026-06-18,2026-06-16,Mohan Ajit,Chief Business Officer,S,Sale,6923.0,5.5832,38652.49
+2026-06-05,2026-06-04,Briers Zachary M,General Counsel,S,Sale,11958.0,6.0,71748.0
+2026-06-02,2026-05-29,Murphy Robert C.,Chief Technology Officer,S,Sale,343945.0,5.8754,2020814.45
+2026-05-20,2026-05-18,Briers Zachary M,General Counsel,S,Sale,71745.0,5.6704,406822.85
+2026-05-20,2026-05-18,Hott Douglas,Chief Financial Officer,S,Sale,114702.0,5.671,650475.04
+2026-05-20,2026-05-18,Hott Douglas,Chief Financial Officer,S,Sale,124209.0,5.601,695694.61
+2026-05-20,2026-05-18,Mohan Ajit,Chief Business Officer,S,Sale,44785.0,5.6003,250809.44
+2026-05-20,2026-05-18,Briers Zachary M,General Counsel,S,Sale,129493.0,5.6003,725199.65
+2026-05-20,2026-05-18,Morrow Rebecca,Chief Accounting Officer,A,Award,41119.0,0.0,
+2026-05-20,2026-05-18,Morrow Rebecca,Chief Accounting Officer,S,Sale,3570.0,5.74,20491.8
+2026-05-20,2026-05-18,Morrow Rebecca,Chief Accounting Officer,S,Sale,16729.0,5.5981,93650.61
+2026-05-15,2026-05-13,Murphy Robert C.,Chief Technology Officer,S,Sale,2000000.0,5.4419,10883800.0
+2026-05-15,2026-05-13,Murphy Robert C.,Chief Technology Officer,S,Sale,2000000.0,5.2807,10561400.0
+2026-05-15,2026-05-13,Murphy Robert C.,Chief Technology Officer,G,Gift,1202533.0,0.0,
+2026-05-12,2026-05-09,Hott Douglas,Chief Financial Officer,A,Award,2450659.0,0.0,
+2026-04-17,2026-04-16,Mohan Ajit,Chief Business Officer,S,Sale,28058.0,6.0179,168850.24
+2026-04-17,2026-04-15,Briers Zachary M,General Counsel,S,Sale,11437.0,6.04,69079.48
+2026-04-10,2026-04-08,Spiegel Evan,Chief Executive Officer,S,Sale,1000000.0,5.0412,5041200.0

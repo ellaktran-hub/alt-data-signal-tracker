@@ -1,0 +1,26 @@
+filed_date,period_date,insider_name,title,transaction_code,transaction_type,shares,price_per_share,total_value
+2026-06-22,2026-06-22,Friedman Stacey,General Counsel,S,Sale,5467.0,330.7337,1808121.14
+2026-06-05,2026-06-02,JPMORGAN CHASE & CO,false,J,Other acquisition,7178.0,,
+2026-06-05,2026-06-02,JPMORGAN CHASE & CO,false,J,Other acquisition,7178.0,,
+2026-05-20,2026-05-20,Friedman Stacey,General Counsel,S,Sale,5468.0,300.2662,1641855.58
+2026-05-15,2026-05-15,Erdoes Mary E.,CEO Asset & Wealth Management,S,Sale,6648.0,298.3644,1983526.53
+2026-05-15,2026-05-15,Lake Marianne,CEO CCB,S,Sale,6427.0,298.3555,1917530.8
+2026-05-15,2026-05-15,Beer Lori A,Chief Information Officer,S,Sale,3165.0,300.05,949658.25
+2026-05-15,2026-05-14,Petno Douglas B,Co-CEO CIB,G,Gift,135027.0,0.0,
+2026-05-15,2026-05-14,Petno Douglas B,Co-CEO CIB,S,Sale,5659.0,300.05,1697982.95
+2026-05-15,2026-05-14,Petno Douglas B,Co-CEO CIB,G,Gift,135027.0,0.0,
+2026-05-05,2026-05-05,BACON ASHLEY,Chief Risk Officer,S,Sale,4070.0,309.4242,1259356.49
+2026-05-05,2026-05-05,Piepszak Jennifer,Chief Operating Officer,S,Sale,4919.0,309.4201,1522037.47
+2026-05-05,2026-05-05,Barnum Jeremy,Chief Financial Officer,S,Sale,3022.0,309.4082,935031.58
+2026-04-15,2026-04-15,Piepszak Jennifer,Chief Operating Officer,S,Sale,9136.0,306.5579,2800712.97
+2026-04-15,2026-04-15,Petno Douglas B,Co-CEO CIB,S,Sale,5660.0,306.5758,1735219.03
+2026-04-15,2026-04-15,Lake Marianne,CEO CCB,S,Sale,6427.0,306.5666,1970303.54
+2026-04-15,2026-04-15,Erdoes Mary E.,CEO Asset & Wealth Management,S,Sale,12345.0,306.5657,3784553.57
+2026-04-15,2026-04-15,Beer Lori A,Chief Information Officer,S,Sale,3166.0,306.5887,970659.82
+2026-04-15,2026-04-15,Barnum Jeremy,Chief Financial Officer,S,Sale,5611.0,306.5522,1720064.39
+2026-04-15,2026-04-15,BACON ASHLEY,Chief Risk Officer,S,Sale,7558.0,306.5535,2316931.35
+2026-04-15,2026-04-15,DIMON JAMES,Chairman & CEO,S,Sale,130488.0,306.557,40002009.82
+2026-04-01,2026-03-31,Rometty Virginia M,Director,A,Award,135.9804,294.16,39999.99
+2026-04-01,2026-03-31,NOVAKOVIC PHEBE N,Director,A,Award,135.9804,294.16,39999.99
+2026-04-01,2026-03-31,HOBSON MELLODY L,Director,A,Award,152.978,294.16,45000.01
+2026-04-01,2026-03-31,BURKE STEPHEN B,Director,A,Award,191.2225,294.16,56250.01

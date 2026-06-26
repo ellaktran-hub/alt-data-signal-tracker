@@ -1,0 +1,42 @@
+filed_date,period_date,insider_name,title,transaction_code,transaction_type,shares,price_per_share,total_value
+2026-06-17,2026-06-15,Hoge Stephen,President,M,Option exercise,37226.0,19.15,712877.9
+2026-06-17,2026-06-15,Hoge Stephen,President,S,Sale,53336.0,51.37,2739870.32
+2026-06-17,2026-06-15,Hoge Stephen,President,M,Option exercise,16110.0,19.15,308506.5
+2026-06-08,2026-06-05,Mock James M,Chief Financial Officer,M,Option exercise,11798.0,,
+2026-06-08,2026-06-05,Mock James M,Chief Financial Officer,F,Tax withholding (sale),5705.0,51.59,294320.95
+2026-06-08,2026-06-04,Klinger Shannon Thyme,Chief Legal Officer,M,Option exercise,3471.0,30.96,107462.16
+2026-06-08,2026-06-04,Klinger Shannon Thyme,Chief Legal Officer,S,Sale,3471.0,50.0,173550.0
+2026-06-08,2026-06-04,Klinger Shannon Thyme,Chief Legal Officer,M,Option exercise,11798.0,,
+2026-06-08,2026-06-04,Klinger Shannon Thyme,Chief Legal Officer,F,Tax withholding (sale),5705.0,51.59,294320.95
+2026-06-03,2026-06-01,Hoge Stephen,President,F,Tax withholding (sale),4488.0,47.19,211788.72
+2026-06-03,2026-06-01,Hoge Stephen,President,M,Option exercise,9282.0,,
+2026-06-03,2026-06-01,Klinger Shannon Thyme,Chief Legal Officer,F,Tax withholding (sale),1047.0,47.19,49407.93
+2026-06-03,2026-06-01,Klinger Shannon Thyme,Chief Legal Officer,M,Option exercise,2165.0,,
+2026-06-03,2026-06-01,Mock James M,Chief Financial Officer,M,Option exercise,2475.0,,
+2026-06-03,2026-06-01,Mock James M,Chief Financial Officer,F,Tax withholding (sale),1197.0,47.19,56486.43
+2026-05-29,2026-05-27,Klinger Shannon Thyme,Chief Legal Officer,M,Option exercise,328.0,,
+2026-05-29,2026-05-27,Hoge Stephen,President,F,Tax withholding (sale),295.0,47.61,14044.95
+2026-05-29,2026-05-27,Hoge Stephen,President,M,Option exercise,610.0,,
+2026-05-29,2026-05-27,Hoge Stephen,President,F,Tax withholding (sale),695.0,47.03,32685.85
+2026-05-29,2026-05-27,Hoge Stephen,President,M,Option exercise,1437.0,,
+2026-05-29,2026-05-27,Klinger Shannon Thyme,Chief Legal Officer,F,Tax withholding (sale),159.0,47.61,7569.99
+2026-05-29,2026-05-27,Klinger Shannon Thyme,Chief Legal Officer,F,Tax withholding (sale),374.0,47.03,17589.22
+2026-05-29,2026-05-27,Klinger Shannon Thyme,Chief Legal Officer,M,Option exercise,773.0,,
+2026-05-29,2026-05-27,Mock James M,Chief Financial Officer,M,Option exercise,328.0,,
+2026-05-29,2026-05-27,Mock James M,Chief Financial Officer,F,Tax withholding (sale),374.0,47.03,17589.22
+2026-05-29,2026-05-27,Mock James M,Chief Financial Officer,M,Option exercise,773.0,,
+2026-05-29,2026-05-27,Mock James M,Chief Financial Officer,F,Tax withholding (sale),159.0,47.61,7569.99
+2026-05-22,2026-05-21,AFEYAN NOUBAR,Director,M,Option exercise,9263.0,19.15,177386.45
+2026-05-22,2026-05-21,AFEYAN NOUBAR,Director,S,Sale,9263.0,46.84,433878.92
+2026-05-18,2026-05-15,Hoge Stephen,President,M,Option exercise,16110.0,19.15,308506.5
+2026-05-18,2026-05-15,Hoge Stephen,President,S,Sale,53336.0,48.4,2581462.4
+2026-05-18,2026-05-15,Hoge Stephen,President,M,Option exercise,37226.0,19.15,712877.9
+2026-05-04,2026-04-30,Horning Sandra,Director,M,Option exercise,16233.0,,
+2026-05-04,2026-04-30,Rubenstein David M.,Director,M,Option exercise,8116.0,,
+2026-05-04,2026-04-30,Hussain Abbas,Director,M,Option exercise,16233.0,,
+2026-05-04,2026-04-30,Hussain Abbas,Director,S,Sale,5682.0,46.63,264951.66
+2026-05-04,2026-04-30,NABEL ELIZABETH G,Director,M,Option exercise,16233.0,,
+2026-05-04,2026-04-30,Nader Francois,Director,M,Option exercise,12174.0,,
+2026-05-04,2026-04-30,Tallett Elizabeth E,Director,M,Option exercise,4058.0,,
+2026-04-06,2026-04-02,Mock James M,Chief Financial Officer,M,Option exercise,1453.0,,
+2026-04-06,2026-04-02,Mock James M,Chief Financial Officer,F,Tax withholding (sale),703.0,50.03,35171.09

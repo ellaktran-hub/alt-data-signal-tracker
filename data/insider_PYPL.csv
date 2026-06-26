@@ -1,0 +1,45 @@
+filed_date,period_date,insider_name,title,transaction_code,transaction_type,shares,price_per_share,total_value
+2026-06-16,2026-06-15,Miller Jamie S,Chief Fin & Op Officer,M,Option exercise,9094.0,0.0,
+2026-06-16,2026-06-15,Miller Jamie S,Chief Fin & Op Officer,P,Purchase,6129.0,41.53,254537.37
+2026-06-16,2026-06-15,Miller Jamie S,Chief Fin & Op Officer,M,Option exercise,2910.0,0.0,
+2026-06-04,2026-06-03,Natali Chris,"SVP, Chief Accounting Officer",S,Sale,552.0,42.65,23542.8
+2026-06-04,2026-06-03,Kereere Suzan,"President, Global Markets",S,Sale,3379.0,42.7876,144579.3
+2026-06-04,2026-06-03,Keller Frank,"Pres., Checkout Sol. & PayPal",S,Sale,4612.0,42.54,196194.48
+2026-06-02,2026-06-01,Kereere Suzan,"President, Global Markets",M,Option exercise,6903.0,0.0,
+2026-06-02,2026-06-01,Keller Frank,"Pres., Checkout Sol. & PayPal",F,Tax withholding (sale),5709.0,44.75,255477.75
+2026-06-02,2026-06-01,Keller Frank,"Pres., Checkout Sol. & PayPal",M,Option exercise,6903.0,0.0,
+2026-06-02,2026-06-01,Keller Frank,"Pres., Checkout Sol. & PayPal",M,Option exercise,3418.0,0.0,
+2026-06-02,2026-06-01,Kereere Suzan,"President, Global Markets",F,Tax withholding (sale),3524.0,44.75,157699.0
+2026-06-02,2026-06-01,Miller Jamie S,Chief Fin & Op Officer,F,Tax withholding (sale),3786.0,44.75,169423.5
+2026-06-02,2026-06-01,Miller Jamie S,Chief Fin & Op Officer,M,Option exercise,7415.0,0.0,
+2026-06-02,2026-06-01,Natali Chris,"SVP, Chief Accounting Officer",F,Tax withholding (sale),390.0,44.75,17452.5
+2026-06-02,2026-06-01,Natali Chris,"SVP, Chief Accounting Officer",M,Option exercise,103.0,0.0,
+2026-06-02,2026-06-01,Natali Chris,"SVP, Chief Accounting Officer",M,Option exercise,1023.0,0.0,
+2026-06-02,2026-06-01,Webster Aaron,"EVP, Global Chief Risk Officer",F,Tax withholding (sale),2097.0,44.75,93840.75
+2026-06-02,2026-06-01,Webster Aaron,"EVP, Global Chief Risk Officer",M,Option exercise,4602.0,0.0,
+2026-05-20,2026-05-19,DORMAN DAVID W,Director,A,Award,8271.0,0.0,
+2026-05-20,2026-05-19,Kereere Suzan,"President, Global Markets",S,Sale,200.0,44.865,8973.0
+2026-05-20,2026-05-19,Kereere Suzan,"President, Global Markets",S,Sale,3962.0,44.1624,174971.43
+2026-05-20,2026-05-19,Sarnoff Ann,Director,A,Award,6275.0,0.0,
+2026-05-20,2026-05-19,Di Sibio Carmine,Director,A,Award,6275.0,0.0,
+2026-05-20,2026-05-19,Chik Joy,Director,A,Award,6275.0,0.0,
+2026-05-20,2026-05-19,Stanley Deirdre,Director,A,Award,6275.0,0.0,
+2026-05-20,2026-05-19,MESSEMER DEBORAH M.,Director,A,Award,6275.0,0.0,
+2026-05-20,2026-05-19,CHRISTODORO JONATHAN,Director,A,Award,6275.0,0.0,
+2026-05-20,2026-05-19,Henry Alyssa,Director,A,Award,6275.0,0.0,
+2026-05-20,2026-05-19,MOFFETT DAVID M,Director,A,Award,6275.0,0.0,
+2026-05-20,2026-05-19,Yeary Frank D,Director,A,Award,6275.0,0.0,
+2026-05-15,2026-05-15,Kereere Suzan,"President, Global Markets",M,Option exercise,8504.0,0.0,
+2026-05-15,2026-05-15,Kereere Suzan,"President, Global Markets",F,Tax withholding (sale),4342.0,45.04,195563.68
+2026-04-30,2026-04-29,Keller Frank,"Pres., Checkout Sol. & PayPal",S,Sale,732.0,49.46,36204.72
+2026-04-30,2026-04-29,Keller Frank,"Pres., Checkout Sol. & PayPal",S,Sale,10000.0,50.0,500000.0
+2026-04-30,2026-04-29,Natali Chris,"SVP, Chief Accounting Officer",S,Sale,1337.0,49.46,66128.02
+2026-04-16,2026-04-15,Webster Aaron,"EVP, Global Chief Risk Officer",M,Option exercise,5900.0,0.0,
+2026-04-16,2026-04-15,Webster Aaron,"EVP, Global Chief Risk Officer",M,Option exercise,2622.0,0.0,
+2026-04-16,2026-04-15,Webster Aaron,"EVP, Global Chief Risk Officer",F,Tax withholding (sale),3883.0,47.97,186267.51
+2026-04-16,2026-04-15,Scotti Diego,"EVP, GM Consumer Group",M,Option exercise,8589.0,0.0,
+2026-04-16,2026-04-15,Scotti Diego,"EVP, GM Consumer Group",F,Tax withholding (sale),4750.0,47.97,227857.5
+2026-04-16,2026-04-15,Natali Chris,"SVP, Chief Accounting Officer",M,Option exercise,2726.0,0.0,
+2026-04-16,2026-04-15,Natali Chris,"SVP, Chief Accounting Officer",F,Tax withholding (sale),943.0,47.97,45235.71
+2026-04-16,2026-04-15,Keller Frank,"EVP, GM, Large Ent & Mer Plat.",M,Option exercise,1639.0,0.0,
+2026-04-16,2026-04-15,Keller Frank,"EVP, GM, Large Ent & Mer Plat.",F,Tax withholding (sale),907.0,47.97,43508.79

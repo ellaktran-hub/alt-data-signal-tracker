@@ -1,0 +1,87 @@
+filed_date,period_date,insider_name,title,transaction_code,transaction_type,shares,price_per_share,total_value
+2026-06-15,2026-06-15,Verma Shiv,Chief Financial Officer,S,Sale,3984.0,98.84,393778.56
+2026-06-15,2026-06-11,Bhatt Baiju,Director,S,Sale,3400.0,90.4176,307419.84
+2026-06-15,2026-06-11,Bhatt Baiju,Director,S,Sale,2414.0,93.2088,225006.04
+2026-06-15,2026-06-11,Bhatt Baiju,Director,S,Sale,10392.0,92.5225,961493.82
+2026-06-15,2026-06-11,Bhatt Baiju,Director,S,Sale,6448.0,91.5854,590542.66
+2026-06-15,2026-06-11,Bhatt Baiju,Director,C,C,57898.0,,
+2026-06-15,2026-06-11,Bhatt Baiju,Director,S,Sale,9951.0,89.5273,890886.16
+2026-06-15,2026-06-11,Bhatt Baiju,Director,S,Sale,12280.0,87.3823,1073054.64
+2026-06-15,2026-06-11,Bhatt Baiju,Director,S,Sale,5000.0,86.5384,432692.0
+2026-06-15,2026-06-11,Bhatt Baiju,Director,S,Sale,8013.0,88.4139,708460.58
+2026-06-09,2026-06-05,"Robinhood Markets, Inc.",0,S,Sale,17050.0,37.24,634942.0
+2026-06-09,2026-06-05,"Robinhood Markets, Inc.",0,S,Sale,25856.0,38.06,984079.36
+2026-06-09,2026-06-05,"Robinhood Markets, Inc.",0,S,Sale,990.0,38.99,38600.1
+2026-06-09,2026-06-05,"Robinhood Markets, Inc.",0,S,Sale,2000.0,40.83,81660.0
+2026-06-09,2026-06-05,"Robinhood Markets, Inc.",0,S,Sale,2500.0,42.56,106400.0
+2026-06-09,2026-06-05,Malka Meyer,Director,P,Purchase,250000.0,80.7368,20184200.0
+2026-06-05,2026-06-03,"Robinhood Markets, Inc.",0,S,Sale,16200.0,42.4,686880.0
+2026-06-05,2026-06-03,Quirk Steven M.,Chief Brokerage Officer,S,Sale,2297.0,86.42,198506.74
+2026-06-05,2026-06-03,Quirk Steven M.,Chief Brokerage Officer,S,Sale,8540.0,85.7749,732517.65
+2026-06-05,2026-06-03,Gallagher Daniel Martin Jr,Chief Legal Officer,S,Sale,800.0,84.7025,67762.0
+2026-06-05,2026-06-03,Gallagher Daniel Martin Jr,Chief Legal Officer,S,Sale,4200.0,84.0648,353072.16
+2026-06-05,2026-06-03,Gallagher Daniel Martin Jr,Chief Legal Officer,S,Sale,200.0,85.775,17155.0
+2026-06-05,2026-06-03,Gallagher Daniel Martin Jr,Chief Legal Officer,S,Sale,4800.0,83.0796,398782.08
+2026-06-05,2026-06-03,"Robinhood Markets, Inc.",0,S,Sale,10756.0,45.63,490796.28
+2026-06-05,2026-06-03,"Robinhood Markets, Inc.",0,S,Sale,6642.0,45.23,300417.66
+2026-06-05,2026-06-03,"Robinhood Markets, Inc.",0,S,Sale,1491.0,44.08,65723.28
+2026-06-05,2026-06-03,"Robinhood Markets, Inc.",0,S,Sale,4243.0,42.87,181897.41
+2026-06-05,2026-06-03,"Robinhood Markets, Inc.",0,S,Sale,53407.0,41.78,2231344.46
+2026-06-03,2026-06-01,Quirk Steven M.,Chief Brokerage Officer,M,Option exercise,71176.0,,
+2026-06-03,2026-06-01,Gallagher Daniel Martin Jr,Chief Legal Officer,F,Tax withholding (sale),54309.0,94.3,5121338.7
+2026-06-03,2026-06-01,Gallagher Daniel Martin Jr,Chief Legal Officer,M,Option exercise,112856.0,,
+2026-06-03,2026-06-01,Verma Shiv,Chief Financial Officer,F,Tax withholding (sale),16955.0,94.3,1598856.5
+2026-06-03,2026-06-01,Verma Shiv,Chief Financial Officer,M,Option exercise,33322.0,,
+2026-06-03,2026-06-01,Quirk Steven M.,Chief Brokerage Officer,F,Tax withholding (sale),31533.0,94.3,2973561.9
+2026-06-03,2026-06-01,Loop Paula,Director,M,Option exercise,801.0,,
+2026-06-03,2026-06-01,Bhatt Baiju,Director,M,Option exercise,801.0,,
+2026-06-03,2026-06-01,RUBINSTEIN JONATHAN,Director,M,Option exercise,801.0,,
+2026-06-03,2026-06-01,Treseder Oluwadara Johnson,Director,M,Option exercise,801.0,,
+2026-06-03,2026-06-01,Zoellick Robert B.,Director,M,Option exercise,801.0,,
+2026-06-03,2026-06-01,Malka Meyer,Director,P,Purchase,181000.0,83.4467,15103852.7
+2026-06-03,2026-06-01,Malka Meyer,Director,M,Option exercise,801.0,,
+2026-06-01,2026-05-28,Malka Meyer,Director,P,Purchase,249000.0,80.3944,20018205.6
+2026-05-22,2026-05-20,Bhatt Baiju,Director,S,Sale,11267.0,76.0056,856355.1
+2026-05-22,2026-05-20,Bhatt Baiju,Director,S,Sale,42955.0,75.5493,3245220.18
+2026-05-22,2026-05-20,Bhatt Baiju,Director,S,Sale,13200.0,74.2775,980463.0
+2026-05-22,2026-05-20,Bhatt Baiju,Director,C,C,67422.0,,
+2026-05-19,2026-05-15,Verma Shiv,Chief Financial Officer,S,Sale,1750.0,77.85,136237.5
+2026-05-19,2026-05-15,Verma Shiv,Chief Financial Officer,S,Sale,3686.0,77.1292,284298.23
+2026-05-06,2026-05-04,Gallagher Daniel Martin Jr,Chief Legal Officer,S,Sale,200.0,75.265,15053.0
+2026-05-06,2026-05-04,Gallagher Daniel Martin Jr,Chief Legal Officer,S,Sale,6000.0,76.6312,459787.2
+2026-05-06,2026-05-04,Gallagher Daniel Martin Jr,Chief Legal Officer,S,Sale,3700.0,77.3682,286262.34
+2026-05-06,2026-05-04,Gallagher Daniel Martin Jr,Chief Legal Officer,S,Sale,100.0,78.05,7805.0
+2026-04-29,2026-04-27,Pinner Jeffrey Tsvi,Chief Technology Officer,S,Sale,4435.0,83.7118,371261.83
+2026-04-29,2026-04-27,Pinner Jeffrey Tsvi,Chief Technology Officer,S,Sale,1200.0,84.4392,101327.04
+2026-04-29,2026-04-27,Pinner Jeffrey Tsvi,Chief Technology Officer,S,Sale,200.0,85.49,17098.0
+2026-04-20,2026-04-16,Bhatt Baiju,Director,C,C,57261.0,,
+2026-04-20,2026-04-16,Bhatt Baiju,Director,S,Sale,6400.0,84.593,541395.2
+2026-04-20,2026-04-16,Bhatt Baiju,Director,S,Sale,11400.0,85.6176,976040.64
+2026-04-20,2026-04-16,Bhatt Baiju,Director,S,Sale,27961.0,86.5934,2421238.06
+2026-04-20,2026-04-16,Bhatt Baiju,Director,S,Sale,10000.0,87.4843,874843.0
+2026-04-20,2026-04-16,Bhatt Baiju,Director,S,Sale,1500.0,88.3626,132543.9
+2026-04-17,2026-04-15,Verma Shiv,Chief Financial Officer,S,Sale,1571.0,85.6497,134555.68
+2026-04-17,2026-04-15,Verma Shiv,Chief Financial Officer,S,Sale,465.0,87.3632,40623.89
+2026-04-17,2026-04-15,Verma Shiv,Chief Financial Officer,S,Sale,2100.0,86.7662,182209.02
+2026-04-17,2026-04-15,Verma Shiv,Chief Financial Officer,S,Sale,700.0,84.6686,59268.02
+2026-04-17,2026-04-15,Quirk Steven M.,Chief Brokerage Officer,S,Sale,8540.0,84.93,725302.2
+2026-04-17,2026-04-15,Verma Shiv,Chief Financial Officer,S,Sale,600.0,83.4333,50059.98
+2026-04-08,2026-04-06,Tenev Vladimir,Chief Executive Officer,C,C,375000.0,,
+2026-04-08,2026-04-06,Tenev Vladimir,Chief Executive Officer,S,Sale,182667.0,69.5343,12701621.98
+2026-04-08,2026-04-06,Tenev Vladimir,Chief Executive Officer,S,Sale,192333.0,70.1184,13486082.23
+2026-04-08,2026-04-06,Pinner Jeffrey Tsvi,Chief Technology Officer,S,Sale,3035.0,69.5468,211074.54
+2026-04-08,2026-04-06,Pinner Jeffrey Tsvi,Chief Technology Officer,S,Sale,2800.0,70.1786,196500.08
+2026-04-08,2026-04-06,Gallagher Daniel Martin Jr,Chief Legal Officer,S,Sale,5403.0,69.5674,375872.66
+2026-04-08,2026-04-06,Gallagher Daniel Martin Jr,Chief Legal Officer,S,Sale,4597.0,70.1715,322578.39
+2026-04-02,2026-04-01,Treseder Oluwadara Johnson,Director,M,Option exercise,800.0,,
+2026-04-02,2026-04-01,Loop Paula,Director,M,Option exercise,800.0,,
+2026-04-02,2026-04-01,Zoellick Robert B.,Director,M,Option exercise,800.0,,
+2026-04-02,2026-03-31,Bhatt Baiju,Director,A,Award,180.0,,
+2026-04-02,2026-03-31,RUBINSTEIN JONATHAN,Director,M,Option exercise,800.0,,
+2026-04-02,2026-03-31,RUBINSTEIN JONATHAN,Director,A,Award,422.0,,
+2026-04-02,2026-03-31,Malka Meyer,Director,M,Option exercise,800.0,,
+2026-04-02,2026-03-31,SEGAL SUSAN,Director,A,Award,288.0,,
+2026-04-02,2026-03-31,Payne Christopher D,Director,A,Award,283.0,,
+2026-04-02,2026-03-31,Hegeman John William,Director,A,Award,211.0,,
+2026-04-02,2026-03-31,Malka Meyer,Director,A,Award,211.0,,
+2026-04-02,2026-03-31,Bhatt Baiju,Director,M,Option exercise,800.0,,

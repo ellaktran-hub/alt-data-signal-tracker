@@ -1,0 +1,30 @@
+filed_date,period_date,insider_name,title,transaction_code,transaction_type,shares,price_per_share,total_value
+2026-06-23,2026-06-22,Boone Karen,Director,A,Award,17445.0,0.0,
+2026-06-23,2026-06-22,Krafcik John,Director,A,Award,17445.0,0.0,
+2026-06-23,2026-06-22,Krawiec Peter,Director,A,Award,17445.0,0.0,
+2026-06-23,2026-06-22,Schwartz Sanford Harold,Director,A,Award,17445.0,0.0,
+2026-06-23,2026-06-22,FLATLEY JAY T,Director,A,Award,17445.0,0.0,
+2026-06-23,2026-06-18,Gomez Aidan N.,Director,F,Tax withholding (sale),8926.0,16.26,145136.76
+2026-06-23,2026-06-18,Gomez Aidan N.,Director,A,Award,17445.0,0.0,
+2026-06-05,2026-06-03,McDonough Claire,Chief Financial Officer,S,Sale,8022.0,18.0,144396.0
+2026-06-02,2026-05-29,McDonough Claire,Chief Financial Officer,S,Sale,8023.0,16.0,128368.0
+2026-05-29,2026-05-28,Scaringe Robert J,Chief Executive Officer,S,Sale,34818.0,15.0,522270.0
+2026-05-22,2026-05-21,McDonough Claire,Chief Financial Officer,S,Sale,7600.0,14.0,106400.0
+2026-05-22,2026-05-20,CALLAHAN MICHAEL JOHN,Chief Administrative Officer,A,Award,1682.0,11.6705,19629.78
+2026-05-22,2026-05-20,Venkataratnam Sreela,Chief Accounting Officer,A,Award,2756.0,11.6705,32163.9
+2026-05-19,2026-05-15,McDonough Claire,Chief Financial Officer,S,Sale,5544.0,13.4346,74481.42
+2026-05-19,2026-05-15,Venkataratnam Sreela,Chief Accounting Officer,F,Tax withholding (sale),17486.0,14.52,253896.72
+2026-05-19,2026-05-15,CALLAHAN MICHAEL JOHN,Chief Administrative Officer,F,Tax withholding (sale),42082.0,14.52,611030.64
+2026-05-19,2026-05-15,Gomez Aidan N.,Director,F,Tax withholding (sale),3752.0,14.52,54479.04
+2026-05-19,2026-05-15,McDonough Claire,Chief Financial Officer,F,Tax withholding (sale),38640.0,14.52,561052.8
+2026-05-19,2026-05-15,Scaringe Robert J,Chief Executive Officer,F,Tax withholding (sale),44034.0,14.52,639373.68
+2026-05-19,2026-05-15,Gomez Aidan N.,Director,P,Purchase,18000.0,13.97,251460.0
+2026-05-04,2026-04-30,VOLKSWAGEN AG,0,P,Purchase,62889522.0,15.9,999943399.8
+2026-04-24,2026-04-22,McDonough Claire,Chief Financial Officer,S,Sale,10245.0,18.0,184410.0
+2026-04-22,2026-04-20,Gomez Aidan N.,Director,A,Award,810.0,0.0,
+2026-04-22,2026-04-20,Gomez Aidan N.,Director,F,Tax withholding (sale),406.0,17.23,6995.38
+2026-04-22,2026-04-20,Krafcik John,Director,A,Award,1255.0,0.0,
+2026-04-22,2026-04-20,Schwartz Sanford Harold,Director,A,Award,1255.0,0.0,
+2026-04-22,2026-04-20,Krawiec Peter,Director,A,Award,897.0,0.0,
+2026-04-16,2026-04-14,Scaringe Robert J,Chief Executive Officer,S,Sale,21446.0,16.17,346781.82
+2026-04-02,2026-03-31,Scaringe Robert J,Chief Executive Officer,S,Sale,20264.0,15.0,303960.0

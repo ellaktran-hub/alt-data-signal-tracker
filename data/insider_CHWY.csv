@@ -1,0 +1,24 @@
+filed_date,period_date,insider_name,title,transaction_code,transaction_type,shares,price_per_share,total_value
+2026-06-03,2026-06-01,Singh Sumit,Chief Executive Officer,F,Tax withholding (sale),1273.0,22.54,28693.42
+2026-06-03,2026-06-01,Billings William G.,Chief Accounting Officer,F,Tax withholding (sale),625.0,22.54,14087.5
+2026-06-03,2026-06-01,Deppe Christopher S.,Chief Financial Officer,F,Tax withholding (sale),182.0,22.54,4102.28
+2026-06-03,2026-06-01,Hu Da-Wai,General Counsel & Secretary,F,Tax withholding (sale),445.0,22.54,10030.3
+2026-06-03,2026-06-01,Singh Sumit,Chief Executive Officer,F,Tax withholding (sale),7567.0,22.54,170560.18
+2026-05-05,2026-05-01,Singh Sumit,Chief Executive Officer,F,Tax withholding (sale),15462.0,25.42,393044.04
+2026-05-05,2026-05-01,Singh Sumit,Chief Executive Officer,F,Tax withholding (sale),2172.0,25.42,55212.24
+2026-05-05,2026-05-01,Singh Sumit,Chief Executive Officer,S,Sale,83306.0,25.6,2132633.6
+2026-05-05,2026-05-01,Singh Sumit,Chief Executive Officer,S,Sale,4220.0,25.6,108032.0
+2026-05-05,2026-05-01,Deppe Christopher S.,Chief Financial Officer,F,Tax withholding (sale),2857.0,25.42,72624.94
+2026-05-05,2026-05-01,Hu Da-Wai,General Counsel & Secretary,F,Tax withholding (sale),909.0,25.42,23106.78
+2026-05-05,2026-05-01,Billings William G.,Chief Accounting Officer,F,Tax withholding (sale),1064.0,25.42,27046.88
+2026-04-10,2026-04-08,Billings William G.,Chief Accounting Officer,A,Award,32571.0,0.0,
+2026-04-10,2026-04-08,Hu Da-Wai,General Counsel & Secretary,A,Award,37486.0,0.0,
+2026-04-10,2026-04-08,Deppe Christopher S.,Chief Financial Officer,A,Award,71062.0,0.0,
+2026-04-10,2026-04-08,Deppe Christopher S.,Chief Financial Officer,A,Award,5922.0,0.0,
+2026-04-10,2026-04-08,Deppe Christopher S.,Chief Financial Officer,A,Award,346670.0,0.0,
+2026-04-10,2026-04-08,Singh Sumit,Chief Executive Officer,A,Award,394868.0,0.0,
+2026-04-10,2026-04-08,Singh Sumit,Chief Executive Officer,A,Award,92381.0,0.0,
+2026-04-10,2026-04-08,Singh Sumit,Chief Executive Officer,A,Award,13818.0,0.0,
+2026-04-10,2026-04-08,Singh Sumit,Chief Executive Officer,A,Award,59219.0,0.0,
+2026-04-06,2026-04-01,Hu Da-Wai,General Counsel & Secretary,S,Sale,8149.0,26.91,219289.59
+2026-04-06,2026-04-01,Singh Sumit,Chief Executive Officer,F,Tax withholding (sale),1021.0,27.0,27567.0

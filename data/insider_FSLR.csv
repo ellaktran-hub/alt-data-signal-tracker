@@ -1,0 +1,79 @@
+filed_date,period_date,insider_name,title,transaction_code,transaction_type,shares,price_per_share,total_value
+2026-06-03,2026-06-02,Buehler Patrick James,Chief Product Officer,S,Sale,3000.0,302.0,906000.0
+2026-06-01,2026-05-28,Stockdale Caroline,Chief People and Comm. Officer,S,Sale,10628.0,275.6,2929076.8
+2026-05-27,2026-05-22,Widmar Mark R,Chief Executive Officer,S,Sale,239.0,250.02,59754.78
+2026-05-27,2026-05-22,Widmar Mark R,Chief Executive Officer,S,Sale,364.0,265.15,96514.6
+2026-05-27,2026-05-22,Widmar Mark R,Chief Executive Officer,S,Sale,172.0,251.53,43263.16
+2026-05-27,2026-05-22,Widmar Mark R,Chief Executive Officer,S,Sale,126.0,276.29,34812.54
+2026-05-27,2026-05-22,Widmar Mark R,Chief Executive Officer,S,Sale,473.0,273.17,129209.41
+2026-05-27,2026-05-22,Widmar Mark R,Chief Executive Officer,S,Sale,726.0,271.23,196912.98
+2026-05-27,2026-05-22,Widmar Mark R,Chief Executive Officer,S,Sale,632.0,270.05,170671.6
+2026-05-27,2026-05-22,Widmar Mark R,Chief Executive Officer,S,Sale,628.0,267.72,168128.16
+2026-05-27,2026-05-22,Widmar Mark R,Chief Executive Officer,S,Sale,1237.0,266.6,329784.2
+2026-05-27,2026-05-22,Widmar Mark R,Chief Executive Officer,S,Sale,1009.0,268.89,271310.01
+2026-05-27,2026-05-22,Widmar Mark R,Chief Executive Officer,S,Sale,47.0,258.48,12148.56
+2026-05-27,2026-05-22,Widmar Mark R,Chief Executive Officer,S,Sale,149.0,257.55,38374.95
+2026-05-27,2026-05-22,Widmar Mark R,Chief Executive Officer,S,Sale,75.0,256.32,19224.0
+2026-05-27,2026-05-22,Widmar Mark R,Chief Executive Officer,S,Sale,64.0,255.59,16357.76
+2026-05-27,2026-05-22,Widmar Mark R,Chief Executive Officer,S,Sale,916.0,254.93,233515.88
+2026-05-27,2026-05-22,Widmar Mark R,Chief Executive Officer,S,Sale,218.0,253.63,55291.34
+2026-05-27,2026-05-22,Widmar Mark R,Chief Executive Officer,S,Sale,97.0,252.87,24528.39
+2026-05-22,2026-05-21,Widmar Mark R,Chief Executive Officer,S,Sale,1131.0,249.7,282410.7
+2026-05-22,2026-05-21,Widmar Mark R,Chief Executive Officer,S,Sale,521.0,243.19,126701.99
+2026-05-22,2026-05-21,Widmar Mark R,Chief Executive Officer,S,Sale,6.0,256.96,1541.76
+2026-05-22,2026-05-21,Widmar Mark R,Chief Executive Officer,S,Sale,179.0,255.31,45700.49
+2026-05-22,2026-05-21,Widmar Mark R,Chief Executive Officer,S,Sale,261.0,254.29,66369.69
+2026-05-22,2026-05-21,Widmar Mark R,Chief Executive Officer,S,Sale,569.0,251.64,143183.16
+2026-05-22,2026-05-21,Widmar Mark R,Chief Executive Officer,S,Sale,472.0,250.61,118287.92
+2026-05-22,2026-05-21,Widmar Mark R,Chief Executive Officer,S,Sale,672.0,240.1,161347.2
+2026-05-22,2026-05-21,Widmar Mark R,Chief Executive Officer,S,Sale,179.0,248.8,44535.2
+2026-05-22,2026-05-21,Widmar Mark R,Chief Executive Officer,S,Sale,98.0,247.53,24257.94
+2026-05-22,2026-05-21,Widmar Mark R,Chief Executive Officer,S,Sale,229.0,246.23,56386.67
+2026-05-22,2026-05-21,Widmar Mark R,Chief Executive Officer,S,Sale,136.0,244.62,33268.32
+2026-05-22,2026-05-21,Widmar Mark R,Chief Executive Officer,S,Sale,362.0,241.4,87386.8
+2026-05-22,2026-05-21,Verma Kuntal Kumar,Chief Manufacturing Officer,S,Sale,582.0,250.0,145500.0
+2026-05-13,2026-05-11,Widmar Mark R,Chief Executive Officer,S,Sale,1363.0,235.69,321245.47
+2026-05-13,2026-05-11,Verma Kuntal Kumar,Chief Manufacturing Officer,S,Sale,1455.0,240.0,349200.0
+2026-05-13,2026-05-11,Verma Kuntal Kumar,Chief Manufacturing Officer,S,Sale,352.0,230.0,80960.0
+2026-05-13,2026-05-11,Verma Kuntal Kumar,Chief Manufacturing Officer,S,Sale,1864.0,225.0,419400.0
+2026-05-13,2026-05-11,Widmar Mark R,Chief Executive Officer,S,Sale,1300.0,240.02,312026.0
+2026-05-13,2026-05-11,Widmar Mark R,Chief Executive Officer,S,Sale,400.0,236.53,94612.0
+2026-05-13,2026-05-11,Widmar Mark R,Chief Executive Officer,S,Sale,1498.0,234.84,351790.32
+2026-05-13,2026-05-11,Widmar Mark R,Chief Executive Officer,S,Sale,2262.0,232.55,526028.1
+2026-05-13,2026-05-11,Widmar Mark R,Chief Executive Officer,S,Sale,1026.0,231.53,237549.78
+2026-05-13,2026-05-11,Widmar Mark R,Chief Executive Officer,S,Sale,1500.0,230.18,345270.0
+2026-05-13,2026-05-11,Widmar Mark R,Chief Executive Officer,S,Sale,1877.0,233.56,438392.12
+2026-05-08,2026-05-06,Verma Kuntal Kumar,Chief Manufacturing Officer,S,Sale,270.0,218.16,58903.2
+2026-05-08,2026-05-06,Theurer Nathan B.,VP - Global Controller and CAO,S,Sale,31.0,218.16,6762.96
+2026-05-08,2026-05-06,Dymbort Jason E.,General Counsel and Secretary,S,Sale,228.0,218.16,49740.48
+2026-05-05,2026-05-04,Theurer Nathan B.,VP - Global Controller and CAO,M,Option exercise,44.0,0.0,
+2026-05-05,2026-05-04,Sloan Samantha L.,"EVP, Corporate Affairs",S,Sale,19.0,215.63,4096.97
+2026-05-05,2026-05-04,Stockdale Caroline,Chief People and Comm. Officer,M,Option exercise,622.0,0.0,
+2026-05-05,2026-05-04,Stockdale Caroline,Chief People and Comm. Officer,S,Sale,262.0,215.63,56495.06
+2026-05-05,2026-05-04,Widmar Mark R,Chief Executive Officer,M,Option exercise,3802.0,0.0,
+2026-05-05,2026-05-04,Theurer Nathan B.,VP - Global Controller and CAO,S,Sale,13.0,215.63,2803.19
+2026-05-05,2026-05-04,Verma Kuntal Kumar,Chief Manufacturing Officer,M,Option exercise,1106.0,0.0,
+2026-05-05,2026-05-04,Verma Kuntal Kumar,Chief Manufacturing Officer,S,Sale,479.0,215.63,103286.77
+2026-05-05,2026-05-04,Widmar Mark R,Chief Executive Officer,S,Sale,1526.0,215.63,329051.38
+2026-05-05,2026-05-04,Sloan Samantha L.,"EVP, Corporate Affairs",M,Option exercise,44.0,0.0,
+2026-05-05,2026-05-04,Gloeckler Markus,Chief Technology Officer,S,Sale,420.0,215.63,90564.6
+2026-05-05,2026-05-04,Gloeckler Markus,Chief Technology Officer,M,Option exercise,968.0,0.0,
+2026-05-05,2026-05-04,Koralewski Michael,Chief Supply Chain Officer,M,Option exercise,518.0,0.0,
+2026-05-05,2026-05-04,Dymbort Jason E.,General Counsel and Secretary,S,Sale,409.0,215.63,88192.67
+2026-05-05,2026-05-04,ANTOUN GEORGES,Chief Commercial Officer,S,Sale,566.0,215.63,122046.58
+2026-05-05,2026-05-04,Bradley Alexander R.,Chief Financial Officer,M,Option exercise,1210.0,0.0,
+2026-05-05,2026-05-04,Bradley Alexander R.,Chief Financial Officer,S,Sale,498.0,215.63,107383.74
+2026-05-05,2026-05-04,ANTOUN GEORGES,Chief Commercial Officer,M,Option exercise,1358.0,0.0,
+2026-05-05,2026-05-04,Koralewski Michael,Chief Supply Chain Officer,S,Sale,215.0,215.63,46360.45
+2026-05-05,2026-05-04,Buehler Patrick James,Chief Product Officer,M,Option exercise,553.0,0.0,
+2026-05-05,2026-05-04,Buehler Patrick James,Chief Product Officer,S,Sale,235.0,215.63,50673.05
+2026-05-05,2026-05-04,Dymbort Jason E.,General Counsel and Secretary,M,Option exercise,968.0,0.0,
+2026-04-16,2026-04-15,Verma Kuntal Kumar,Chief Manufacturing Officer,S,Sale,573.0,210.0,120330.0
+2026-04-01,2026-03-31,STEBBINS PAUL H,Director,A,Award,267.0,0.0,
+2026-04-01,2026-03-31,POST WILLIAM J,Director,A,Award,267.0,0.0,
+2026-04-01,2026-03-31,Sweeney Michael T,Director,A,Award,267.0,0.0,
+2026-04-01,2026-03-31,KRO LISA A,Director,A,Award,267.0,0.0,
+2026-04-01,2026-03-31,Wright Norman L.,Director,A,Award,267.0,0.0,
+2026-04-01,2026-03-31,George Anita M.,Director,A,Award,267.0,0.0,
+2026-04-01,2026-03-31,RENDUCHINTALA VENKATA S M,Director,A,Award,267.0,0.0,
+2026-04-01,2026-03-31,Ahearn Michael J,Director,A,Award,374.0,0.0,

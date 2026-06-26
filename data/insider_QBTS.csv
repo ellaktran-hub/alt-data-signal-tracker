@@ -1,0 +1,36 @@
+filed_date,period_date,insider_name,title,transaction_code,transaction_type,shares,price_per_share,total_value
+2026-06-16,2026-06-15,Ghai Rohit,Director,S,Sale,13518.0,26.4133,357054.99
+2026-06-16,2026-06-15,Nguyen Diane,"EVP, Chief Legal Officer & GC",F,Tax withholding (sale),3191.0,23.37,74573.67
+2026-06-16,2026-06-15,BLACK STANLEY T,Exec. Vice President & CISO,F,Tax withholding (sale),1535.0,23.37,35872.95
+2026-06-16,2026-06-15,AMES SOPHIE C,Exec. Vice President & CHRO,F,Tax withholding (sale),1544.0,23.37,36083.28
+2026-06-16,2026-06-12,Markovich John M.,Chief Financial Officer,S,Sale,46043.0,24.01,1105492.43
+2026-06-16,2026-06-12,Markovich John M.,Chief Financial Officer,S,Sale,100000.0,25.75,2575000.0
+2026-06-16,2026-06-12,Markovich John M.,Chief Financial Officer,S,Sale,100000.0,25.68,2568000.0
+2026-06-16,2026-06-12,Markovich John M.,Chief Financial Officer,F,Tax withholding (sale),10584.0,23.37,247348.08
+2026-06-10,2026-06-08,BARATZ ALAN E,President & CEO,M,Option exercise,474395.0,0.91,431699.45
+2026-06-10,2026-06-08,BARATZ ALAN E,President & CEO,M,Option exercise,213232.0,0.846,180394.27
+2026-06-10,2026-06-08,BARATZ ALAN E,President & CEO,S,Sale,687627.0,26.13,17967693.51
+2026-06-10,2026-06-08,Markovich John M.,Chief Financial Officer,S,Sale,50979.0,26.24,1337688.96
+2026-06-10,2026-06-08,Markovich John M.,Chief Financial Officer,S,Sale,70.0,26.54,1857.8
+2026-06-08,2026-06-05,DiLullo John D,Director,S,Sale,7850.0,24.4343,191809.26
+2026-06-05,2026-06-04,Ghai Rohit,Director,A,Award,9357.0,0.0,
+2026-06-05,2026-06-04,DiLullo John D,Director,A,Award,9357.0,0.0,
+2026-06-05,2026-06-04,Nielsen Kirstjen,Director,A,Award,9357.0,0.0,
+2026-06-05,2026-06-04,WEST STEVEN M,Director,A,Award,9357.0,0.0,
+2026-06-08,2026-06-04,Biscay Roger,Director,A,Award,9357.0,0.0,
+2026-06-05,2026-06-04,Holt Sharon E,Director,A,Award,9357.0,0.0,
+2026-06-04,2026-06-02,Markovich John M.,Chief Financial Officer,S,Sale,2908.0,31.0,90148.0
+2026-05-27,2026-05-22,Markovich John M.,Chief Financial Officer,M,Option exercise,207926.0,0.92,191291.92
+2026-05-27,2026-05-22,Markovich John M.,Chief Financial Officer,M,Option exercise,120826.0,0.846,102218.8
+2026-05-27,2026-05-22,Markovich John M.,Chief Financial Officer,S,Sale,328752.0,27.7037,9107646.78
+2026-05-22,2026-05-21,Nguyen Diane,"EVP, Chief Legal Officer & GC",S,Sale,40000.0,25.014,1000560.0
+2026-05-21,2026-05-20,AMES SOPHIE C,Exec. Vice President & CHRO,S,Sale,23025.0,18.9765,436933.91
+2026-05-14,2026-05-13,BARATZ ALAN E,President & CEO,F,Tax withholding (sale),18542.0,22.35,414413.7
+2026-05-14,2026-05-13,Nguyen Diane,"EVP, Chief Legal Officer & GC",F,Tax withholding (sale),2459.0,22.35,54958.65
+2026-05-14,2026-05-13,AMES SOPHIE C,Exec. Vice President & CHRO,F,Tax withholding (sale),23850.0,22.35,533047.5
+2026-05-04,2026-04-30,BARATZ ALAN E,President & CEO,A,Award,753941.0,0.0,
+2026-04-21,2026-04-20,AMES SOPHIE C,Exec. Vice President & CHRO,S,Sale,3070.0,21.3513,65548.49
+2026-04-15,2026-04-13,AMES SOPHIE C,Exec. Vice President & CHRO,F,Tax withholding (sale),3180.0,14.25,45315.0
+2026-04-15,2026-04-13,BARATZ ALAN E,President & CEO,F,Tax withholding (sale),33778.0,14.25,481336.5
+2026-04-15,2026-04-13,Markovich John M.,Chief Financial Officer,F,Tax withholding (sale),8607.0,14.25,122649.75
+2026-04-15,2026-04-13,Nguyen Diane,"EVP, Chief Legal Officer & GC",F,Tax withholding (sale),4066.0,14.25,57940.5

@@ -1,0 +1,43 @@
+filed_date,period_date,insider_name,title,transaction_code,transaction_type,shares,price_per_share,total_value
+2026-06-03,2026-06-01,Soderstrom Gustav,Co-Chief Executive Officer,F,Tax withholding (sale),116.64,497.68,58049.4
+2026-06-03,2026-06-01,Norstrom Alex,Co-Chief Executive Officer,S,Sale,5436.0,498.2682,2708585.94
+2026-06-03,2026-06-01,Jenkins Dustee,Chief Public Affairs Officer,F,Tax withholding (sale),362.768,497.68,180542.38
+2026-06-03,2026-06-01,Lundstrom Anna,Chief Human Resources Officer,F,Tax withholding (sale),152.82,497.68,76055.46
+2026-06-03,2026-06-01,Soderstrom Gustav,Co-Chief Executive Officer,M,Option exercise,20833.0,151.25,3150991.25
+2026-06-03,2026-06-01,Norstrom Alex,Co-Chief Executive Officer,M,Option exercise,5436.0,151.25,822195.0
+2026-06-03,2026-06-01,Norstrom Alex,Co-Chief Executive Officer,F,Tax withholding (sale),807.774,497.68,402012.96
+2026-06-03,2026-06-01,Soderstrom Gustav,Co-Chief Executive Officer,S,Sale,20833.0,496.5214,10344030.33
+2026-05-29,2026-05-28,Marshall Christopher P,Director,A,Award,658.0,0.0,
+2026-05-29,2026-05-28,SARANDOS THEODORE A,Director,A,Award,494.0,0.0,
+2026-05-29,2026-05-28,WARRIOR PADMASREE,Director,A,Award,329.0,0.0,
+2026-05-29,2026-05-28,O'NEILL HEIDI,Director,A,Award,658.0,0.0,
+2026-05-29,2026-05-28,SARANDOS THEODORE A,Director,M,Option exercise,5630.0,241.57,1360039.1
+2026-05-28,2026-05-26,Marshall Christopher P,Director,M,Option exercise,5630.0,241.57,1360039.1
+2026-05-28,2026-05-26,Marshall Christopher P,Director,S,Sale,2650.0,519.86,1377629.0
+2026-05-27,2026-05-26,STAGGS THOMAS O,Director,M,Option exercise,5961.0,362.36,2160027.96
+2026-05-27,2026-05-26,STAGGS THOMAS O,Director,M,Option exercise,2981.0,241.57,720120.17
+2026-05-27,2026-05-26,STAGGS THOMAS O,Director,S,Sale,5477.0,526.0,2880902.0
+2026-05-27,2026-05-22,Lorentzon Sven Hans Martin,Director,M,Option exercise,24120.0,169.16,4080139.2
+2026-05-27,2026-05-22,Lorentzon Sven Hans Martin,Director,S,Sale,35380.0,525.7301,18600330.94
+2026-05-27,2026-05-22,Lorentzon Sven Hans Martin,Director,M,Option exercise,11260.0,362.36,4080173.6
+2026-05-27,2026-05-22,WARRIOR PADMASREE,Director,M,Option exercise,2815.0,241.57,680019.55
+2026-05-07,2026-05-05,Soderstrom Gustav,Co-Chief Executive Officer,M,Option exercise,20833.0,151.25,3150991.25
+2026-05-07,2026-05-05,Soderstrom Gustav,Co-Chief Executive Officer,S,Sale,20833.0,430.7153,8973091.84
+2026-05-07,2026-05-05,Norstrom Alex,Co-Chief Executive Officer,M,Option exercise,5436.0,151.25,822195.0
+2026-05-07,2026-05-05,Norstrom Alex,Co-Chief Executive Officer,S,Sale,5436.0,433.0743,2354191.89
+2026-05-05,2026-05-04,McCARTHY BARRY,Director,M,Option exercise,5630.0,241.57,1360039.1
+2026-05-05,2026-05-01,Lundstrom Anna,Chief Human Resources Officer,A,Award,8607.0,0.0,
+2026-05-05,2026-05-01,Norstrom Alex,Co-Chief Executive Officer,F,Tax withholding (sale),791.764,446.55,353562.21
+2026-05-05,2026-05-01,Soderstrom Gustav,Co-Chief Executive Officer,F,Tax withholding (sale),116.64,446.55,52085.59
+2026-05-05,2026-05-01,Luiga Christian,Chief Financial Officer,A,Award,9343.0,0.0,
+2026-05-05,2026-05-01,Lundstrom Anna,Chief Human Resources Officer,F,Tax withholding (sale),152.28,446.55,68000.63
+2026-05-05,2026-05-01,Jenkins Dustee,Chief Public Affairs Officer,A,Award,5662.0,0.0,
+2026-05-05,2026-05-01,Jenkins Dustee,Chief Public Affairs Officer,F,Tax withholding (sale),361.662,446.55,161500.17
+2026-04-03,2026-04-01,Soderstrom Gustav,Co-Chief Executive Officer,F,Tax withholding (sale),117.18,484.91,56821.75
+2026-04-03,2026-04-01,Soderstrom Gustav,Co-Chief Executive Officer,M,Option exercise,20833.0,151.25,3150991.25
+2026-04-03,2026-04-01,Soderstrom Gustav,Co-Chief Executive Officer,S,Sale,20833.0,473.5183,9864806.74
+2026-04-03,2026-04-01,Norstrom Alex,Co-Chief Executive Officer,F,Tax withholding (sale),807.71,484.91,391666.66
+2026-04-03,2026-04-01,Norstrom Alex,Co-Chief Executive Officer,M,Option exercise,5436.0,151.25,822195.0
+2026-04-03,2026-04-01,Norstrom Alex,Co-Chief Executive Officer,S,Sale,5436.0,479.5124,2606629.41
+2026-04-03,2026-04-01,Jenkins Dustee,Chief Public Affairs Officer,F,Tax withholding (sale),362.768,484.91,175909.83
+2026-04-03,2026-04-01,Lundstrom Anna,Chief Human Resources Officer,F,Tax withholding (sale),152.28,484.91,73842.09

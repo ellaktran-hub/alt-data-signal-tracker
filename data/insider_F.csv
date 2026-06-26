@@ -1,0 +1,19 @@
+filed_date,period_date,insider_name,title,transaction_code,transaction_type,shares,price_per_share,total_value
+2026-06-24,2026-06-23,THORNTON JOHN L,Director,P,Purchase,10600.0,14.0453,148880.18
+2026-06-05,2026-06-04,Crockett Kyle,Chief Accounting Officer,F,Tax withholding (sale),32307.0,15.71,507542.97
+2026-06-05,2026-06-04,Crockett Kyle,Chief Accounting Officer,M,Option exercise,74098.0,,
+2026-05-22,2026-05-21,May John C II,Director,A,Award,23043.0,13.22,304628.46
+2026-05-22,2026-05-21,Ford III Henry,Director,A,Award,15727.0,13.22,207910.94
+2026-05-22,2026-05-21,Helman William W,Director,A,Award,15727.0,13.22,207910.94
+2026-05-22,2026-05-21,English Alexandra Ford,Director,A,Award,23043.0,13.22,304628.46
+2026-05-22,2026-05-21,THORNTON JOHN L,Director,A,Award,15727.0,13.22,207910.94
+2026-05-22,2026-05-20,Veihmeyer John B,Director,M,Option exercise,36822.0,,
+2026-05-22,2026-05-20,WEINBERG JOHN S,Director,M,Option exercise,33620.0,,
+2026-05-18,2026-05-15,Waldo Jennifer,Chief People & E. Exp. Officer,M,Option exercise,62963.0,,
+2026-05-18,2026-05-15,Waldo Jennifer,Chief People & E. Exp. Officer,F,Tax withholding (sale),27352.0,14.48,396056.96
+2026-05-18,2026-05-15,Waldo Jennifer,Chief People & E. Exp. Officer,M,Option exercise,61111.0,,
+2026-05-18,2026-05-15,Waldo Jennifer,Chief People & E. Exp. Officer,F,Tax withholding (sale),26547.0,14.48,384400.56
+2026-05-18,2026-05-15,Waldo Jennifer,Chief People & E. Exp. Officer,M,Option exercise,61111.0,,
+2026-05-18,2026-05-15,Waldo Jennifer,Chief People & E. Exp. Officer,F,Tax withholding (sale),26547.0,14.48,384400.56
+2026-04-02,2026-04-01,Aragon Michael,"President, Integrated Services",M,Option exercise,282192.0,,
+2026-04-02,2026-04-01,Aragon Michael,"President, Integrated Services",F,Tax withholding (sale),123036.0,11.54,1419835.44

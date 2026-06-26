@@ -1,0 +1,109 @@
+filed_date,period_date,insider_name,title,transaction_code,transaction_type,shares,price_per_share,total_value
+2026-06-18,2026-06-16,Wong Jennifer L.,Chief Operating Officer,M,Option exercise,39166.0,5.35,209538.1
+2026-06-18,2026-06-16,Wong Jennifer L.,Chief Operating Officer,S,Sale,9020.0,176.2,1589324.0
+2026-06-18,2026-06-16,Wong Jennifer L.,Chief Operating Officer,S,Sale,11580.0,177.31,2053249.8
+2026-06-18,2026-06-16,Wong Jennifer L.,Chief Operating Officer,S,Sale,7306.0,178.09,1301125.54
+2026-06-18,2026-06-16,Wong Jennifer L.,Chief Operating Officer,S,Sale,2000.0,179.1,358200.0
+2026-06-18,2026-06-16,Wong Jennifer L.,Chief Operating Officer,S,Sale,300.0,180.03,54009.0
+2026-06-18,2026-06-16,Wong Jennifer L.,Chief Operating Officer,S,Sale,400.0,181.94,72776.0
+2026-06-18,2026-06-16,Wong Jennifer L.,Chief Operating Officer,S,Sale,8560.0,175.41,1501509.6
+2026-06-17,2026-06-15,Huffman Steve Ladd,CEO & President,S,Sale,1400.0,176.82,247548.0
+2026-06-17,2026-06-15,Huffman Steve Ladd,CEO & President,S,Sale,3400.0,181.78,618052.0
+2026-06-17,2026-06-15,Huffman Steve Ladd,CEO & President,S,Sale,1400.0,180.85,253190.0
+2026-06-17,2026-06-15,Huffman Steve Ladd,CEO & President,S,Sale,3100.0,179.65,556915.0
+2026-06-17,2026-06-15,Huffman Steve Ladd,CEO & President,S,Sale,3050.0,178.71,545065.5
+2026-06-17,2026-06-15,Huffman Steve Ladd,CEO & President,S,Sale,2350.0,177.69,417571.5
+2026-06-17,2026-06-15,Huffman Steve Ladd,CEO & President,S,Sale,500.0,173.59,86795.0
+2026-06-17,2026-06-15,Huffman Steve Ladd,CEO & President,S,Sale,500.0,175.68,87840.0
+2026-06-17,2026-06-15,Huffman Steve Ladd,CEO & President,S,Sale,900.0,174.43,156987.0
+2026-06-17,2026-06-15,Huffman Steve Ladd,CEO & President,S,Sale,500.0,171.39,85695.0
+2026-06-17,2026-06-15,Huffman Steve Ladd,CEO & President,S,Sale,500.0,170.31,85155.0
+2026-06-17,2026-06-15,Huffman Steve Ladd,CEO & President,S,Sale,400.0,169.48,67792.0
+2026-06-17,2026-06-15,Huffman Steve Ladd,CEO & President,M,Option exercise,18000.0,25.29,455220.0
+2026-06-10,2026-06-08,Habiger David C,Director,A,Award,1714.0,0.0,
+2026-06-10,2026-06-08,Sauerberg Robert A.,Director,A,Award,1714.0,0.0,
+2026-06-10,2026-06-08,Newhouse Steven O,Director,A,Award,1714.0,0.0,
+2026-06-10,2026-06-08,Seibel Michael,Director,A,Award,1714.0,0.0,
+2026-06-10,2026-06-08,Gale Mary Porter,Director,A,Award,1714.0,0.0,
+2026-06-10,2026-06-08,FARRELL SARAH E,Director,A,Award,1714.0,0.0,
+2026-06-10,2026-06-08,FILIKRUSHEL PATRICIA,Director,A,Award,1714.0,0.0,
+2026-06-02,2026-05-29,Huffman Steve Ladd,CEO & President,M,Option exercise,18000.0,25.29,455220.0
+2026-06-02,2026-05-29,Huffman Steve Ladd,CEO & President,S,Sale,600.0,167.59,100554.0
+2026-06-02,2026-05-29,Huffman Steve Ladd,CEO & President,S,Sale,1000.0,168.61,168610.0
+2026-06-02,2026-05-29,Huffman Steve Ladd,CEO & President,S,Sale,800.0,169.98,135984.0
+2026-06-02,2026-05-29,Huffman Steve Ladd,CEO & President,S,Sale,600.0,170.96,102576.0
+2026-06-02,2026-05-29,Huffman Steve Ladd,CEO & President,S,Sale,1893.0,173.3,328056.9
+2026-06-02,2026-05-29,Huffman Steve Ladd,CEO & President,S,Sale,4266.0,174.27,743435.82
+2026-06-02,2026-05-29,Huffman Steve Ladd,CEO & President,S,Sale,2141.0,175.29,375295.89
+2026-06-02,2026-05-29,Huffman Steve Ladd,CEO & President,S,Sale,6700.0,176.09,1179803.0
+2026-05-22,2026-05-20,Lee Benjamin Seong,Chief Legal Officer,F,Tax withholding (sale),3886.0,154.88,601863.68
+2026-05-22,2026-05-20,Reynolds Michelle Marie,Chief Accounting Officer,F,Tax withholding (sale),1265.0,154.88,195923.2
+2026-05-22,2026-05-20,Vollero Andrew,Chief Financial Officer,F,Tax withholding (sale),10320.0,154.88,1598361.6
+2026-05-22,2026-05-20,Huffman Steve Ladd,CEO & President,F,Tax withholding (sale),40336.0,154.88,6247239.68
+2026-05-22,2026-05-20,Huffman Steve Ladd,CEO & President,C,C,2955.0,0.0,
+2026-05-22,2026-05-20,Wong Jennifer L.,Chief Operating Officer,F,Tax withholding (sale),38112.0,154.88,5902786.56
+2026-05-20,2026-05-18,Wong Jennifer L.,Chief Operating Officer,M,Option exercise,39167.0,5.35,209543.45
+2026-05-20,2026-05-18,Wong Jennifer L.,Chief Operating Officer,S,Sale,800.0,154.6,123680.0
+2026-05-20,2026-05-18,Wong Jennifer L.,Chief Operating Officer,S,Sale,600.0,155.58,93348.0
+2026-05-20,2026-05-18,Wong Jennifer L.,Chief Operating Officer,S,Sale,4941.0,156.92,775341.72
+2026-05-20,2026-05-18,Wong Jennifer L.,Chief Operating Officer,S,Sale,6458.0,157.67,1018232.86
+2026-05-20,2026-05-18,Wong Jennifer L.,Chief Operating Officer,S,Sale,16914.0,158.85,2686788.9
+2026-05-20,2026-05-18,Wong Jennifer L.,Chief Operating Officer,S,Sale,6954.0,159.66,1110275.64
+2026-05-20,2026-05-18,Wong Jennifer L.,Chief Operating Officer,S,Sale,2500.0,160.47,401175.0
+2026-05-19,2026-05-15,Huffman Steve Ladd,CEO & President,S,Sale,300.0,158.96,47688.0
+2026-05-19,2026-05-15,Huffman Steve Ladd,CEO & President,S,Sale,7467.0,158.2,1181279.4
+2026-05-19,2026-05-15,Huffman Steve Ladd,CEO & President,S,Sale,4211.0,157.17,661842.87
+2026-05-19,2026-05-15,Huffman Steve Ladd,CEO & President,S,Sale,3322.0,156.4,519560.8
+2026-05-19,2026-05-15,Huffman Steve Ladd,CEO & President,S,Sale,2000.0,155.22,310440.0
+2026-05-19,2026-05-15,Huffman Steve Ladd,CEO & President,M,Option exercise,18000.0,25.29,455220.0
+2026-05-19,2026-05-15,Huffman Steve Ladd,CEO & President,S,Sale,700.0,154.19,107933.0
+2026-05-07,2026-05-05,Huffman Steve Ladd,CEO & President,S,Sale,1700.0,173.78,295426.0
+2026-05-07,2026-05-05,Huffman Steve Ladd,CEO & President,S,Sale,100.0,176.81,17681.0
+2026-05-07,2026-05-05,Huffman Steve Ladd,CEO & President,S,Sale,300.0,175.92,52776.0
+2026-05-07,2026-05-05,Huffman Steve Ladd,CEO & President,S,Sale,700.0,174.71,122297.0
+2026-05-07,2026-05-05,Huffman Steve Ladd,CEO & President,S,Sale,1850.0,172.82,319717.0
+2026-05-07,2026-05-05,Huffman Steve Ladd,CEO & President,S,Sale,7249.0,171.9,1246103.1
+2026-05-07,2026-05-05,Huffman Steve Ladd,CEO & President,S,Sale,3701.0,170.9,632500.9
+2026-05-07,2026-05-05,Huffman Steve Ladd,CEO & President,S,Sale,1200.0,169.76,203712.0
+2026-05-07,2026-05-05,Huffman Steve Ladd,CEO & President,S,Sale,1200.0,168.53,202236.0
+2026-05-07,2026-05-05,Huffman Steve Ladd,CEO & President,M,Option exercise,18000.0,25.29,455220.0
+2026-04-20,2026-04-16,Wong Jennifer L.,Chief Operating Officer,S,Sale,8679.0,161.01,1397405.79
+2026-04-20,2026-04-16,Wong Jennifer L.,Chief Operating Officer,S,Sale,200.0,163.58,32716.0
+2026-04-20,2026-04-16,Wong Jennifer L.,Chief Operating Officer,S,Sale,1390.0,162.86,226375.4
+2026-04-20,2026-04-16,Wong Jennifer L.,Chief Operating Officer,S,Sale,22998.0,162.08,3727515.84
+2026-04-20,2026-04-16,Wong Jennifer L.,Chief Operating Officer,S,Sale,2700.0,160.05,432135.0
+2026-04-20,2026-04-16,Wong Jennifer L.,Chief Operating Officer,S,Sale,2300.0,159.08,365884.0
+2026-04-20,2026-04-16,Wong Jennifer L.,Chief Operating Officer,S,Sale,900.0,157.93,142137.0
+2026-04-20,2026-04-16,Wong Jennifer L.,Chief Operating Officer,M,Option exercise,39167.0,5.35,209543.45
+2026-04-17,2026-04-15,Huffman Steve Ladd,CEO & President,M,Option exercise,18000.0,25.29,455220.0
+2026-04-17,2026-04-15,Huffman Steve Ladd,CEO & President,S,Sale,500.0,156.41,78205.0
+2026-04-17,2026-04-15,Huffman Steve Ladd,CEO & President,S,Sale,2595.0,157.41,408478.95
+2026-04-17,2026-04-15,Huffman Steve Ladd,CEO & President,S,Sale,11605.0,158.48,1839160.4
+2026-04-17,2026-04-15,Huffman Steve Ladd,CEO & President,S,Sale,3300.0,159.21,525393.0
+2026-04-10,2026-04-08,Slowe Christopher Brian,Chief Technology Officer,S,Sale,1300.0,147.85,192205.0
+2026-04-10,2026-04-08,Slowe Christopher Brian,Chief Technology Officer,S,Sale,8100.0,154.47,1251207.0
+2026-04-10,2026-04-08,Slowe Christopher Brian,Chief Technology Officer,S,Sale,200.0,153.39,30678.0
+2026-04-10,2026-04-08,Slowe Christopher Brian,Chief Technology Officer,S,Sale,100.0,151.03,15103.0
+2026-04-10,2026-04-08,Slowe Christopher Brian,Chief Technology Officer,S,Sale,100.0,149.96,14996.0
+2026-04-10,2026-04-08,Slowe Christopher Brian,Chief Technology Officer,S,Sale,500.0,148.83,74415.0
+2026-04-10,2026-04-08,Slowe Christopher Brian,Chief Technology Officer,G,Gift,8000.0,0.0,
+2026-04-10,2026-04-08,Slowe Christopher Brian,Chief Technology Officer,S,Sale,1700.0,146.83,249611.0
+2026-04-10,2026-04-08,Slowe Christopher Brian,Chief Technology Officer,S,Sale,3200.0,144.83,463456.0
+2026-04-10,2026-04-08,Slowe Christopher Brian,Chief Technology Officer,M,Option exercise,7500.0,7.92,59400.0
+2026-04-10,2026-04-08,Slowe Christopher Brian,Chief Technology Officer,G,Gift,8000.0,0.0,
+2026-04-10,2026-04-08,Slowe Christopher Brian,Chief Technology Officer,S,Sale,300.0,145.83,43749.0
+2026-04-07,2026-04-05,Gale Mary Porter,Director,A,Award,105.0,0.0,
+2026-04-07,2026-04-05,Newhouse Steven O,Director,A,Award,112.0,0.0,
+2026-04-07,2026-04-05,FILIKRUSHEL PATRICIA,Director,A,Award,120.0,0.0,
+2026-04-07,2026-04-05,Habiger David C,Director,A,Award,278.0,0.0,
+2026-04-07,2026-04-05,Seibel Michael,Director,A,Award,101.0,0.0,
+2026-04-07,2026-04-05,FARRELL SARAH E,Director,A,Award,123.0,0.0,
+2026-04-02,2026-03-31,Huffman Steve Ladd,CEO & President,M,Option exercise,18000.0,25.29,455220.0
+2026-04-02,2026-03-31,Huffman Steve Ladd,CEO & President,S,Sale,700.0,126.4,88480.0
+2026-04-02,2026-03-31,Huffman Steve Ladd,CEO & President,S,Sale,400.0,127.44,50976.0
+2026-04-02,2026-03-31,Huffman Steve Ladd,CEO & President,S,Sale,1700.0,128.57,218569.0
+2026-04-02,2026-03-31,Huffman Steve Ladd,CEO & President,S,Sale,900.0,129.4,116460.0
+2026-04-02,2026-03-31,Huffman Steve Ladd,CEO & President,S,Sale,897.0,130.94,117453.18
+2026-04-02,2026-03-31,Huffman Steve Ladd,CEO & President,S,Sale,2103.0,131.64,276838.92
+2026-04-02,2026-03-31,Huffman Steve Ladd,CEO & President,S,Sale,3848.0,134.16,516247.68
+2026-04-02,2026-03-31,Huffman Steve Ladd,CEO & President,S,Sale,7452.0,134.84,1004827.68

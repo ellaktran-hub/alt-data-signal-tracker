@@ -1,0 +1,51 @@
+filed_date,period_date,insider_name,title,transaction_code,transaction_type,shares,price_per_share,total_value
+2026-06-23,2026-06-22,Keough Kelli,"EVP, GBUL, SIPS",S,Sale,10954.0,17.3506,190058.47
+2026-06-22,2026-06-17,Lavet Robert S,General Counsel,M,Option exercise,2823.0,,
+2026-06-22,2026-06-17,Lavet Robert S,General Counsel,S,Sale,1188.0,17.546,20844.65
+2026-06-22,2026-06-17,Meltzer Gary,Director,M,Option exercise,2823.0,,
+2026-06-16,2026-06-16,Noto Anthony,Chief Executive Officer,P,Purchase,13888.0,18.0578,250786.73
+2026-06-17,2026-06-15,Keough Kelli,"EVP, GBUL, SIPS",M,Option exercise,26477.0,,
+2026-06-17,2026-06-15,Schuppenhauer Eric,EVP  GBUL Borrow,M,Option exercise,6493.0,,
+2026-06-17,2026-06-15,Pinto Arun,Chief Risk Officer,F,Tax withholding (sale),11029.0,17.606,194176.57
+2026-06-17,2026-06-15,Pinto Arun,Chief Risk Officer,M,Option exercise,9739.0,,
+2026-06-17,2026-06-15,Pinto Arun,Chief Risk Officer,M,Option exercise,11434.0,,
+2026-06-17,2026-06-15,Lavet Robert S,General Counsel,F,Tax withholding (sale),14914.0,17.606,262575.88
+2026-06-17,2026-06-15,Lavet Robert S,General Counsel,M,Option exercise,36057.0,,
+2026-06-17,2026-06-15,Keough Kelli,"EVP, GBUL, SIPS",F,Tax withholding (sale),61479.0,17.606,1082399.27
+2026-06-17,2026-06-15,Keough Kelli,"EVP, GBUL, SIPS",M,Option exercise,5681.0,,
+2026-06-17,2026-06-15,Keough Kelli,"EVP, GBUL, SIPS",M,Option exercise,13068.0,,
+2026-06-17,2026-06-15,Schuppenhauer Eric,EVP  GBUL Borrow,F,Tax withholding (sale),2509.0,17.606,44173.45
+2026-06-17,2026-06-15,Keough Kelli,"EVP, GBUL, SIPS",M,Option exercise,82642.0,,
+2026-06-17,2026-06-15,Lapointe Christopher,CFO and PAO,M,Option exercise,14609.0,,
+2026-06-17,2026-06-15,YESIL MAGDALENA,Director,G,Gift,433104.0,0.0,
+2026-06-17,2026-06-15,Lapointe Christopher,CFO and PAO,M,Option exercise,52953.0,,
+2026-06-17,2026-06-15,Lapointe Christopher,CFO and PAO,M,Option exercise,36590.0,,
+2026-06-17,2026-06-15,YESIL MAGDALENA,Director,G,Gift,433104.0,0.0,
+2026-06-17,2026-06-15,Lapointe Christopher,CFO and PAO,F,Tax withholding (sale),55219.0,16.58,915531.02
+2026-06-17,2026-06-15,Noto Anthony,Chief Executive Officer,M,Option exercise,136165.0,,
+2026-06-17,2026-06-15,Noto Anthony,Chief Executive Officer,M,Option exercise,154198.0,,
+2026-06-17,2026-06-15,Noto Anthony,Chief Executive Officer,M,Option exercise,55190.0,,
+2026-06-17,2026-06-15,Noto Anthony,Chief Executive Officer,F,Tax withholding (sale),187018.0,16.58,3100758.44
+2026-06-11,2026-06-09,Freiberg Steven J,Director,M,Option exercise,5149.0,,
+2026-06-11,2026-06-09,Lavet Robert S,General Counsel,F,Tax withholding (sale),1020.0,16.059,16380.18
+2026-06-11,2026-06-09,Lavet Robert S,General Counsel,M,Option exercise,5149.0,,
+2026-06-11,2026-06-09,Meltzer Gary,Director,M,Option exercise,18388.0,,
+2026-06-11,2026-06-09,Meltzer Gary,Director,M,Option exercise,5149.0,,
+2026-06-11,2026-06-09,Liang Clara,Director,M,Option exercise,18388.0,,
+2026-06-11,2026-06-09,HUTTON GEORGE THOMPSON,Director,M,Option exercise,18388.0,,
+2026-06-11,2026-06-09,YESIL MAGDALENA,Director,M,Option exercise,18388.0,,
+2026-06-11,2026-06-09,Ruzwana Bashir,Director,M,Option exercise,18388.0,,
+2026-06-17,2026-06-08,Rishel Jeremy,Chief Technology Officer,S,Sale,102123.0,17.78,1815746.94
+2026-06-17,2026-06-08,Rishel Jeremy,Chief Technology Officer,F,Tax withholding (sale),155605.0,17.606,2739581.63
+2026-06-17,2026-06-08,Rishel Jeremy,Chief Technology Officer,M,Option exercise,11362.0,,
+2026-06-17,2026-06-08,Rishel Jeremy,Chief Technology Officer,M,Option exercise,28749.0,,
+2026-06-17,2026-06-08,Rishel Jeremy,Chief Technology Officer,M,Option exercise,271751.0,,
+2026-06-17,2026-06-08,Rishel Jeremy,Chief Technology Officer,A,Award,1315.471,13.626,17924.61
+2026-05-22,2026-05-20,Keough Kelli,"EVP, GBUL, SIPS",S,Sale,10037.0,15.5346,155920.78
+2026-05-18,2026-05-14,Schuppenhauer Eric,EVP  GBUL Borrow,M,Option exercise,55731.0,,
+2026-05-18,2026-05-14,Schuppenhauer Eric,EVP  GBUL Borrow,F,Tax withholding (sale),22542.0,15.493,349243.21
+2026-05-18,2026-05-14,Pinto Arun,Chief Risk Officer,M,Option exercise,45388.0,,
+2026-05-18,2026-05-14,Pinto Arun,Chief Risk Officer,F,Tax withholding (sale),24805.0,15.493,384303.86
+2026-05-11,2026-05-11,Noto Anthony,Chief Executive Officer,P,Purchase,15545.0,16.0039,248780.63
+2026-05-08,2026-05-08,Noto Anthony,Chief Executive Officer,P,Purchase,15878.0,15.7305,249768.88
+2026-04-23,2026-04-21,Keough Kelli,"EVP, GBUL, SIPS",S,Sale,9742.0,19.2518,187551.04

@@ -1,6 +1,6 @@
 filed_date,period_date,insider_name,title,transaction_code,transaction_type,shares,price_per_share,total_value
 2026-06-18,2026-06-15,WALKER JOHN KENT,"President, Global Affairs, CLO",A,Award,17.0,0.0,
-2026-06-17,2026-06-15,Ferguson Roger W. Jr.,Director,A,Award,1.0,0.0,
+2026-06-18,2026-06-15,ARNOLD FRANCES,Director,A,Award,1.0,0.0,
 2026-06-18,2026-06-15,Ashkenazi Anat,"SVP, Chief Financial Officer",A,Award,15.0,0.0,
 2026-06-18,2026-06-15,Ashkenazi Anat,"SVP, Chief Financial Officer",A,Award,36.0,0.0,
 2026-06-18,2026-06-15,Ashkenazi Anat,"SVP, Chief Financial Officer",A,Award,42.0,0.0,
@@ -14,7 +14,7 @@ filed_date,period_date,insider_name,title,transaction_code,transaction_type,shar
 2026-06-17,2026-06-15,Ferguson Roger W. Jr.,Director,A,Award,0.05,0.0,
 2026-06-17,2026-06-15,Ferguson Roger W. Jr.,Director,A,Award,0.5,0.0,
 2026-06-17,2026-06-15,Ferguson Roger W. Jr.,Director,A,Award,1.0,0.0,
-2026-06-18,2026-06-15,ARNOLD FRANCES,Director,A,Award,1.0,0.0,
+2026-06-17,2026-06-15,Ferguson Roger W. Jr.,Director,A,Award,1.0,0.0,
 2026-06-17,2026-06-15,DOERR L JOHN,Director,A,Award,0.5,0.0,
 2026-06-17,2026-06-15,DOERR L JOHN,Director,A,Award,0.05,0.0,
 2026-06-17,2026-06-15,DOERR L JOHN,Director,A,Award,1.0,0.0,
@@ -27,6 +27,7 @@ filed_date,period_date,insider_name,title,transaction_code,transaction_type,shar
 2026-06-17,2026-06-15,Shriram Kavitark Ram,Director,A,Award,0.5,0.0,
 2026-06-17,2026-06-15,Shriram Kavitark Ram,Director,A,Award,1.0,0.0,
 2026-06-17,2026-06-15,Shriram Kavitark Ram,Director,A,Award,1.0,0.0,
+2026-06-18,2026-06-15,WALKER JOHN KENT,"President, Global Affairs, CLO",A,Award,36.0,0.0,
 2026-06-18,2026-06-15,ARNOLD FRANCES,Director,A,Award,1.0,0.0,
 2026-06-18,2026-06-15,Schindler Philipp,"SVP, Chief Business Officer",A,Award,22.0,0.0,
 2026-06-18,2026-06-15,ARNOLD FRANCES,Director,A,Award,0.5,0.0,
@@ -46,101 +47,101 @@ filed_date,period_date,insider_name,title,transaction_code,transaction_type,shar
 2026-06-18,2026-06-15,Hennessy John L.,Director,S,Sale,177.0,369.21,65350.17
 2026-06-18,2026-06-15,Saraci Marsida,"VP, Chief Accounting Officer",A,Award,1.0,0.0,
 2026-06-18,2026-06-15,Hennessy John L.,Director,S,Sale,51.0,366.01,18666.51
+2026-06-18,2026-06-15,Hennessy John L.,Director,S,Sale,145.0,369.04,53510.8
+2026-06-18,2026-06-15,Hennessy John L.,Director,S,Sale,119.0,369.69,43993.11
+2026-06-18,2026-06-15,Hennessy John L.,Director,S,Sale,68.0,366.34,24911.12
+2026-06-18,2026-06-15,Hennessy John L.,Director,S,Sale,44.0,367.27,16159.88
+2026-06-18,2026-06-15,Hennessy John L.,Director,S,Sale,130.0,368.92,47959.6
 2026-06-18,2026-06-15,Hennessy John L.,Director,S,Sale,158.0,369.66,58406.28
-2026-06-18,2026-06-15,Hennessy John L.,Director,S,Sale,35.0,367.09,12848.15
-2026-06-18,2026-06-15,Hennessy John L.,Director,A,Award,1.0,0.0,
-2026-06-18,2026-06-15,Hennessy John L.,Director,A,Award,1.0,0.0,
 2026-06-18,2026-06-15,Hennessy John L.,Director,A,Award,0.1,0.0,
 2026-06-18,2026-06-15,Hennessy John L.,Director,A,Award,1.0,0.0,
-2026-06-18,2026-06-15,Hennessy John L.,Director,S,Sale,130.0,368.92,47959.6
-2026-06-18,2026-06-15,Hennessy John L.,Director,S,Sale,119.0,369.69,43993.11
-2026-06-18,2026-06-15,Hennessy John L.,Director,S,Sale,44.0,367.27,16159.88
-2026-06-18,2026-06-15,Hennessy John L.,Director,S,Sale,145.0,369.04,53510.8
-2026-06-18,2026-06-15,WALKER JOHN KENT,"President, Global Affairs, CLO",A,Award,36.0,0.0,
-2026-06-18,2026-06-15,Hennessy John L.,Director,S,Sale,68.0,366.34,24911.12
-2026-06-01,2026-05-29,Shriram Kavitark Ram,Director,G,Gift,87652.0,0.0,
-2026-06-01,2026-05-29,Shriram Kavitark Ram,Director,G,Gift,87652.0,0.0,
+2026-06-18,2026-06-15,Hennessy John L.,Director,A,Award,1.0,0.0,
+2026-06-18,2026-06-15,Hennessy John L.,Director,A,Award,1.0,0.0,
+2026-06-18,2026-06-15,Hennessy John L.,Director,S,Sale,35.0,367.09,12848.15
 2026-06-01,2026-05-29,Shriram Kavitark Ram,Director,G,Gift,87652.0,0.0,
 2026-06-01,2026-05-29,ARNOLD FRANCES,Director,S,Sale,102.0,381.0,38862.0
 2026-06-01,2026-05-29,Shriram Kavitark Ram,Director,G,Gift,87652.0,0.0,
-2026-05-27,2026-05-25,WALKER JOHN KENT,"President, Global Affairs, CLO",F,Tax withholding (sale),1639.0,379.38,621803.82
+2026-06-01,2026-05-29,Shriram Kavitark Ram,Director,G,Gift,87652.0,0.0,
+2026-06-01,2026-05-29,Shriram Kavitark Ram,Director,G,Gift,87652.0,0.0,
 2026-05-27,2026-05-25,Ashkenazi Anat,"SVP, Chief Financial Officer",C,C,1763.0,0.0,
 2026-05-27,2026-05-25,Ashkenazi Anat,"SVP, Chief Financial Officer",F,Tax withholding (sale),1780.0,379.38,675296.4
 2026-05-27,2026-05-25,Ashkenazi Anat,"SVP, Chief Financial Officer",C,C,1763.0,0.0,
 2026-05-27,2026-05-25,Porat Ruth,President and CIO,C,C,1624.0,0.0,
 2026-05-27,2026-05-25,Porat Ruth,President and CIO,F,Tax withholding (sale),1639.0,379.38,621803.82
+2026-05-27,2026-05-25,WALKER JOHN KENT,"President, Global Affairs, CLO",F,Tax withholding (sale),1639.0,379.38,621803.82
+2026-05-27,2026-05-25,WALKER JOHN KENT,"President, Global Affairs, CLO",C,C,1624.0,0.0,
 2026-05-27,2026-05-25,Porat Ruth,President and CIO,C,C,1624.0,0.0,
 2026-05-27,2026-05-25,WALKER JOHN KENT,"President, Global Affairs, CLO",C,C,1624.0,0.0,
-2026-05-27,2026-05-25,WALKER JOHN KENT,"President, Global Affairs, CLO",C,C,1624.0,0.0,
-2026-05-27,2026-05-25,Pichai Sundar,Chief Executive Officer,F,Tax withholding (sale),3700.0,379.38,1403706.0
-2026-05-27,2026-05-25,Pichai Sundar,Chief Executive Officer,C,C,3666.0,0.0,
+2026-05-27,2026-05-25,Schindler Philipp,"SVP, Chief Business Officer",C,C,1995.0,0.0,
 2026-05-27,2026-05-25,Schindler Philipp,"SVP, Chief Business Officer",C,C,1995.0,0.0,
 2026-05-27,2026-05-25,Schindler Philipp,"SVP, Chief Business Officer",F,Tax withholding (sale),2013.0,379.38,763691.94
-2026-05-27,2026-05-25,Schindler Philipp,"SVP, Chief Business Officer",C,C,1995.0,0.0,
 2026-05-27,2026-05-25,Pichai Sundar,Chief Executive Officer,C,C,3666.0,0.0,
+2026-05-27,2026-05-25,Pichai Sundar,Chief Executive Officer,C,C,3666.0,0.0,
+2026-05-27,2026-05-25,Pichai Sundar,Chief Executive Officer,F,Tax withholding (sale),3700.0,379.38,1403706.0
 2026-05-20,2026-05-18,Schindler Philipp,"SVP, Chief Business Officer",G,Gift,452.0,0.0,
 2026-05-20,2026-05-18,Schindler Philipp,"SVP, Chief Business Officer",G,Gift,452.0,0.0,
 2026-05-20,2026-05-18,Schindler Philipp,"SVP, Chief Business Officer",G,Gift,250.0,0.0,
 2026-05-20,2026-05-18,Schindler Philipp,"SVP, Chief Business Officer",G,Gift,179.0,0.0,
+2026-05-19,2026-05-15,Hennessy John L.,Director,S,Sale,171.0,393.54,67295.34
+2026-05-19,2026-05-15,Hennessy John L.,Director,S,Sale,32.0,391.2,12518.4
+2026-05-19,2026-05-15,Hennessy John L.,Director,S,Sale,199.0,392.79,78165.21
 2026-05-19,2026-05-15,Hennessy John L.,Director,S,Sale,45.0,394.96,17773.2
 2026-05-19,2026-05-15,Hennessy John L.,Director,S,Sale,31.0,395.42,12258.02
-2026-05-19,2026-05-15,Hennessy John L.,Director,S,Sale,32.0,391.2,12518.4
-2026-05-19,2026-05-15,Hennessy John L.,Director,S,Sale,138.0,393.79,54343.02
-2026-05-19,2026-05-15,Hennessy John L.,Director,S,Sale,199.0,392.79,78165.21
-2026-05-19,2026-05-15,Hennessy John L.,Director,S,Sale,134.0,392.86,52643.24
-2026-05-19,2026-05-15,Hennessy John L.,Director,S,Sale,171.0,393.54,67295.34
 2026-05-19,2026-05-15,Hennessy John L.,Director,S,Sale,134.0,392.41,52582.94
+2026-05-19,2026-05-15,Hennessy John L.,Director,S,Sale,134.0,392.86,52643.24
 2026-05-19,2026-05-15,Hennessy John L.,Director,S,Sale,39.0,394.95,15403.05
-2026-05-19,2026-05-15,Hennessy John L.,Director,S,Sale,90.0,393.75,35437.5
 2026-05-19,2026-05-15,Hennessy John L.,Director,S,Sale,37.0,391.89,14499.93
+2026-05-19,2026-05-15,Hennessy John L.,Director,S,Sale,138.0,393.79,54343.02
+2026-05-19,2026-05-15,Hennessy John L.,Director,S,Sale,90.0,393.75,35437.5
+2026-05-18,2026-05-14,"GV 2019 GP, L.L.C.",false,S,Sale,60077.0,23.0093,1382329.72
 2026-05-18,2026-05-14,"GV 2019 GP, L.L.C.",false,J,Other acquisition,87475.0,0.0,
 2026-05-18,2026-05-14,"GV 2019 GP, L.L.C.",false,S,Sale,45410.0,23.2691,1056649.83
 2026-05-18,2026-05-14,"GV 2019 GP, L.L.C.",false,S,Sale,42065.0,24.2679,1020829.21
-2026-05-18,2026-05-14,"GV 2019 GP, L.L.C.",false,S,Sale,60077.0,23.0093,1382329.72
 2026-05-18,2026-05-14,"GV 2019 GP, L.L.C.",false,J,Other acquisition,60077.0,0.0,
 2026-05-01,2026-04-30,ARNOLD FRANCES,Director,S,Sale,102.0,371.0,37842.0
-2026-04-29,2026-04-25,Schindler Philipp,"SVP, Chief Business Officer",C,C,7980.0,0.0,
-2026-04-28,2026-04-25,Pichai Sundar,Chief Executive Officer,C,C,3666.0,0.0,
-2026-04-28,2026-04-25,Pichai Sundar,Chief Executive Officer,F,Tax withholding (sale),3700.0,0.0,
-2026-04-28,2026-04-25,Pichai Sundar,Chief Executive Officer,C,C,3666.0,0.0,
-2026-04-28,2026-04-25,Ashkenazi Anat,"SVP, Chief Financial Officer",F,Tax withholding (sale),7117.0,0.0,
-2026-04-28,2026-04-25,Ashkenazi Anat,"SVP, Chief Financial Officer",C,C,7051.0,0.0,
 2026-04-28,2026-04-25,Ashkenazi Anat,"SVP, Chief Financial Officer",C,C,7051.0,0.0,
 2026-04-28,2026-04-25,WALKER JOHN KENT,"President, Global Affairs, CLO",C,C,6495.0,0.0,
 2026-04-28,2026-04-25,WALKER JOHN KENT,"President, Global Affairs, CLO",F,Tax withholding (sale),6555.0,0.0,
 2026-04-28,2026-04-25,WALKER JOHN KENT,"President, Global Affairs, CLO",C,C,6495.0,0.0,
 2026-04-29,2026-04-25,Schindler Philipp,"SVP, Chief Business Officer",F,Tax withholding (sale),8054.0,342.32,2757045.28
+2026-04-28,2026-04-25,Ashkenazi Anat,"SVP, Chief Financial Officer",C,C,7051.0,0.0,
+2026-04-28,2026-04-25,Ashkenazi Anat,"SVP, Chief Financial Officer",F,Tax withholding (sale),7117.0,0.0,
+2026-04-28,2026-04-25,Pichai Sundar,Chief Executive Officer,C,C,3666.0,0.0,
+2026-04-28,2026-04-25,Pichai Sundar,Chief Executive Officer,C,C,3666.0,0.0,
+2026-04-28,2026-04-25,Pichai Sundar,Chief Executive Officer,F,Tax withholding (sale),3700.0,0.0,
 2026-04-29,2026-04-25,Schindler Philipp,"SVP, Chief Business Officer",C,C,7980.0,0.0,
-2026-04-17,2026-04-15,Hennessy John L.,Director,S,Sale,34.0,329.88,11215.92
-2026-04-17,2026-04-15,Hennessy John L.,Director,S,Sale,137.0,330.91,45334.67
-2026-04-17,2026-04-15,Hennessy John L.,Director,S,Sale,68.0,331.88,22567.84
-2026-04-17,2026-04-15,Hennessy John L.,Director,S,Sale,85.0,332.92,28298.2
-2026-04-17,2026-04-15,Hennessy John L.,Director,S,Sale,68.0,329.78,22425.04
-2026-04-17,2026-04-15,Hennessy John L.,Director,S,Sale,142.0,330.67,46955.14
-2026-04-17,2026-04-15,Hennessy John L.,Director,S,Sale,64.0,331.84,21237.76
-2026-04-17,2026-04-15,Hennessy John L.,Director,S,Sale,95.0,332.81,31616.95
-2026-04-17,2026-04-15,Hennessy John L.,Director,S,Sale,105.0,330.54,34706.7
+2026-04-29,2026-04-25,Schindler Philipp,"SVP, Chief Business Officer",C,C,7980.0,0.0,
 2026-04-17,2026-04-15,Hennessy John L.,Director,S,Sale,105.0,331.74,34832.7
-2026-04-17,2026-04-15,Hennessy John L.,Director,S,Sale,75.0,332.91,24968.25
+2026-04-17,2026-04-15,Hennessy John L.,Director,S,Sale,95.0,332.81,31616.95
+2026-04-17,2026-04-15,Hennessy John L.,Director,S,Sale,64.0,331.84,21237.76
+2026-04-17,2026-04-15,Hennessy John L.,Director,S,Sale,142.0,330.67,46955.14
+2026-04-17,2026-04-15,Hennessy John L.,Director,S,Sale,68.0,329.78,22425.04
+2026-04-17,2026-04-15,Hennessy John L.,Director,S,Sale,68.0,331.88,22567.84
+2026-04-17,2026-04-15,Hennessy John L.,Director,S,Sale,137.0,330.91,45334.67
+2026-04-17,2026-04-15,Hennessy John L.,Director,S,Sale,34.0,329.88,11215.92
 2026-04-17,2026-04-15,Hennessy John L.,Director,S,Sale,72.0,334.35,24073.2
+2026-04-17,2026-04-15,Hennessy John L.,Director,S,Sale,75.0,332.91,24968.25
+2026-04-17,2026-04-15,Hennessy John L.,Director,S,Sale,85.0,332.92,28298.2
+2026-04-17,2026-04-15,Hennessy John L.,Director,S,Sale,105.0,330.54,34706.7
 2026-04-10,2026-04-08,Porat Ruth,President and CIO,A,Award,83899.0,0.0,
-2026-04-10,2026-04-08,Schindler Philipp,"SVP, Chief Business Officer",A,Award,106272.0,0.0,
 2026-04-10,2026-04-08,WALKER JOHN KENT,"President, Global Affairs, CLO",A,Award,83899.0,0.0,
 2026-04-10,2026-04-08,Ashkenazi Anat,"SVP, Chief Financial Officer",A,Award,87255.0,0.0,
+2026-04-10,2026-04-08,Schindler Philipp,"SVP, Chief Business Officer",A,Award,106272.0,0.0,
 2026-04-03,2026-04-01,O'Toole Amie Thuener,"VP, Chief Accounting Officer",S,Sale,617.0,289.63,178701.71
+2026-03-31,2026-03-30,ARNOLD FRANCES,Director,S,Sale,102.0,275.19,28069.38
 2026-03-31,2026-03-27,WALKER JOHN KENT,"President, Global Affairs, CLO",S,Sale,2677.0,273.91,733257.07
 2026-03-31,2026-03-27,WALKER JOHN KENT,"President, Global Affairs, CLO",S,Sale,1516.0,274.93,416793.88
+2026-03-31,2026-03-27,WALKER JOHN KENT,"President, Global Affairs, CLO",S,Sale,1400.0,276.21,386694.0
 2026-03-31,2026-03-27,WALKER JOHN KENT,"President, Global Affairs, CLO",S,Sale,2100.0,277.42,582582.0
 2026-03-31,2026-03-27,WALKER JOHN KENT,"President, Global Affairs, CLO",S,Sale,1300.0,278.3,361790.0
 2026-03-31,2026-03-27,WALKER JOHN KENT,"President, Global Affairs, CLO",G,Gift,8993.0,0.0,
-2026-03-31,2026-03-27,WALKER JOHN KENT,"President, Global Affairs, CLO",S,Sale,1400.0,276.21,386694.0
 2026-03-31,2026-03-27,WALKER JOHN KENT,"President, Global Affairs, CLO",G,Gift,8993.0,0.0,
-2026-04-29,2025-11-11,Porat Ruth,President and CIO,F,Tax withholding (sale),6555.0,342.32,2243907.6
+2026-04-29,2025-11-11,Porat Ruth,President and CIO,G,Gift,53305.0,0.0,
 2026-04-29,2025-11-11,Porat Ruth,President and CIO,C,C,6495.0,0.0,
-2026-04-29,2025-11-11,Porat Ruth,President and CIO,G,Gift,53305.0,0.0,
-2026-04-29,2025-11-11,Porat Ruth,President and CIO,G,Gift,53305.0,0.0,
+2026-04-29,2025-11-11,Porat Ruth,President and CIO,F,Tax withholding (sale),6555.0,342.32,2243907.6
 2026-04-29,2025-11-11,Porat Ruth,President and CIO,A,Award,55.0,0.0,
+2026-04-29,2025-11-11,Porat Ruth,President and CIO,G,Gift,64050.0,0.0,
 2026-04-29,2025-11-11,Porat Ruth,President and CIO,A,Award,32.0,0.0,
 2026-04-29,2025-11-11,Porat Ruth,President and CIO,G,Gift,64050.0,0.0,
-2026-04-29,2025-11-11,Porat Ruth,President and CIO,G,Gift,64050.0,0.0,
+2026-04-29,2025-11-11,Porat Ruth,President and CIO,G,Gift,53305.0,0.0,
 2026-04-29,2025-11-11,Porat Ruth,President and CIO,C,C,6495.0,0.0,

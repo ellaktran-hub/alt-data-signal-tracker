@@ -1,0 +1,49 @@
+filed_date,period_date,insider_name,title,transaction_code,transaction_type,shares,price_per_share,total_value
+2026-06-25,2026-06-24,Walcott Wanjiku Juanita,Chief Legal & Bus Affairs Ofc.,S,Sale,14208.0,19.65,279187.2
+2026-06-25,2026-06-23,Silbermann Benjamin,Director,C,C,46875.0,0.0,
+2026-06-25,2026-06-23,Silbermann Benjamin,Director,S,Sale,46875.0,19.8969,932667.19
+2026-06-25,2026-06-23,Silbermann Benjamin,Director,C,C,46875.0,0.0,
+2026-06-25,2026-06-23,Silbermann Benjamin,Director,S,Sale,20341.0,20.1757,410393.91
+2026-06-25,2026-06-23,Silbermann Benjamin,Director,S,Sale,26534.0,19.844,526540.7
+2026-06-23,2026-06-20,Walcott Wanjiku Juanita,Chief Legal & Bus Affairs Ofc.,F,Tax withholding (sale),18625.0,20.27,377528.75
+2026-06-23,2026-06-20,Brown Claude Leonard,Chief Business Officer,F,Tax withholding (sale),63826.0,20.27,1293753.02
+2026-06-23,2026-06-20,Madrigal Matthew,Chief Technology Officer,F,Tax withholding (sale),19958.0,20.27,404548.66
+2026-06-23,2026-06-20,Brau Donnelly Julia,Chief Financial Officer,F,Tax withholding (sale),35941.0,20.27,728524.07
+2026-06-17,2026-06-17,Rajaram Gokul,Director,S,Sale,1050.0,20.85,21892.5
+2026-06-17,2026-06-16,Silbermann Benjamin,Director,S,Sale,46875.0,21.1464,991237.5
+2026-06-17,2026-06-16,Silbermann Benjamin,Director,C,C,46875.0,0.0,
+2026-06-17,2026-06-16,Silbermann Benjamin,Director,S,Sale,46875.0,20.6632,968587.5
+2026-06-17,2026-06-16,Silbermann Benjamin,Director,C,C,46875.0,0.0,
+2026-06-10,2026-06-09,Silbermann Benjamin,Director,C,C,46875.0,0.0,
+2026-06-10,2026-06-09,Silbermann Benjamin,Director,S,Sale,46875.0,21.7798,1020928.13
+2026-06-10,2026-06-09,Silbermann Benjamin,Director,C,C,46875.0,0.0,
+2026-06-10,2026-06-09,Silbermann Benjamin,Director,S,Sale,46875.0,21.4349,1004760.94
+2026-06-04,2026-06-02,Silbermann Benjamin,Director,C,C,46875.0,0.0,
+2026-06-04,2026-06-02,Silbermann Benjamin,Director,S,Sale,46875.0,20.2812,950681.25
+2026-06-04,2026-06-02,Silbermann Benjamin,Director,S,Sale,46875.0,20.4981,960848.44
+2026-06-04,2026-06-02,Silbermann Benjamin,Director,C,C,46875.0,0.0,
+2026-06-02,2026-05-29,Walcott Wanjiku Juanita,Chief Legal & Bus Affairs Ofc.,S,Sale,27337.0,20.4632,559402.5
+2026-05-27,2026-05-22,Bergh Charles V,Director,A,Award,13996.0,19.29,269982.84
+2026-05-27,2026-05-22,Reuter Emily,Director,A,Award,13996.0,19.29,269982.84
+2026-05-27,2026-05-22,Wishom Andrea M,Director,A,Award,13996.0,19.29,269982.84
+2026-05-27,2026-05-22,Reynolds Fredric,Director,A,Award,13996.0,19.29,269982.84
+2026-05-27,2026-05-22,Steelman Kecia,Director,A,Award,13996.0,19.29,269982.84
+2026-05-27,2026-05-22,Schenkel Scott F.,Director,A,Award,13996.0,19.29,269982.84
+2026-05-27,2026-05-22,Coleman Salaam,Director,A,Award,13996.0,19.29,269982.84
+2026-05-27,2026-05-22,Silbermann Benjamin,Director,A,Award,13996.0,19.29,269982.84
+2026-05-27,2026-05-22,Steinberg Marc,Director,A,Award,13996.0,19.29,269982.84
+2026-05-27,2026-05-22,Rajaram Gokul,Director,S,Sale,1050.0,20.0,21000.0
+2026-05-27,2026-05-22,Rajaram Gokul,Director,A,Award,13996.0,19.29,269982.84
+2026-05-22,2026-05-21,Silbermann Benjamin,Director,S,Sale,8414.0,18.84,158519.76
+2026-05-21,2026-05-20,Madrigal Matthew,Chief Technology Officer,F,Tax withholding (sale),27342.0,18.81,514303.02
+2026-05-07,2026-05-06,Brown Claude Leonard,Chief Business Officer,S,Sale,60983.0,20.7735,1266830.35
+2026-04-21,2026-04-20,Ready William J,Chief Executive Officer,F,Tax withholding (sale),32056.0,20.64,661635.84
+2026-04-16,2026-04-15,Rajaram Gokul,Director,S,Sale,2100.0,20.0,42000.0
+2026-04-14,2026-04-10,Brau Donnelly Julia,Chief Financial Officer,A,Award,408028.0,0.0,
+2026-04-14,2026-04-10,Madrigal Matthew,Chief Technology Officer,A,Award,678885.0,0.0,
+2026-04-14,2026-04-10,Ready William J,Chief Executive Officer,A,Award,656456.0,0.0,
+2026-04-14,2026-04-10,Walcott Wanjiku Juanita,Chief Legal & Bus Affairs Ofc.,A,Award,291781.0,0.0,
+2026-04-07,2026-04-07,Acosta Andrea,Chief Accounting Officer,A,Award,123633.0,0.0,
+2026-04-07,2026-04-07,Acosta Andrea,Chief Accounting Officer,A,Award,24252.0,0.0,
+2026-05-27,2022-06-16,KILGORE LESLIE J,Director,A,Award,13996.0,19.29,269982.84
+2026-05-27,2022-06-16,KILGORE LESLIE J,Director,C,C,6838.0,0.0,
